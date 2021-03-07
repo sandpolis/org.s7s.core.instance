@@ -23,5 +23,9 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter-params:5.6.1")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.1")
 
-	api(project(":module:com.sandpolis.core.foundation"))
+	if (project.getParent() == null) {
+		api("com.sandpolis:core.foundation:0.1.0")
+	} else {
+		api(project(":module:com.sandpolis.core.foundation"))
+	}
 }
