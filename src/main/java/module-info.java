@@ -8,6 +8,8 @@
 //                                                                            //
 //============================================================================//
 open module com.sandpolis.core.instance {
+	exports com.sandpolis.core.instance.config;
+	exports com.sandpolis.core.instance.logging;
 	exports com.sandpolis.core.instance.msg;
 	exports com.sandpolis.core.instance.plugin;
 	exports com.sandpolis.core.instance.pref;
@@ -23,6 +25,8 @@ open module com.sandpolis.core.instance {
 	exports com.sandpolis.core.instance.util;
 	exports com.sandpolis.core.instance;
 
+	requires ch.qos.logback.classic;
+	requires ch.qos.logback.core;
 	requires com.google.common;
 	requires com.google.protobuf;
 	requires com.sandpolis.core.foundation;
@@ -30,4 +34,7 @@ open module com.sandpolis.core.instance {
 	requires org.slf4j;
 
 	uses com.sandpolis.core.instance.plugin.SandpolisPlugin;
+
+	provides ch.qos.logback.classic.spi.Configurator
+			with com.sandpolis.core.instance.logging.DefaultLogbackConfigurator;
 }

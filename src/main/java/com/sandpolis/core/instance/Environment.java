@@ -18,9 +18,9 @@ import java.util.Date;
 
 import org.slf4j.Logger;
 
-import com.sandpolis.core.foundation.Config;
-import com.sandpolis.core.foundation.Config.ConfigProperty;
+import com.sandpolis.core.foundation.config.ConfigProperty;
 import com.sandpolis.core.foundation.util.TextUtil;
+import com.sandpolis.core.instance.config.CfgInstance;
 
 /**
  * {@link Environment} contains nformation about the runtime file hierarchy.
@@ -37,32 +37,32 @@ public enum Environment {
 	/**
 	 * The library directory for Java modules.
 	 */
-	LIB(discoverPath(Config.PATH_LIB, JAR.path() == null ? null : JAR.path().getParent())),
+	LIB(discoverPath(CfgInstance.PATH_LIB, JAR.path() == null ? null : JAR.path().getParent())),
 
 	/**
 	 * The configuration directory.
 	 */
-	CFG(discoverPath(Config.PATH_CFG, LIB.path() == null ? null : LIB.path().resolveSibling("config"))),
+	CFG(discoverPath(CfgInstance.PATH_CFG, LIB.path() == null ? null : LIB.path().resolveSibling("config"))),
 
 	/**
 	 * The database data directory.
 	 */
-	DATA(discoverPath(Config.PATH_DATA, LIB.path() == null ? null : LIB.path().resolveSibling("data"))),
+	DATA(discoverPath(CfgInstance.PATH_DATA, LIB.path() == null ? null : LIB.path().resolveSibling("data"))),
 
 	/**
 	 * The log directory.
 	 */
-	LOG(discoverPath(Config.PATH_LOG, LIB.path() == null ? null : LIB.path().resolveSibling("log"))),
+	LOG(discoverPath(CfgInstance.PATH_LOG, LIB.path() == null ? null : LIB.path().resolveSibling("log"))),
 
 	/**
 	 * The plugin directory.
 	 */
-	PLUGIN(discoverPath(Config.PATH_PLUGIN, LIB.path() == null ? null : LIB.path().resolveSibling("plugin"))),
+	PLUGIN(discoverPath(CfgInstance.PATH_PLUGIN, LIB.path() == null ? null : LIB.path().resolveSibling("plugin"))),
 
 	/**
 	 * The temporary directory.
 	 */
-	TMP(discoverPath(Config.PATH_TMP, System.getProperty("java.io.tmpdir")));
+	TMP(discoverPath(CfgInstance.PATH_TMP, System.getProperty("java.io.tmpdir")));
 
 	public static void clearEnvironment() {
 		LIB.set(null);
@@ -117,22 +117,30 @@ public enum Environment {
 	 * @param name The instance name
 	 */
 	public static void printEnvironment(Logger log, String name) {
-		log.info("Launching {} ({})", TextUtil.rainbowText(name),
-				Core.SO_BUILD.getProperty("instance.version", "?.?.?"));
-		log.debug("Core version: {}", Core.SO_BUILD.getProperty("core.version", "?.?.?"));
-		log.debug("  Build timestamp: {}", new Date(Long.parseLong(Core.SO_BUILD.getProperty("build.timestamp", "0"))));
-		log.debug("Runtime timestamp: {}", new Date());
-		log.debug("   Build platform: {}", Core.SO_BUILD.getProperty("build.platform", "Unknown"));
-		log.debug(" Runtime platform: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
-		log.debug("        Build JVM: {}", Core.SO_BUILD.getProperty("build.java.version", "Unknown"));
-		log.debug("      Runtime JVM: {} ({})", System.getProperty("java.version"), System.getProperty("java.vendor"));
-		log.debug("         JAR path: {}", JAR.path);
-		log.debug("         LIB path: {}", LIB.path);
-		log.debug("         LOG path: {}", LOG.path);
-		log.debug("      PLUGIN path: {}", PLUGIN.path);
-		log.debug("        DATA path: {}", DATA.path);
-		log.debug("         CFG path: {}", CFG.path);
-		log.debug("         TMP path: {}", TMP.path);
+		log.info("{} ({})", TextUtil.rainbowText(name), Core.SO_BUILD.getProperty("instance.version", "?.?.?"));
+		if (log.isDebugEnabled()) {
+			log.debug("------------------");
+			log.debug("        Build Env:");
+			log.debug("        Timestamp: {}",
+					new Date(Long.parseLong(Core.SO_BUILD.getProperty("build.timestamp", "0"))));
+			log.debug("         Platform: {}", Core.SO_BUILD.getProperty("build.platform", "Unknown"));
+			log.debug("              JVM: {}", Core.SO_BUILD.getProperty("build.java.version", "Unknown"));
+			log.debug("------------------");
+			log.debug("      Runtime Env:");
+			log.debug("        Timestamp: {}", new Date());
+			log.debug("         Platform: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
+			log.debug("              JVM: {} ({})", System.getProperty("java.version"),
+					System.getProperty("java.vendor"));
+			log.debug("------------------");
+			log.debug("            Paths:");
+			log.debug("         JAR path: {}", JAR.path);
+			log.debug("         LIB path: {}", LIB.path);
+			log.debug("         LOG path: {}", LOG.path);
+			log.debug("      PLUGIN path: {}", PLUGIN.path);
+			log.debug("        DATA path: {}", DATA.path);
+			log.debug("         CFG path: {}", CFG.path);
+			log.debug("         TMP path: {}", TMP.path);
+		}
 	}
 
 	/**

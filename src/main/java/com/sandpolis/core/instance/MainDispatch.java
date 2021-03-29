@@ -24,12 +24,12 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sandpolis.core.foundation.Result.Outcome;
 import com.sandpolis.core.foundation.idle.IdleLoop;
 import com.sandpolis.core.foundation.util.ProtoUtil;
-import com.sandpolis.core.foundation.Config;
-import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
-import com.sandpolis.core.foundation.Result.Outcome;
+import com.sandpolis.core.instance.Metatypes.InstanceType;
+import com.sandpolis.core.instance.config.CfgInstance;
 
 /**
  * {@link MainDispatch} allows the instance's main method to configure
@@ -62,7 +62,7 @@ public final class MainDispatch {
 	private static Class<?> main;
 
 	/**
-	 * The instance's {@link Instance} type.
+	 * The instance's {@link InstanceType} type.
 	 */
 	private static InstanceType instance;
 
@@ -82,10 +82,10 @@ public final class MainDispatch {
 	}
 
 	/**
-	 * Get the {@link Instance} type.
+	 * Get the {@link InstanceType} type.
 	 *
-	 * @return The dispatched {@link Instance} or {@code null} if {@link #dispatch}
-	 *         has not been called
+	 * @return The dispatched {@link InstanceType} or {@code null} if
+	 *         {@link #dispatch} has not been called
 	 */
 	public static InstanceType getInstance() {
 		return instance;
@@ -117,7 +117,7 @@ public final class MainDispatch {
 	 *
 	 * @param main     The {@link Class} which contains the {@code main} to invoke
 	 * @param args     The arguments to be passed to the {@code main}
-	 * @param instance The instance's {@link Instance}
+	 * @param instance The instance's {@link InstanceType}
 	 * @param flavor   The instance's {@link InstanceFlavor}
 	 */
 	public static void dispatch(Class<?> main, String[] args, InstanceType instance, InstanceFlavor flavor) {
@@ -180,7 +180,7 @@ public final class MainDispatch {
 			logTaskSummary(log);
 
 		// Print task summary if required
-		else if (Config.STARTUP_SUMMARY.value().orElse(true))
+		else if (CfgInstance.STARTUP_SUMMARY.value().orElse(true))
 			logTaskSummary(log);
 
 		// Launch idle loop
@@ -509,7 +509,7 @@ public final class MainDispatch {
 	}
 
 	/**
-	 * Serach for task fields in the given class and inject annotations into them.
+	 * Search for task fields in the given class and inject annotations into them.
 	 *
 	 * @param c The class to search
 	 */
