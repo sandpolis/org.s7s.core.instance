@@ -24,9 +24,8 @@ import com.sandpolis.core.instance.state.vst.AbstractSTDomainObject;
 
 /**
  * {@link STCollectionStore} is a store backed by an {@link STDocument} which
- * may exist exclusively in memory (ephemeral collection), in a database
- * (hibernate collection), or on another instance across the network (entangled
- * collection).
+ * may exist exclusively in memory (ephemeral collection), in a database, or on
+ * another instance across the network (entangled collection).
  *
  * @param <V>
  */
@@ -54,18 +53,24 @@ public abstract class STCollectionStore<V extends AbstractSTDomainObject> extend
 		return documents.size();
 	}
 
-	public Optional<V> get(String path) {
-		return Optional.ofNullable(documents.get(path));
+	public Optional<V> get(String id) {
+		return Optional.ofNullable(documents.get(id));
 	}
 
-	public Optional<V> remove(String path) {
-		var item = get(path);
-		if (item.isPresent())
-			removeValue(item.get());
-		return item;
+	public Optional<V> remove(String id) {
+		var item = documents.remove(id);
+		collection.remove(id);
+		return Optional.ofNullable(item);
 	}
 
 	public void removeValue(V value) {
+		for (var entry : documents.entrySet()) {
+			if (entry.getValue().equals(value)) {
+				documents.remove(entry.getKey());
+				collection.remove(entry.getKey());
+				break;
+			}
+		}
 	}
 
 	public void setDocument(STDocument collection) {

@@ -201,6 +201,20 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 	}
 
 	@Override
+	public void remove(String id) {
+		synchronized (documents) {
+			if (documents.remove(id) != null) {
+				return;
+			}
+		}
+		synchronized (attributes) {
+			if (attributes.remove(id) != null) {
+				return;
+			}
+		}
+	}
+
+	@Override
 	public ProtoDocument snapshot(RelativeOid... oids) {
 		var snapshot = ProtoDocument.newBuilder().setPath(oid.last());
 

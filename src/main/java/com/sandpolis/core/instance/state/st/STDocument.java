@@ -148,6 +148,13 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 */
 	public void remove(STDocument document);
 
+	/**
+	 * Remove the given {@link STDocument} or {@link STAttribute} member by id.
+	 *
+	 * @param id The item to remove
+	 */
+	public void remove(String id);
+
 	public default void copyFrom(STDocument other) {
 		other.forEachDocument(document -> {
 			this.document(document.oid().last()).copyFrom(document);
