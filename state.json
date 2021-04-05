@@ -323,7 +323,7 @@
 		]
 	},
 	{
-		"name": "/profile//server/user/",
+		"name": "/user/",
 		"attributes": [
 			{
 				"name": "username",
@@ -408,7 +408,7 @@
 		]
 	},
 	{
-		"name": "/profile//server/group/",
+		"name": "/group/",
 		"attributes": [
 			{
 				"name": "name",
@@ -416,11 +416,11 @@
 			},
 			{
 				"name": "owner",
-				"type": "/profile//server/user"
+				"type": "/user"
 			},
 			{
 				"name": "members",
-				"type": "/profile//server/user",
+				"type": "/user",
 				"list": true
 			},
 			{

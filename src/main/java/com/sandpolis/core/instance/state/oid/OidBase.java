@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public abstract class OidBase implements Oid {
 
-	private final Map<OidData<?>, Object> data = new HashMap<>();
+	private Map<OidData<?>, Object> data = new HashMap<>();
 
 	/**
 	 * The OID unique namespace.
@@ -41,7 +41,7 @@ public abstract class OidBase implements Oid {
 	}
 
 	public OidBase(String namespace, String path) {
-		this(namespace, path.replaceAll("^/", "").split("/"));
+		this(namespace, path.replaceAll("^/+", "").split("/"));
 	}
 
 	@Override
@@ -130,13 +130,17 @@ public abstract class OidBase implements Oid {
 			}
 		}
 
-		return cons.apply(namespace, components);
+		var derived = (OidBase) cons.apply(namespace, components);
+		derived.data = data;
+		return (E) derived;
 	}
 
 	protected <E extends Oid> E tail(BiFunction<String, String[], E> cons, int offset) {
 		if (path.length < offset || offset < 1)
 			throw new IllegalStateException("Invalid tail offset: " + offset);
 
-		return cons.apply(namespace, Arrays.copyOfRange(path, offset, path.length));
+		var derived = (OidBase) cons.apply(namespace, Arrays.copyOfRange(path, offset, path.length));
+		derived.data = data;
+		return (E) derived;
 	}
 }

@@ -114,7 +114,7 @@ public interface Oid extends Comparable<Oid>, Iterable<String> {
 	 * @return Whether the OID is concrete
 	 */
 	public default boolean isConcrete() {
-		return Arrays.stream(path()).anyMatch(String::isEmpty);
+		return !Arrays.stream(path()).anyMatch(String::isEmpty);
 	}
 
 	@Override

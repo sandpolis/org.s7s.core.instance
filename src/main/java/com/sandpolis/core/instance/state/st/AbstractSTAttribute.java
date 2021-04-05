@@ -165,7 +165,7 @@ public abstract class AbstractSTAttribute<T> extends AbstractSTObject<ProtoAttri
 
 		// Ensure serializer is loaded
 		if (serializer == null) {
-			serializer = STAttributeValue.load(oid.getData(OidData.TYPE), oid.getData(OidData.SINGULARITY))[0];
+			serializer = STAttributeValue.load(oid.getData(OidData.TYPE), oid.getData(OidData.SINGULARITY, true))[0];
 		}
 
 		// Add current value
