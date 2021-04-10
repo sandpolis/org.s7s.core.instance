@@ -17,8 +17,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import com.sandpolis.core.instance.State.ProtoDocument;
+import com.sandpolis.core.instance.state.oid.GlobalOid;
 import com.sandpolis.core.instance.state.oid.Oid;
-import com.sandpolis.core.instance.state.oid.RelativeOid;
 import com.sandpolis.core.instance.state.st.ephemeral.EphemeralAttribute;
 import com.sandpolis.core.instance.state.st.ephemeral.EphemeralDocument;
 
@@ -37,14 +37,16 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 	}
 
 	@Override
-	public <E> STAttribute<E> attribute(RelativeOid<STAttribute<E>> oid) {
+	public <E> STAttribute<E> attribute(Oid<STAttribute<E>> oid) {
 
-		if (oid.size() == 1) {
+		var tail = oid.relativize(this.oid);
+
+		if (tail.length == 1) {
 			synchronized (attributes) {
-				STAttribute<?> attribute = attributes.get(oid.first());
+				STAttribute<?> attribute = attributes.get(tail[0]);
 				if (attribute == null) {
-					attribute = attributeConstructor.apply(this, oid.head(1));
-					var previous = attributes.put(oid.first(), attribute);
+					attribute = attributeConstructor.apply(this, this.oid.child(tail[0]));
+					var previous = attributes.put(tail[0], attribute);
 
 //					if (previous == null) {
 //						fireAttributeAddedEvent(this, attribute);
@@ -54,16 +56,16 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 			}
 		} else {
 			synchronized (documents) {
-				STDocument document = documents.get(oid.first());
+				STDocument document = documents.get(tail[0]);
 				if (document == null) {
-					document = documentConstructor.apply(this, oid.head(1));
-					var previous = documents.put(oid.first(), document);
+					document = documentConstructor.apply(this, this.oid.child(tail[0]));
+					var previous = documents.put(tail[0], document);
 
 					if (previous == null) {
 						fireDocumentAddedEvent(this, document);
 					}
 				}
-				return document.attribute(oid.tail());
+				return document.attribute(oid);
 			}
 		}
 	}
@@ -79,23 +81,29 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 	}
 
 	@Override
-	public STDocument document(RelativeOid<STDocument> oid) {
+	public STDocument document(Oid<STDocument> oid) {
+
+		var tail = oid.relativize(this.oid);
 
 		synchronized (documents) {
-			STDocument document = documents.get(oid.first());
-			if (document == null) {
-				document = documentConstructor.apply(this, oid.head(1));
-				var previous = documents.put(oid.first(), document);
-
-				if (previous == null) {
-					fireDocumentAddedEvent(this, document);
-				}
-			}
-			if (oid.size() == 1) {
-				return document;
+			if (tail.length == 1) {
+				return document(tail[0]);
 			} else {
-				return document.document(oid.tail());
+				return document(tail[0]).document(oid);
 			}
+		}
+	}
+
+	@Override
+	public STDocument document(String id) {
+		synchronized (documents) {
+			STDocument document = documents.get(id);
+			if (document == null) {
+				document = documentConstructor.apply(this, oid.child(id));
+				documents.put(id, document);
+				fireDocumentAddedEvent(this, document);
+			}
+			return document;
 		}
 	}
 
@@ -120,34 +128,39 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 	}
 
 	@Override
-	public <E> STAttribute<E> getAttribute(RelativeOid<STAttribute<E>> oid) {
-		if (oid.size() == 1) {
+	public <E> STAttribute<E> getAttribute(Oid<STAttribute<E>> oid) {
+
+		var tail = oid.relativize(this.oid);
+
+		if (tail.length == 1) {
 			synchronized (attributes) {
-				return (STAttribute<E>) attributes.get(oid.first());
+				return (STAttribute<E>) attributes.get(tail[0]);
 			}
 		} else {
 			synchronized (documents) {
-				STDocument document = documents.get(oid.first());
+				STDocument document = documents.get(tail[0]);
 				if (document == null) {
 					return null;
 				}
-				return document.attribute(oid.tail());
+				return document.attribute(oid);
 			}
 		}
 	}
 
 	@Override
-	public STDocument getDocument(RelativeOid<STDocument> oid) {
+	public STDocument getDocument(Oid<STDocument> oid) {
+
+		var tail = oid.relativize(this.oid);
 
 		synchronized (documents) {
-			STDocument document = documents.get(oid.first());
+			STDocument document = documents.get(tail[0]);
 			if (document == null) {
 				return null;
 			}
-			if (oid.size() == 1) {
+			if (tail.length == 1) {
 				return document;
 			} else {
-				return document.document(oid.tail());
+				return document.document(oid);
 			}
 		}
 	}
@@ -165,7 +178,7 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 				} else if (document.getReplacement()) {
 					documents.remove(document.getPath());
 				}
-				document(document.getPath()).merge(document);
+				document(oid().resolve(document.getPath())).merge(document);
 			}
 		}
 
@@ -177,9 +190,14 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 				} else if (attribute.getReplacement()) {
 					attributes.remove(attribute.getPath());
 				}
-				attribute(attribute.getPath()).merge(attribute);
+				attribute((Oid) oid.resolve(attribute.getPath())).merge(attribute);
 			}
 		}
+	}
+
+	@Override
+	public Oid<STDocument> oid() {
+		return (Oid<STDocument>) oid;
 	}
 
 	@Override
@@ -215,7 +233,7 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 	}
 
 	@Override
-	public ProtoDocument snapshot(RelativeOid... oids) {
+	public ProtoDocument snapshot(Oid<?>... oids) {
 		var snapshot = ProtoDocument.newBuilder().setPath(oid.last());
 
 		if (oids.length == 0) {
@@ -227,8 +245,7 @@ public abstract class AbstractSTDocument extends AbstractSTObject<ProtoDocument>
 			}
 		} else {
 			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray()) {
-				var children = Arrays.stream(oids).filter(oid -> oid.first() != head).map(Oid::tail)
-						.toArray(RelativeOid[]::new);
+				var children = Arrays.stream(oids).filter(oid -> oid.first() != head).toArray(GlobalOid[]::new);
 
 				if (documents.containsKey(head))
 					snapshot.addDocument(documents.get(head).snapshot(children));

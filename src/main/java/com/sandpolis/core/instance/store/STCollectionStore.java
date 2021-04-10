@@ -88,7 +88,7 @@ public abstract class STCollectionStore<V extends AbstractSTDomainObject> extend
 
 	public V create(Consumer<AbstractSTDomainObject> configurator) {
 		String id = UUID.randomUUID().toString();
-		V object = constructor.apply(collection.document(id));
+		V object = constructor.apply(collection.document(collection.oid().resolve(id)));
 		configurator.accept(object);
 		documents.put(id, object);
 		return object;

@@ -12,7 +12,7 @@ package com.sandpolis.core.instance.state.st.ephemeral;
 import java.util.HashMap;
 
 import com.sandpolis.core.instance.State.ProtoDocument;
-import com.sandpolis.core.instance.state.oid.AbsoluteOid;
+import com.sandpolis.core.instance.state.oid.GlobalOid;
 import com.sandpolis.core.instance.state.oid.Oid;
 import com.sandpolis.core.instance.state.st.AbstractSTDocument;
 import com.sandpolis.core.instance.state.st.STDocument;
@@ -25,20 +25,20 @@ import com.sandpolis.core.instance.state.st.STDocument;
  */
 public class EphemeralDocument extends AbstractSTDocument implements STDocument {
 
-	public EphemeralDocument(STDocument parent, Oid oid) {
+	public EphemeralDocument(STDocument parent, Oid<STDocument> oid) {
 		super(parent, oid);
 
 		documents = new HashMap<>();
 		attributes = new HashMap<>();
 	}
 
-	public EphemeralDocument(STDocument parent, Oid oid, ProtoDocument document) {
+	public EphemeralDocument(STDocument parent, Oid<STDocument> oid, ProtoDocument document) {
 		this(parent, oid);
 		merge(document);
 	}
 
 	public EphemeralDocument() {
-		this(null, AbsoluteOid.ROOT);
+		this(null, new GlobalOid<>(null));
 	}
 
 	public EphemeralDocument(ProtoDocument document) {

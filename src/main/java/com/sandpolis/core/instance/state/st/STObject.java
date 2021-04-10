@@ -11,7 +11,6 @@ package com.sandpolis.core.instance.state.st;
 
 import com.google.protobuf.MessageLite;
 import com.sandpolis.core.instance.state.oid.Oid;
-import com.sandpolis.core.instance.state.oid.RelativeOid;
 
 /**
  * A {@link STObject} is a member of the real state tree (ST).
@@ -48,7 +47,7 @@ public interface STObject<E extends MessageLite> {
 	 *
 	 * @return The associated OID or {@code null} if the object is a root node
 	 */
-	public Oid oid();
+	public Oid<?> oid();
 
 	/**
 	 * Get this object's parent.
@@ -74,5 +73,5 @@ public interface STObject<E extends MessageLite> {
 	 * @param oids Whitelisted OIDs
 	 * @return A new protocol buffer representing the object
 	 */
-	public E snapshot(RelativeOid... oids);
+	public E snapshot(Oid<?>... oids);
 }

@@ -9,8 +9,7 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.vst;
 
-import com.sandpolis.core.instance.state.oid.AbsoluteOid;
-import com.sandpolis.core.instance.state.oid.RelativeOid;
+import com.sandpolis.core.instance.state.oid.Oid;
 import com.sandpolis.core.instance.state.st.STAttribute;
 import com.sandpolis.core.instance.state.st.STDocument;
 
@@ -22,24 +21,23 @@ public abstract class AbstractSTDomainObject implements STDomainObject {
 		this.document = document;
 	}
 
-	public AbsoluteOid<STDocument> oid() {
-		// TODO
-		return (AbsoluteOid<STDocument>) document.oid();
+	public Oid<STDocument> oid() {
+		return document.oid();
 	}
 
 //	public abstract String getId();
 //
 //	public abstract STAttribute<String> id();
 
-	public <T> STAttribute<T> attribute(RelativeOid<STAttribute<T>> oid) {
+	public <T> STAttribute<T> attribute(Oid<STAttribute<T>> oid) {
 		return document.attribute(oid);
 	}
 
-	public <T> T get(RelativeOid<STAttribute<T>> oid) {
+	public <T> T get(Oid<STAttribute<T>> oid) {
 		return attribute(oid).get();
 	}
 
-	public <T> void set(RelativeOid<STAttribute<T>> oid, T value) {
+	public <T> void set(Oid<STAttribute<T>> oid, T value) {
 		attribute(oid).set(value);
 	}
 }

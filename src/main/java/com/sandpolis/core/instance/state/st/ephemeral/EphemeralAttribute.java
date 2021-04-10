@@ -9,7 +9,7 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st.ephemeral;
 
-import com.sandpolis.core.instance.state.oid.AbsoluteOid;
+import com.sandpolis.core.instance.state.oid.GlobalOid;
 import com.sandpolis.core.instance.state.oid.Oid;
 import com.sandpolis.core.instance.state.st.AbstractSTAttribute;
 import com.sandpolis.core.instance.state.st.STAttribute;
@@ -25,12 +25,12 @@ import com.sandpolis.core.instance.state.st.STDocument;
  */
 public class EphemeralAttribute<T> extends AbstractSTAttribute<T> implements STAttribute<T> {
 
-	public EphemeralAttribute(STDocument parent, Oid oid) {
+	public EphemeralAttribute(STDocument parent, Oid<STAttribute<T>> oid) {
 		super(parent, oid);
 	}
 
 	public EphemeralAttribute() {
-		this(null, AbsoluteOid.ROOT);
+		this(null, new GlobalOid(null));
 	}
 
 	@Override

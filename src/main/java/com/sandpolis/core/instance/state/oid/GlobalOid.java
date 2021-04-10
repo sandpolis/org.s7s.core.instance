@@ -16,9 +16,12 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public abstract class OidBase implements Oid {
+import com.sandpolis.core.instance.state.st.STDocument;
+import com.sandpolis.core.instance.state.st.STObject;
 
-	private Map<OidData<?>, Object> data = new HashMap<>();
+public class GlobalOid<E extends STObject<?>> implements Oid<E> {
+
+	private final Map<OidData<?>, Object> data;
 
 	/**
 	 * The OID unique namespace.
@@ -30,24 +33,33 @@ public abstract class OidBase implements Oid {
 	 */
 	protected final String[] path;
 
-	public OidBase(String namespace, String[] path) {
+	protected Map<String, GlobalOid<?>> cache = new HashMap<>();
+
+	public GlobalOid(String namespace, String[] path, Map<OidData<?>, Object> data) {
 		if (path.length == 0)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Non-root OID cannot have an empty path");
+
 		if (Arrays.stream(path).anyMatch(Objects::isNull))
 			throw new IllegalArgumentException();
 
 		this.namespace = namespace;
 		this.path = path;
+		this.data = data;
+
+		cache.put(namespace + " " + this.toString(), this);
 	}
 
-	public OidBase(String namespace, String path) {
-		this(namespace, path.replaceAll("^/+", "").split("/"));
+	public GlobalOid(String namespace, String path, Map<OidData<?>, Object> data) {
+		this(namespace, path.replaceAll("^/+", "").split("/"), data);
+	}
+
+	public GlobalOid(String namespace) {
+		this(namespace, new String[] {}, Map.of());
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof OidBase) {
-			var other = ((OidBase) obj);
+		if (obj instanceof GlobalOid<?>other) {
 			return namespace == other.namespace && Arrays.equals(path, other.path);
 		}
 		return false;
@@ -60,7 +72,7 @@ public abstract class OidBase implements Oid {
 
 	@Override
 	public int hashCode() {
-		return (namespace + path).hashCode();
+		return namespace.hashCode() * path.hashCode();
 	}
 
 	@Override
@@ -69,14 +81,8 @@ public abstract class OidBase implements Oid {
 	}
 
 	@Override
-	public <T, O extends Oid> O setData(OidData<T> dataType, T item) {
-		data.put(dataType, item);
-		return (O) this;
-	}
-
-	@Override
 	public String toString() {
-		return ((this instanceof AbsoluteOid) ? "/" : "") + Arrays.stream(path).collect(Collectors.joining("/"));
+		return "/" + Arrays.stream(path).collect(Collectors.joining("/"));
 	}
 
 	@Override
@@ -97,24 +103,20 @@ public abstract class OidBase implements Oid {
 		return cons.apply(namespace, Arrays.copyOf(path, length));
 	}
 
-	protected <E extends Oid> E parent(BiFunction<String, String[], E> cons) {
-		if (size() == 1)
-			return null;
-
-		return (E) head(size() - 1);
+	@Override
+	public Oid child(String component) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	protected <E extends RelativeOid> E relativize(BiFunction<String, String[], E> cons, Oid oid) {
-		if (oid == null)
-			return cons.apply(namespace, path.clone());
-
-		if (!isChildOf(oid))
-			throw new IllegalArgumentException("Target: " + this + " must be a child of: " + oid);
-
-		return cons.apply(namespace, Arrays.copyOfRange(path, oid.size(), path.length));
+	@Override
+	public Oid head(int length) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	protected <E extends Oid> E resolve(BiFunction<String, String[], E> cons, String... components) {
+	@Override
+	public Oid<E> resolve(String... components) {
 		if (isConcrete())
 			throw new IllegalStateException("Cannot resolve a concrete OID");
 
@@ -130,17 +132,7 @@ public abstract class OidBase implements Oid {
 			}
 		}
 
-		var derived = (OidBase) cons.apply(namespace, components);
-		derived.data = data;
-		return (E) derived;
+		return new GlobalOid<>(namespace, p, data);
 	}
 
-	protected <E extends Oid> E tail(BiFunction<String, String[], E> cons, int offset) {
-		if (path.length < offset || offset < 1)
-			throw new IllegalStateException("Invalid tail offset: " + offset);
-
-		var derived = (OidBase) cons.apply(namespace, Arrays.copyOfRange(path, offset, path.length));
-		derived.data = data;
-		return (E) derived;
-	}
 }

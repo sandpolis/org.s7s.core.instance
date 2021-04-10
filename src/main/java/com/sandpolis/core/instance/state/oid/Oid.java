@@ -12,6 +12,9 @@ package com.sandpolis.core.instance.state.oid;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.sandpolis.core.instance.state.st.STDocument;
+import com.sandpolis.core.instance.state.st.STObject;
+
 /**
  * <p>
  * An {@link Oid} corresponds to one or more objects in a real or virtual state
@@ -30,14 +33,16 @@ import java.util.Iterator;
  * An OID is either "concrete", meaning that it corresponds to exactly one
  * virtual object, or "generic" which means the OID corresponds to multiple
  * objects of the same type.
- *
- * <h3>Absolute/Relative</h3>
- * <p>
- * An OID is either "absolute", meaning that its head element is the root of the
- * state tree, or "relative" which means the OID is a proper subset of an
- * absolute OID.
  */
-public interface Oid extends Comparable<Oid>, Iterable<String> {
+public interface Oid<E extends STObject<?>> extends Comparable<Oid>, Iterable<String> {
+	
+	public static Oid<?> of(String path) {
+		return of("", path);
+	}
+	
+	public static Oid<?> of(String namespace, String path) {
+		return null;
+	}
 
 	/**
 	 * Extend the OID path by adding the given component to the end. The namespace
@@ -131,21 +136,9 @@ public interface Oid extends Comparable<Oid>, Iterable<String> {
 		return path()[size() - 1];
 	}
 
-	/**
-	 * Get the OID's parent.
-	 *
-	 * @return A new OID or {@code null} if this OID is the root
-	 */
-	public Oid parent();
-
-	/**
-	 * Return an OID that's the result of removing the given OID from the left side
-	 * of {@code this}.
-	 *
-	 * @param oid The reference OID which must be an ancestor of {@code this}
-	 * @return A new OID
-	 */
-	public RelativeOid relativize(Oid oid);
+	public default String[] relativize(Oid<?> oid) {
+		return Arrays.copyOfRange(path(), oid.size(), size());
+	}
 
 	/**
 	 * Return a new OID with its generic components replaced (from left to right)
@@ -156,9 +149,7 @@ public interface Oid extends Comparable<Oid>, Iterable<String> {
 	 * @param components The new components
 	 * @return A new OID
 	 */
-	public Oid resolve(String... components);
-
-	public <T, O extends Oid> O setData(OidData<T> dataType, T data);
+	public Oid<E> resolve(String... components);
 
 	/**
 	 * Get the number of components in the OID.
@@ -168,24 +159,6 @@ public interface Oid extends Comparable<Oid>, Iterable<String> {
 	public default int size() {
 		return path().length;
 	}
-
-	/**
-	 * Return an OID without its first component.
-	 *
-	 * @return A new OID
-	 */
-	public default RelativeOid tail() {
-		return tail(1);
-	}
-
-	/**
-	 * Truncate the OID path by removing components from the start. The namespace is
-	 * preserved by this operation.
-	 *
-	 * @param offset The number of components to truncate
-	 * @return A new OID
-	 */
-	public RelativeOid tail(int offset);
 
 	/**
 	 * Get the OID's path.

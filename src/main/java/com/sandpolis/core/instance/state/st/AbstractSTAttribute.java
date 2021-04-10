@@ -19,7 +19,6 @@ import com.sandpolis.core.instance.State.ProtoAttribute;
 import com.sandpolis.core.instance.State.ProtoAttributeValue;
 import com.sandpolis.core.instance.state.oid.Oid;
 import com.sandpolis.core.instance.state.oid.OidData;
-import com.sandpolis.core.instance.state.oid.RelativeOid;
 import com.sandpolis.core.instance.state.st.ephemeral.EphemeralAttributeValue;
 
 public abstract class AbstractSTAttribute<T> extends AbstractSTObject<ProtoAttribute> implements STAttribute<T> {
@@ -150,7 +149,7 @@ public abstract class AbstractSTAttribute<T> extends AbstractSTObject<ProtoAttri
 	}
 
 	@Override
-	public synchronized ProtoAttribute snapshot(RelativeOid... oids) {
+	public synchronized ProtoAttribute snapshot(Oid<?>... oids) {
 		if (oids.length != 0)
 			throw new UnsupportedOperationException("Partial snapshots are not allowed on attributes");
 
@@ -234,6 +233,11 @@ public abstract class AbstractSTAttribute<T> extends AbstractSTObject<ProtoAttri
 			// Do nothing
 			break;
 		}
+	}
+
+	@Override
+	public Oid<STAttribute<T>> oid() {
+		return (Oid<STAttribute<T>>) oid;
 	}
 
 	protected abstract STAttributeValue<T> newValue(T value);

@@ -34,7 +34,7 @@ public abstract class AbstractSTObject<E extends MessageLite> implements STObjec
 	 */
 	private int listeners;
 
-	protected final Oid oid;
+	protected final Oid<?> oid;
 
 	protected final AbstractSTObject<?> parent;
 
@@ -55,10 +55,6 @@ public abstract class AbstractSTObject<E extends MessageLite> implements STObjec
 		}
 		bus.register(listener);
 		listeners++;
-	}
-
-	public Oid oid() {
-		return oid;
 	}
 
 	@Override

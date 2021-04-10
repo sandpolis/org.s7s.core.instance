@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.sandpolis.core.instance.State.ProtoDocument;
-import com.sandpolis.core.instance.state.oid.RelativeOid;
+import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
  * {@link STDocument} represents a composite entity and may contain attributes,
@@ -56,11 +56,11 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 * @param tag The attribute tag
 	 * @return The attribute associated with the tag
 	 */
-	public <E> STAttribute<E> attribute(RelativeOid<STAttribute<E>> oid);
+	public <E> STAttribute<E> attribute(Oid<STAttribute<E>> oid);
 
-	public default <E> STAttribute<E> attribute(String path) {
-		return attribute(new RelativeOid<>(path));
-	}
+//	public default <E> STAttribute<E> attribute(String path) {
+//		return attribute(new RelativeOid<>(path));
+//	}
 
 	public int attributeCount();
 
@@ -78,11 +78,13 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 * @param oid The relative path to the document
 	 * @return The requested document
 	 */
-	public STDocument document(RelativeOid<STDocument> oid);
+	public STDocument document(Oid<STDocument> oid);
 
-	public default STDocument document(String path) {
-		return document(new RelativeOid<>(path));
-	}
+	public STDocument document(String id);
+
+//	public default STDocument document(String path) {
+//		return document(new RelativeOid<>(path));
+//	}
 
 	public int documentCount();
 
@@ -107,7 +109,7 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 */
 	public void forEachDocument(Consumer<STDocument> consumer);
 
-	public <E> STAttribute<E> getAttribute(RelativeOid<STAttribute<E>> oid);
+	public <E> STAttribute<E> getAttribute(Oid<STAttribute<E>> oid);
 
 	/**
 	 * Get an attribute by its tag. This method returns {@code null} if the
@@ -117,11 +119,13 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 * @param tag The attribute tag
 	 * @return The attribute associated with the tag or {@code null}
 	 */
-	public default <E> STAttribute<E> getAttribute(String path) {
-		return attribute(new RelativeOid<>(path));
-	}
+//	public default <E> STAttribute<E> getAttribute(String path) {
+//		return attribute(new RelativeOid<>(path));
+//	}
 
-	public STDocument getDocument(RelativeOid<STDocument> oid);
+	public STDocument getDocument(Oid<STDocument> oid);
+
+	public Oid<STDocument> oid();
 
 	/**
 	 * Get a document by its relative path. This method returns {@code null} if the
@@ -130,9 +134,9 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 * @param path The relative path to the document
 	 * @return The requested document or {@code null}
 	 */
-	public default STDocument getDocument(String path) {
-		return document(new RelativeOid<>(path));
-	}
+//	public default STDocument getDocument(String path) {
+//		return document(new RelativeOid<>(path));
+//	}
 
 	/**
 	 * Remove the given {@link STAttribute} member.
@@ -156,11 +160,11 @@ public interface STDocument extends STObject<ProtoDocument> {
 	public void remove(String id);
 
 	public default void copyFrom(STDocument other) {
-		other.forEachDocument(document -> {
-			this.document(document.oid().last()).copyFrom(document);
-		});
-		other.forEachAttribute(attribute -> {
-			this.attribute(attribute.oid().last()).set(attribute.get());
-		});
+//		other.forEachDocument(document -> {
+//			this.document(document.oid().last()).copyFrom(document);
+//		});
+//		other.forEachAttribute(attribute -> {
+//			this.attribute(attribute.oid().last()).set(attribute.get());
+//		});
 	}
 }
