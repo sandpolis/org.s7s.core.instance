@@ -12,86 +12,119 @@ package com.sandpolis.core.instance.state.st;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import com.sandpolis.core.instance.State.ProtoDocument;
 import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
- * {@link STDocument} represents a composite entity and may contain attributes,
- * sub-documents, and sub-collections.
+ * {@link STDocument} is a composite entity that may contain attributes and
+ * sub-documents.
  *
  * @since 5.1.1
  */
-public interface STDocument extends STObject<ProtoDocument> {
+public interface STDocument extends STObject {
 
 	/**
 	 * Indicates that an {@link STDocument} has been added to the document.
 	 */
-	public static final class DocumentAddedEvent {
-		public final STDocument document;
-		public final STDocument newDocument;
-
-		public DocumentAddedEvent(STDocument document, STDocument newDocument) {
-			this.document = document;
-			this.newDocument = newDocument;
-		}
+	public static final record DocumentAddedEvent(STDocument document, STDocument newDocument) {
 	}
 
 	/**
 	 * Indicates that an {@link STDocument} has been removed from the document.
 	 */
-	public static final class DocumentRemovedEvent {
-		public final STDocument document;
-		public final STDocument oldDocument;
-
-		public DocumentRemovedEvent(STDocument document, STDocument oldDocument) {
-			this.document = document;
-			this.oldDocument = oldDocument;
-		}
+	public static final record DocumentRemovedEvent(STDocument document, STDocument oldDocument) {
 	}
 
 	/**
-	 * Get an attribute by its tag. This method never returns {@code null}.
-	 *
-	 * @param <E> The type of the attribute's value
-	 * @param tag The attribute tag
-	 * @return The attribute associated with the tag
+	 * Retrieve or create an attribute at the given OID. Any intermediate documents
+	 * will be created if necessary.
+	 * 
+	 * @param oid An OID which must be a descendant of this document's OID
+	 * @return A new or old attribute
 	 */
-	public <E> STAttribute<E> attribute(Oid<STAttribute<E>> oid);
+	public default STAttribute attribute(Oid oid) {
+		return attribute(oid.path());
+	}
 
-//	public default <E> STAttribute<E> attribute(String path) {
-//		return attribute(new RelativeOid<>(path));
-//	}
+	/**
+	 * Retrieve or create a child attribute with the given ID.
+	 * 
+	 * @param id The child ID
+	 * @return A new or old attribute
+	 */
+	public STAttribute attribute(String id);
 
+	/**
+	 * Retrieve or create an attribute at the given OID. Any intermediate documents
+	 * will be created if necessary.
+	 * 
+	 * @param path An OID path which must be a descendant of this document's OID
+	 * @return A new or old attribute
+	 */
+	public default STAttribute attribute(String[] path) {
+
+		if (path.length == 0) {
+			throw new IllegalArgumentException("Empty OID path");
+		}
+		if (!oid().isAncestorOf(path)) {
+			throw new IllegalArgumentException("OID not a descendant");
+		}
+		if ((path.length - oid().path().length) == 1) {
+			return attribute(path[path.length - 1]);
+		}
+
+		STDocument document = this;
+		for (int i = oid().path().length - 1; i < path.length - 1; i++) {
+			document = document(path[i]);
+		}
+
+		return document.attribute(path[path.length - 1]);
+	}
+
+	/**
+	 * @return The number of sub-attributes belonging to this document
+	 */
 	public int attributeCount();
 
 	/**
-	 * Get all attributes in the document.
-	 *
-	 * @return A collection of all attributes
+	 * @return A collection of all sub-attributes
 	 */
-	public Collection<STAttribute<?>> attributes();
+	public Collection<STAttribute> attributes();
 
-	/**
-	 * Get a document by its relative path, creating any necessary objects along the
-	 * way.
-	 *
-	 * @param oid The relative path to the document
-	 * @return The requested document
-	 */
-	public STDocument document(Oid<STDocument> oid);
+	public default void copyFrom(STDocument other) {
+		other.forEachDocument(document -> {
+			this.document(document.oid().last()).copyFrom(document);
+		});
+		other.forEachAttribute(attribute -> {
+			this.attribute(attribute.oid().last()).set(attribute.get());
+		});
+	}
+
+	public default STDocument document(Oid oid) {
+		return document(oid.path());
+	}
 
 	public STDocument document(String id);
 
-//	public default STDocument document(String path) {
-//		return document(new RelativeOid<>(path));
-//	}
+	public default STDocument document(String[] path) {
+		if (path.length == 0) {
+			throw new IllegalArgumentException();
+		}
 
+		STDocument document = this;
+		for (int i = 0; i < path.length - 1; i++) {
+			document = document(path[i]);
+		}
+
+		return document.document(path[path.length - 1]);
+	}
+
+	/**
+	 * @return The number of sub-documents belonging to this document
+	 */
 	public int documentCount();
 
 	/**
-	 * Get an immutable collection of all {@link STDocument} members.
-	 *
-	 * @return The requested documents
+	 * @return An immutable collection of all {@link STDocument} members
 	 */
 	public Collection<STDocument> documents();
 
@@ -100,50 +133,25 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 *
 	 * @param consumer The action
 	 */
-	public void forEachAttribute(Consumer<STAttribute<?>> consumer);
+	public default void forEachAttribute(Consumer<STAttribute> consumer) {
+		attributes().forEach(consumer);
+	}
 
 	/**
 	 * Perform the given action on all {@link STDocument} members.
 	 *
 	 * @param consumer The action
 	 */
-	public void forEachDocument(Consumer<STDocument> consumer);
-
-	public <E> STAttribute<E> getAttribute(Oid<STAttribute<E>> oid);
-
-	/**
-	 * Get an attribute by its tag. This method returns {@code null} if the
-	 * attribute doesn't exist.
-	 *
-	 * @param <E> The type of the attribute's value
-	 * @param tag The attribute tag
-	 * @return The attribute associated with the tag or {@code null}
-	 */
-//	public default <E> STAttribute<E> getAttribute(String path) {
-//		return attribute(new RelativeOid<>(path));
-//	}
-
-	public STDocument getDocument(Oid<STDocument> oid);
-
-	public Oid<STDocument> oid();
-
-	/**
-	 * Get a document by its relative path. This method returns {@code null} if the
-	 * document doesn't exist.
-	 *
-	 * @param path The relative path to the document
-	 * @return The requested document or {@code null}
-	 */
-//	public default STDocument getDocument(String path) {
-//		return document(new RelativeOid<>(path));
-//	}
+	public default void forEachDocument(Consumer<STDocument> consumer) {
+		documents().forEach(consumer);
+	}
 
 	/**
 	 * Remove the given {@link STAttribute} member.
 	 *
 	 * @param attribute The attribute to remove
 	 */
-	public void remove(STAttribute<?> attribute);
+	public void remove(STAttribute attribute);
 
 	/**
 	 * Remove the given {@link STDocument} member.
@@ -159,12 +167,7 @@ public interface STDocument extends STObject<ProtoDocument> {
 	 */
 	public void remove(String id);
 
-	public default void copyFrom(STDocument other) {
-//		other.forEachDocument(document -> {
-//			this.document(document.oid().last()).copyFrom(document);
-//		});
-//		other.forEachAttribute(attribute -> {
-//			this.attribute(attribute.oid().last()).set(attribute.get());
-//		});
-	}
+	public void set(String id, STAttribute attribute);
+
+	public void set(String id, STDocument document);
 }

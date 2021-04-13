@@ -10,9 +10,10 @@
 package com.sandpolis.core.instance.state.oid;
 
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import com.sandpolis.core.instance.state.st.STDocument;
 import com.sandpolis.core.instance.state.st.STObject;
 
 /**
@@ -22,11 +23,8 @@ import com.sandpolis.core.instance.state.st.STObject;
  * strings called the "path".
  *
  * <p>
- * OIDs also contain mutable data which are accessible via {@link OidData}.
- *
- * <p>
- * When represented as a String, OID components are joined with "." which is
- * known as dotted-notation.
+ * When represented as a String, OID components are joined with "/" and prefixed
+ * with the namespace followed by a ":".
  *
  * <h3>Concrete/Generic</h3>
  * <p>
@@ -34,69 +32,109 @@ import com.sandpolis.core.instance.state.st.STObject;
  * virtual object, or "generic" which means the OID corresponds to multiple
  * objects of the same type.
  */
-public interface Oid<E extends STObject<?>> extends Comparable<Oid>, Iterable<String> {
-	
-	public static Oid<?> of(String path) {
-		return of("", path);
-	}
-	
-	public static Oid<?> of(String namespace, String path) {
-		return null;
+public class Oid implements Comparable<Oid> {
+
+	private static final Pattern ATTR_QUANTIFIER = Pattern.compile(".+\\[(.*)\\.\\.(.*)\\]$");
+
+	public static Oid of(String oid, String... resolutions) {
+		Objects.requireNonNull(oid);
+
+		String namespace;
+		String[] path;
+
+		var components = oid.split(":");
+		if (components.length == 1) {
+			namespace = "com.sandpolis.core.instance";
+			path = oid.replaceAll("^/+", "").split("/");
+		} else if (components.length == 2) {
+			namespace = components[0];
+			path = components[1].replaceAll("^/+", "").split("/");
+		} else {
+			throw new IllegalArgumentException("Invalid namespace");
+		}
+
+		int i = 0;
+		for (var r : resolutions) {
+			for (; i < path.length; i++) {
+				if (path[i].isEmpty()) {
+					path[i] = r;
+					break;
+				}
+			}
+		}
+
+		return new Oid(namespace, path);
 	}
 
 	/**
-	 * Extend the OID path by adding the given component to the end. The namespace
-	 * is preserved by this operation.
-	 *
-	 * @param component The new component
-	 * @return A new OID
+	 * The OID unique namespace.
 	 */
-	public Oid child(String component);
+	protected final String namespace;
+
+	/**
+	 * The OID path.
+	 */
+	protected final String[] path;
+
+	/**
+	 * A timestamp range that selects values from attribute history.
+	 */
+	protected final long[] quantifier;
+
+	protected Oid(String namespace, String[] path) {
+		this.namespace = namespace;
+		this.path = path;
+
+		// Parse quantifier if present
+		var matcher = ATTR_QUANTIFIER.matcher(path[path.length - 1]);
+		if (matcher.matches()) {
+			quantifier = new long[] { 0, Long.MAX_VALUE };
+
+			String start = matcher.group(1);
+			String end = matcher.group(2);
+
+			if (!start.isBlank()) {
+				quantifier[0] = Long.parseLong(start);
+			}
+			if (!end.isBlank()) {
+				quantifier[1] = Long.parseLong(end);
+			}
+		} else {
+			quantifier = null;
+		}
+	}
+
+	public Oid child(String id) {
+		String[] childPath = Arrays.copyOf(path, path.length + 1);
+		childPath[childPath.length - 1] = id;
+		return new Oid(namespace, childPath);
+	}
 
 	@Override
-	public default int compareTo(Oid oid) {
+	public int compareTo(Oid oid) {
 		return Arrays.compare(path(), oid.path());
 	}
 
-	/**
-	 * Get the first (leftmost) component of the OID path.
-	 *
-	 * @return The path's first component
-	 */
-	public default String first() {
-		return path()[0];
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Oid other) {
+			return namespace == other.namespace && Arrays.equals(path, other.path);
+		}
+		return false;
 	}
 
-	/**
-	 * Get auxiliary data attached to this OID.
-	 *
-	 * @param <T>      The type of the attached data
-	 * @param dataType
-	 * @return The attached data
-	 */
-	public <T> T getData(OidData<T> dataType);
-
-	/**
-	 * Get auxiliary data attached to this OID.
-	 *
-	 * @param <T>         The type of the attached data
-	 * @param dataType
-	 * @param defaultItem A default item
-	 * @return The attached data
-	 */
-	public default <T> T getData(OidData<T> dataType, T defaultItem) {
-		T item = getData(dataType);
-		return item == null ? defaultItem : item;
+	public String first() {
+		return path[0];
 	}
 
-	/**
-	 * Truncate the OID path by removing components from the end. The namespace is
-	 * preserved by this operation.
-	 *
-	 * @param length The length of the new OID
-	 * @return A new OID
-	 */
-	public Oid head(int length);
+	public <E extends STObject> E get() {
+		return null;
+	}
+
+	@Override
+	public int hashCode() {
+		return namespace.hashCode() * path.hashCode();
+	}
 
 	/**
 	 * Determine whether this OID is a descendant of the given OID.
@@ -104,11 +142,48 @@ public interface Oid<E extends STObject<?>> extends Comparable<Oid>, Iterable<St
 	 * @param oid The ancestor OID
 	 * @return Whether this OID is a descendant
 	 */
-	public default boolean isChildOf(Oid oid) {
-		if (oid == null)
-			return true;
+	public boolean isDescendantOf(Oid oid) {
+		Objects.requireNonNull(oid);
 
-		return Arrays.mismatch(path(), oid.path()) == Math.min(size(), oid.size());
+		return isDescendantOf(oid.path);
+	}
+
+	/**
+	 * Determine whether this OID is an ancestor of the given OID.
+	 *
+	 * @param oid The descendant OID
+	 * @return Whether this OID is an ancestor
+	 */
+	public boolean isAncestorOf(Oid oid) {
+		Objects.requireNonNull(oid);
+
+		return isAncestorOf(oid.path);
+	}
+
+	/**
+	 * Determine whether this OID is a descendant of the given OID.
+	 *
+	 * @param oid The ancestor OID
+	 * @return Whether this OID is a descendant
+	 */
+	public boolean isDescendantOf(String[] path) {
+		Objects.requireNonNull(path);
+
+		// TODO
+		return Arrays.mismatch(this.path, path) == Math.min(this.path.length, path.length);
+	}
+
+	/**
+	 * Determine whether this OID is an ancestor of the given OID.
+	 *
+	 * @param oid The descendant OID
+	 * @return Whether this OID is an ancestor
+	 */
+	public boolean isAncestorOf(String[] path) {
+		Objects.requireNonNull(path);
+
+		// TODO
+		return Arrays.mismatch(this.path, path) == Math.min(this.path.length, path.length);
 	}
 
 	/**
@@ -118,46 +193,21 @@ public interface Oid<E extends STObject<?>> extends Comparable<Oid>, Iterable<St
 	 *
 	 * @return Whether the OID is concrete
 	 */
-	public default boolean isConcrete() {
+	public boolean isConcrete() {
 		return !Arrays.stream(path()).anyMatch(String::isEmpty);
 	}
 
-	@Override
-	public default Iterator<String> iterator() {
-		return Arrays.stream(path()).iterator();
+	public String last() {
+		return path[path.length - 1];
 	}
 
 	/**
-	 * Get the last (rightmost) component of the OID path.
+	 * Get the OID's unique namespace.
 	 *
-	 * @return The OID's last component
+	 * @return The namespace
 	 */
-	public default String last() {
-		return path()[size() - 1];
-	}
-
-	public default String[] relativize(Oid<?> oid) {
-		return Arrays.copyOfRange(path(), oid.size(), size());
-	}
-
-	/**
-	 * Return a new OID with its generic components replaced (from left to right)
-	 * with the given components. The resulting OID will be concrete if the number
-	 * of supplied components equals the number of generic components in the OID
-	 * (and none of the supplied components are empty).
-	 *
-	 * @param components The new components
-	 * @return A new OID
-	 */
-	public Oid<E> resolve(String... components);
-
-	/**
-	 * Get the number of components in the OID.
-	 *
-	 * @return The OID's length
-	 */
-	public default int size() {
-		return path().length;
+	public String namespace() {
+		return namespace;
 	}
 
 	/**
@@ -165,12 +215,20 @@ public interface Oid<E extends STObject<?>> extends Comparable<Oid>, Iterable<St
 	 *
 	 * @return The path
 	 */
-	public String[] path();
+	public String[] path() {
+		return path;
+	}
 
-	/**
-	 * Get the OID's unique namespace.
-	 *
-	 * @return The namespace
-	 */
-	public String namespace();
+	public long[] quantifier() {
+		return quantifier;
+	}
+
+	public String[] relativize(Oid oid) {
+		return Arrays.copyOfRange(path(), oid.path.length, path.length);
+	}
+
+	@Override
+	public String toString() {
+		return namespace + ":/" + Arrays.stream(path).collect(Collectors.joining("/"));
+	}
 }

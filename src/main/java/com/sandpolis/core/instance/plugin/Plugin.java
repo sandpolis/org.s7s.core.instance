@@ -55,7 +55,7 @@ public class Plugin extends AbstractSTDomainObject {
 	}
 
 	public void install(Path path, boolean enabled) throws IOException {
-		if (attribute(PluginOid.HASH).isPresent())
+		if (get(PluginOid.HASH).isPresent())
 			throw new IllegalStateException();
 
 		var manifest = JarUtil.getManifest(path.toFile());
@@ -92,7 +92,7 @@ public class Plugin extends AbstractSTDomainObject {
 	}
 
 	public String getVersion() {
-		String[] gav = get(PluginOid.COORDINATES).split(":");
+		String[] gav = get(PluginOid.COORDINATES).asString().split(":");
 		if (gav.length == 3)
 			return gav[2];
 		return null;
@@ -114,7 +114,7 @@ public class Plugin extends AbstractSTDomainObject {
 	 * @throws IOException
 	 */
 	public boolean checkHash() throws IOException {
-		return Arrays.equals(computeHash(), get(PluginOid.HASH));
+		return Arrays.equals(computeHash(), get(PluginOid.HASH).asBytes());
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class Plugin extends AbstractSTDomainObject {
 	 * @throws IOException
 	 */
 	void load() throws IOException {
-		checkState(!get(PluginOid.LOADED));
+		checkState(!get(PluginOid.LOADED).asBoolean());
 
 		Path component = getComponent(Core.INSTANCE, Core.FLAVOR);
 
@@ -138,9 +138,8 @@ public class Plugin extends AbstractSTDomainObject {
 		// Load plugin class if available
 		handle = ServiceLoader.load(SandpolisPlugin.class, classloader).stream().filter(prov -> {
 			// Restrict to services in the plugin component
-			return prov.type().getName()
-					.startsWith(String.format("%s.%s.%s", get(PluginOid.PACKAGE_ID),
-							Core.INSTANCE.toString().toLowerCase(), Core.FLAVOR.toString().toLowerCase()));
+			return prov.type().getName().startsWith(String.format("%s.%s.%s", get(PluginOid.PACKAGE_ID),
+					Core.INSTANCE.toString().toLowerCase(), Core.FLAVOR.toString().toLowerCase()));
 		}).map(ServiceLoader.Provider::get).findFirst().orElse(null);
 
 		if (handle != null)
@@ -150,7 +149,7 @@ public class Plugin extends AbstractSTDomainObject {
 	}
 
 	void unload() {
-		checkState(!get(PluginOid.LOADED));
+		checkState(!get(PluginOid.LOADED).asBoolean());
 
 		if (handle != null)
 			handle.unloaded();
@@ -184,13 +183,13 @@ public class Plugin extends AbstractSTDomainObject {
 	 */
 	public Path getComponent(InstanceType instance, InstanceFlavor flavor) {
 		if (instance == null && flavor == null) {
-			return Environment.PLUGIN.path().resolve(get(PluginOid.PACKAGE_ID)).resolve(getVersion())
+			return Environment.PLUGIN.path().resolve(get(PluginOid.PACKAGE_ID).asString()).resolve(getVersion())
 					.resolve("core.jar");
 		} else {
 			Objects.requireNonNull(instance);
 			Objects.requireNonNull(flavor);
 
-			return Environment.PLUGIN.path().resolve(get(PluginOid.PACKAGE_ID)).resolve(getVersion())
+			return Environment.PLUGIN.path().resolve(get(PluginOid.PACKAGE_ID).asString()).resolve(getVersion())
 					.resolve(instance.toString().toLowerCase()).resolve(flavor.toString().toLowerCase() + ".jar");
 		}
 	}
@@ -208,7 +207,7 @@ public class Plugin extends AbstractSTDomainObject {
 	private byte[] computeHash() throws IOException {
 		return ByteSource.concat(
 				// Get coordinates
-				ByteSource.wrap(get(PluginOid.COORDINATES).getBytes()),
+				ByteSource.wrap(get(PluginOid.COORDINATES).asBytes()),
 				// Get component artifacts
 				ByteSource.concat(components().map(MoreFiles::asByteSource).collect(Collectors.toList())))
 				// Perform hash function

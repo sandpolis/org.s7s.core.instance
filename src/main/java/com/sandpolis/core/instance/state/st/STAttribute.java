@@ -9,11 +9,13 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
+import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.sandpolis.core.instance.State.ProtoAttribute;
+import com.sandpolis.core.instance.Metatypes;
+import com.sandpolis.core.instance.Metatypes.InstanceType;
+import com.sandpolis.core.instance.state.st.EphemeralAttribute.EphemeralAttributeValue;
 
 /**
  * {@link STAttribute} is a generic container for data of a specific type and
@@ -22,23 +24,13 @@ import com.sandpolis.core.instance.State.ProtoAttribute;
  * @param <T> The type of the attribute's value
  * @since 6.2.0
  */
-public interface STAttribute<T> extends STObject<ProtoAttribute> {
+public interface STAttribute extends STObject {
 
 	/**
 	 * Indicates that an {@link STAttribute}'s value has changed.
-	 *
-	 * @param <T> The attribute value's type
 	 */
-	public static final class ChangeEvent<T> {
-		public final STAttribute<T> attribute;
-		public final STAttributeValue<T> newValue;
-		public final STAttributeValue<T> oldValue;
-
-		public ChangeEvent(STAttribute<T> attribute, STAttributeValue<T> oldValue, STAttributeValue<T> newValue) {
-			this.attribute = attribute;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
+	public static final record ChangeEvent(STAttribute attribute, EphemeralAttributeValue newValue,
+			EphemeralAttributeValue oldValue) {
 	}
 
 	public enum RetentionPolicy {
@@ -61,30 +53,14 @@ public interface STAttribute<T> extends STObject<ProtoAttribute> {
 	}
 
 	/**
-	 * Get the current value of the attribute.
-	 *
-	 * @return The current value or {@code null} if there's no value
-	 */
-	public T get();
-
-	/**
 	 * Get the history of the attribute's value if enabled by the
 	 * {@link RetentionPolicy}.
 	 *
 	 * @return An unmodifiable list
 	 */
-	public List<STAttributeValue<T>> history();
+	public List<EphemeralAttributeValue> history();
 
-	/**
-	 * Perform the given operation if the attribute has a current value.
-	 *
-	 * @param fn A function to receive the current value if it exists
-	 */
-	public default void ifPresent(Consumer<T> fn) {
-		var value = get();
-		if (value != null)
-			fn.accept(value);
-	}
+	public Object get();
 
 	/**
 	 * Get whether the attribute has a current value.
@@ -100,7 +76,7 @@ public interface STAttribute<T> extends STObject<ProtoAttribute> {
 	 *
 	 * @param value The new value to replace the current value or {@code null}
 	 */
-	public void set(T value);
+	public void set(Object value);
 
 	/**
 	 * Specify a source for the attribute's value. Setting an attribute source
@@ -108,7 +84,7 @@ public interface STAttribute<T> extends STObject<ProtoAttribute> {
 	 *
 	 * @param source The source or {@code null} to remove the previous source
 	 */
-	public void source(Supplier<T> source);
+	public void source(Supplier<?> source);
 
 	/**
 	 * Get the timestamp associated with the attribute's current value.
@@ -116,4 +92,32 @@ public interface STAttribute<T> extends STObject<ProtoAttribute> {
 	 * @return The current timestamp
 	 */
 	public long timestamp();
+
+	public default String asString() {
+		return "";
+	}
+
+	public default long asLong() {
+		return 0;
+	}
+
+	public default int asInt() {
+		return 0;
+	}
+
+	public default boolean asBoolean() {
+		return false;
+	}
+
+	public default byte[] asBytes() {
+		return null;
+	}
+
+	public default InstanceType asInstanceType() {
+		return Metatypes.InstanceType.forNumber(asInt());
+	}
+
+	public default X509Certificate asX590Certificate() {
+		return null;
+	}
 }

@@ -9,7 +9,7 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
-import com.google.protobuf.MessageLite;
+import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
 import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
@@ -19,10 +19,9 @@ import com.sandpolis.core.instance.state.oid.Oid;
  * The ST is a tree data-structure containing general collections, documents,
  * and attributes.
  *
- * @param <E> The protocol buffer representation of the object
  * @since 5.0.0
  */
-public interface STObject<E extends MessageLite> {
+public interface STObject {
 
 	/**
 	 * Register a new listener on the object. The listener will be notified of all
@@ -40,14 +39,14 @@ public interface STObject<E extends MessageLite> {
 	 *
 	 * @param snapshot A state object snapshot
 	 */
-	public void merge(E snapshot);
+	public void merge(ProtoSTObjectUpdate snapshot);
 
 	/**
 	 * Get the object's OID.
 	 *
 	 * @return The associated OID or {@code null} if the object is a root node
 	 */
-	public Oid<?> oid();
+	public Oid oid();
 
 	/**
 	 * Get this object's parent.
@@ -73,5 +72,5 @@ public interface STObject<E extends MessageLite> {
 	 * @param oids Whitelisted OIDs
 	 * @return A new protocol buffer representing the object
 	 */
-	public E snapshot(Oid<?>... oids);
+	public ProtoSTObjectUpdate snapshot(Oid... oids);
 }

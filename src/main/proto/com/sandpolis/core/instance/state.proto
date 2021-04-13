@@ -11,9 +11,6 @@ syntax = "proto3";
 
 package core.instance;
 
-import "com/sandpolis/core/foundation/platform.proto";
-import "com/sandpolis/core/instance/metatypes.proto";
-
 option java_package = "com.sandpolis.core.instance";
 option optimize_for = CODE_SIZE;
 
@@ -22,27 +19,29 @@ message ProtoAttributeValue {
     // The timestamp associated with the value
     int64 timestamp = 1;
 
-    repeated string  string   = 2;
-    repeated int32   integer  = 3;
-    repeated int64   long     = 4;
-    repeated bool    boolean  = 5;
-    repeated double  double   = 6;
-    repeated bytes   bytes    = 7;
+    bytes   bytes    = 2;
+    string  string   = 3;
+    int32   integer  = 4;
+    int64   long     = 5;
+    bool    boolean  = 6;
+    double  double   = 7;
+
+    repeated string  string_array   = 30;
+    repeated int32   integer_array  = 40;
+    repeated int64   long_array     = 50;
+    repeated bool    boolean_array  = 60;
+    repeated double  double_array   = 70;
 }
 
-message ProtoAttribute {
-    string path = 1;
-    bool replacement = 2;
-    bool removal = 3;
-
-    repeated ProtoAttributeValue values = 4;
+message ProtoAttributeValues {
+    repeated ProtoAttributeValue value = 1;
 }
 
-message ProtoDocument {
-    string path = 1;
-    bool replacement = 2;
-    bool removal = 3;
+message ProtoSTObjectUpdate {
 
-    repeated ProtoAttribute attribute = 4;
-    repeated ProtoDocument document = 5;
+    // Removed documents and attributes
+    repeated string removed = 1;
+
+    // Changed attributes
+    map<string, ProtoAttributeValues> changed = 2;
 }

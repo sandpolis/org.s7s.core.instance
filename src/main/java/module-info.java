@@ -15,7 +15,6 @@ open module com.sandpolis.core.instance {
 	exports com.sandpolis.core.instance.pref;
 	exports com.sandpolis.core.instance.profile;
 	exports com.sandpolis.core.instance.state.oid;
-	exports com.sandpolis.core.instance.state.st.ephemeral;
 	exports com.sandpolis.core.instance.state.st;
 	exports com.sandpolis.core.instance.state.vst;
 	exports com.sandpolis.core.instance.state;

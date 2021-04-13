@@ -105,11 +105,13 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	}
 
 	public Optional<Plugin> getByPackageId(String packageId) {
-		return values().stream().filter(plugin -> plugin.get(PluginOid.PACKAGE_ID).equals(packageId)).findAny();
+		return values().stream().filter(plugin -> plugin.get(PluginOid.PACKAGE_ID).asString().equals(packageId))
+				.findAny();
 	}
 
 	public Stream<Plugin> getLoadedPlugins() {
-		return values().stream().filter(plugin -> plugin.get(PluginOid.LOADED) && plugin.get(PluginOid.ENABLED));
+		return values().stream().filter(
+				plugin -> plugin.get(PluginOid.LOADED).asBoolean() && plugin.get(PluginOid.ENABLED).asBoolean());
 	}
 
 	/**
@@ -174,7 +176,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	 * @param plugin The plugin to load
 	 */
 	private void loadPlugin(Plugin plugin) {
-		checkState(!plugin.get(PluginOid.LOADED));
+		checkState(!plugin.get(PluginOid.LOADED).asBoolean());
 
 		// Verify hash
 		try {
@@ -189,7 +191,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 
 		// Verify certificate
 		try {
-			if (!verifier.apply(CertUtil.parseCert(plugin.get(PluginOid.CERTIFICATE)))) {
+			if (!verifier.apply(CertUtil.parseCert(plugin.get(PluginOid.CERTIFICATE).asBytes()))) {
 				log.error("Failed to verify plugin certificate");
 				return;
 			}
@@ -215,9 +217,9 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	public void loadPlugins() {
 		values().stream()
 				// Enabled plugins only
-				.filter(plugin -> plugin.get(PluginOid.ENABLED))
+				.filter(plugin -> plugin.get(PluginOid.ENABLED).asBoolean())
 				// Skip loaded plugins
-				.filter(plugin -> !plugin.get(PluginOid.LOADED))
+				.filter(plugin -> !plugin.get(PluginOid.LOADED).asBoolean())
 				// Load each plugin
 				.forEach(PluginStore::loadPlugin);
 	}

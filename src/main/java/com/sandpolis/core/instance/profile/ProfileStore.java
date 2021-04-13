@@ -54,8 +54,8 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	 * @return The requested profile
 	 */
 	public Optional<Profile> getByCvid(int cvid) {
-		return values().stream().filter(profile -> profile.attribute(ProfileOid.CVID).isPresent())
-				.filter(profile -> profile.get(ProfileOid.CVID) == cvid).findFirst();
+		return values().stream().filter(profile -> profile.get(ProfileOid.CVID).isPresent())
+				.filter(profile -> profile.get(ProfileOid.CVID).asInt() == cvid).findFirst();
 	}
 
 	/**
@@ -66,7 +66,7 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	 */
 	public Optional<Profile> getByUuid(String uuid) {
 		requireNonNull(uuid);
-		return values().stream().filter(profile -> uuid.equals(profile.get(ProfileOid.UUID))).findFirst();
+		return values().stream().filter(profile -> uuid.equals(profile.get(ProfileOid.UUID).asString())).findFirst();
 	}
 
 	/**
@@ -77,7 +77,8 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	 */
 	public Optional<Profile> getClient(String username) {
 		requireNonNull(username);
-		return values().stream().filter(profile -> username.equals(profile.get(ClientOid.USERNAME))).findFirst();
+		return values().stream().filter(profile -> username.equals(profile.get(ClientOid.USERNAME).asString()))
+				.findFirst();
 	}
 
 	@Override

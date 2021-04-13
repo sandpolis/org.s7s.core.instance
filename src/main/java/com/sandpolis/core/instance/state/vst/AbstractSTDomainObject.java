@@ -21,7 +21,7 @@ public abstract class AbstractSTDomainObject implements STDomainObject {
 		this.document = document;
 	}
 
-	public Oid<STDocument> oid() {
+	public Oid oid() {
 		return document.oid();
 	}
 
@@ -29,15 +29,11 @@ public abstract class AbstractSTDomainObject implements STDomainObject {
 //
 //	public abstract STAttribute<String> id();
 
-	public <T> STAttribute<T> attribute(Oid<STAttribute<T>> oid) {
+	public STAttribute get(Oid oid) {
 		return document.attribute(oid);
 	}
 
-	public <T> T get(Oid<STAttribute<T>> oid) {
-		return attribute(oid).get();
-	}
-
-	public <T> void set(Oid<STAttribute<T>> oid, T value) {
-		attribute(oid).set(value);
+	public void set(Oid oid, Object value) {
+		get(oid).set(value);
 	}
 }

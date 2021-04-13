@@ -17,8 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.protobuf.MessageLite;
 import com.sandpolis.core.instance.state.oid.Oid;
+import com.sandpolis.core.instance.state.st.EphemeralAttribute.EphemeralAttributeValue;
 
-public abstract class AbstractSTObject<E extends MessageLite> implements STObject<E> {
+public abstract class AbstractSTObject implements STObject {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractSTObject.class);
 
@@ -34,16 +35,21 @@ public abstract class AbstractSTObject<E extends MessageLite> implements STObjec
 	 */
 	private int listeners;
 
-	protected final Oid<?> oid;
+	protected final Oid oid;
 
-	protected final AbstractSTObject<?> parent;
+	@Override
+	public Oid oid() {
+		return oid;
+	}
+
+	protected final AbstractSTObject parent;
 
 	public AbstractSTObject(STDocument parent, Oid oid) {
-		this.parent = (AbstractSTObject<?>) parent;
+		this.parent = (AbstractSTObject) parent;
 		this.oid = oid;
 
 		// The parent's OID must be an ancestor of the given OID
-		if (parent != null && oid.isChildOf(parent.oid())) {
+		if (parent != null && !parent.oid().isAncestorOf(oid)) {
 			throw new IllegalArgumentException();
 		}
 	}
@@ -73,8 +79,8 @@ public abstract class AbstractSTObject<E extends MessageLite> implements STObjec
 		}
 	}
 
-	protected synchronized <T> void fireAttributeValueChangedEvent(STAttribute<T> attribute,
-			STAttributeValue<T> oldValue, STAttributeValue<T> newValue) {
+	protected synchronized void fireAttributeValueChangedEvent(STAttribute attribute, EphemeralAttributeValue oldValue,
+			EphemeralAttributeValue newValue) {
 
 		if (log.isTraceEnabled() && attribute == this) {
 			log.trace("Attribute ({}) changed value from \"{}\" to \"{}\"", attribute.oid(), oldValue, newValue);
@@ -82,7 +88,7 @@ public abstract class AbstractSTObject<E extends MessageLite> implements STObjec
 
 		if (bus != null) {
 			STStore.pool().submit(() -> {
-				bus.post(new STAttribute.ChangeEvent<T>(attribute, oldValue, newValue));
+				bus.post(new STAttribute.ChangeEvent(attribute, oldValue, newValue));
 			});
 		}
 
