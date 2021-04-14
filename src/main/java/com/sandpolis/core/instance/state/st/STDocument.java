@@ -9,8 +9,10 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.sandpolis.core.instance.state.oid.Oid;
 
@@ -66,7 +68,8 @@ public interface STDocument extends STObject {
 			throw new IllegalArgumentException("Empty OID path");
 		}
 		if (!oid().isAncestorOf(path)) {
-			throw new IllegalArgumentException("OID not a descendant");
+			throw new IllegalArgumentException("/" + Arrays.stream(path).collect(Collectors.joining("/"))
+					+ " is not a descendant of: " + oid().toString());
 		}
 		if ((path.length - oid().path().length) == 1) {
 			return attribute(path[path.length - 1]);

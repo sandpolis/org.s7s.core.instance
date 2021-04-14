@@ -9,10 +9,15 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.oid;
 
+import static com.sandpolis.core.instance.state.STStore.STStore;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sandpolis.core.instance.state.st.STObject;
 
@@ -36,6 +41,36 @@ public class Oid implements Comparable<Oid> {
 
 	private static final Pattern ATTR_QUANTIFIER = Pattern.compile(".+\\[(.*)\\.\\.(.*)\\]$");
 
+	private static final Logger log = LoggerFactory.getLogger(Oid.class);
+
+	private static boolean checkRelationship(String[] ancestor, String[] descendant) {
+
+		// The descendant cannot be shorter than the ancestor
+		if (descendant.length < ancestor.length) {
+			return false;
+		}
+
+		descendant = descendant.clone();
+		ancestor = ancestor.clone();
+
+		// Make any generic (empty) entries in ancestor also generic in the descendant
+		for (int i = 0; i < ancestor.length; i++) {
+			if (ancestor[i].isEmpty()) {
+				descendant[i] = "";
+			}
+		}
+
+		// Make any generic (empty) entries in descendant also generic in the ancestor
+		for (int i = 0; i < descendant.length; i++) {
+			if (descendant[i].isEmpty()) {
+				ancestor[i] = "";
+			}
+		}
+
+		int index = Arrays.mismatch(descendant, ancestor);
+		return index == -1 || index == ancestor.length;
+	}
+
 	public static Oid of(String oid, String... resolutions) {
 		Objects.requireNonNull(oid);
 
@@ -51,6 +86,11 @@ public class Oid implements Comparable<Oid> {
 			path = components[1].replaceAll("^/+", "").split("/");
 		} else {
 			throw new IllegalArgumentException("Invalid namespace");
+		}
+
+		// If the only path element is blank, this is the root OID
+		if (path.length == 1 && path[0].isEmpty()) {
+			path = new String[] {};
 		}
 
 		int i = 0;
@@ -86,21 +126,29 @@ public class Oid implements Comparable<Oid> {
 		this.path = path;
 
 		// Parse quantifier if present
-		var matcher = ATTR_QUANTIFIER.matcher(path[path.length - 1]);
-		if (matcher.matches()) {
-			quantifier = new long[] { 0, Long.MAX_VALUE };
+		if (path.length > 0) {
+			var matcher = ATTR_QUANTIFIER.matcher(path[path.length - 1]);
+			if (matcher.matches()) {
+				quantifier = new long[] { 0, Long.MAX_VALUE };
 
-			String start = matcher.group(1);
-			String end = matcher.group(2);
+				String start = matcher.group(1);
+				String end = matcher.group(2);
 
-			if (!start.isBlank()) {
-				quantifier[0] = Long.parseLong(start);
-			}
-			if (!end.isBlank()) {
-				quantifier[1] = Long.parseLong(end);
+				if (!start.isBlank()) {
+					quantifier[0] = Long.parseLong(start);
+				}
+				if (!end.isBlank()) {
+					quantifier[1] = Long.parseLong(end);
+				}
+			} else {
+				quantifier = null;
 			}
 		} else {
 			quantifier = null;
+		}
+
+		if (log.isTraceEnabled()) {
+			log.trace("Created new OID: {}", this.toString());
 		}
 	}
 
@@ -124,11 +172,15 @@ public class Oid implements Comparable<Oid> {
 	}
 
 	public String first() {
-		return path[0];
+		if (path.length > 0) {
+			return path[0];
+		} else {
+			return null;
+		}
 	}
 
 	public <E extends STObject> E get() {
-		return null;
+		return (E) STStore.get(this);
 	}
 
 	@Override
@@ -137,15 +189,15 @@ public class Oid implements Comparable<Oid> {
 	}
 
 	/**
-	 * Determine whether this OID is a descendant of the given OID.
+	 * Determine whether this OID is an ancestor of the given OID.
 	 *
-	 * @param oid The ancestor OID
-	 * @return Whether this OID is a descendant
+	 * @param descendant The descendant OID
+	 * @return Whether this OID is an ancestor
 	 */
-	public boolean isDescendantOf(Oid oid) {
-		Objects.requireNonNull(oid);
+	public boolean isAncestorOf(Oid descendant) {
+		Objects.requireNonNull(descendant);
 
-		return isDescendantOf(oid.path);
+		return isAncestorOf(descendant.path);
 	}
 
 	/**
@@ -154,36 +206,10 @@ public class Oid implements Comparable<Oid> {
 	 * @param oid The descendant OID
 	 * @return Whether this OID is an ancestor
 	 */
-	public boolean isAncestorOf(Oid oid) {
-		Objects.requireNonNull(oid);
+	public boolean isAncestorOf(String[] descendant) {
+		Objects.requireNonNull(descendant);
 
-		return isAncestorOf(oid.path);
-	}
-
-	/**
-	 * Determine whether this OID is a descendant of the given OID.
-	 *
-	 * @param oid The ancestor OID
-	 * @return Whether this OID is a descendant
-	 */
-	public boolean isDescendantOf(String[] path) {
-		Objects.requireNonNull(path);
-
-		// TODO
-		return Arrays.mismatch(this.path, path) == Math.min(this.path.length, path.length);
-	}
-
-	/**
-	 * Determine whether this OID is an ancestor of the given OID.
-	 *
-	 * @param oid The descendant OID
-	 * @return Whether this OID is an ancestor
-	 */
-	public boolean isAncestorOf(String[] path) {
-		Objects.requireNonNull(path);
-
-		// TODO
-		return Arrays.mismatch(this.path, path) == Math.min(this.path.length, path.length);
+		return checkRelationship(this.path, descendant);
 	}
 
 	/**
@@ -197,8 +223,36 @@ public class Oid implements Comparable<Oid> {
 		return !Arrays.stream(path()).anyMatch(String::isEmpty);
 	}
 
+	/**
+	 * Determine whether this OID is a descendant of the given OID.
+	 *
+	 * @param ancestor The ancestor OID
+	 * @return Whether this OID is a descendant
+	 */
+	public boolean isDescendantOf(Oid ancestor) {
+		Objects.requireNonNull(ancestor);
+
+		return isDescendantOf(ancestor.path);
+	}
+
+	/**
+	 * Determine whether this OID is a descendant of the given OID.
+	 *
+	 * @param ancestor The ancestor OID
+	 * @return Whether this OID is a descendant
+	 */
+	public boolean isDescendantOf(String[] ancestor) {
+		Objects.requireNonNull(ancestor);
+
+		return checkRelationship(ancestor, this.path);
+	}
+
 	public String last() {
-		return path[path.length - 1];
+		if (path.length > 0) {
+			return path[path.length - 1];
+		} else {
+			return null;
+		}
 	}
 
 	/**

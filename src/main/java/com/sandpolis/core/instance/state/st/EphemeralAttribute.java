@@ -179,7 +179,7 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		} else if (value instanceof boolean[]) {
 			return AttributeType.BOOLEAN_ARRAY;
 		}
-		throw new IllegalArgumentException("Unknown attribute value type");
+		throw new IllegalArgumentException("Unknown attribute value type: " + value.getClass());
 	}
 
 	public synchronized void setRetention(RetentionPolicy retention) {
