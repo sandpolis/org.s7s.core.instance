@@ -61,7 +61,7 @@ public class Oid implements Comparable<Oid> {
 		}
 
 		// Make any generic (empty) entries in descendant also generic in the ancestor
-		for (int i = 0; i < descendant.length; i++) {
+		for (int i = 0; i < ancestor.length; i++) {
 			if (descendant[i].isEmpty()) {
 				ancestor[i] = "";
 			}
@@ -97,7 +97,7 @@ public class Oid implements Comparable<Oid> {
 		for (var r : resolutions) {
 			for (; i < path.length; i++) {
 				if (path[i].isEmpty()) {
-					path[i] = r;
+					path[i++] = r;
 					break;
 				}
 			}
@@ -145,10 +145,6 @@ public class Oid implements Comparable<Oid> {
 			}
 		} else {
 			quantifier = null;
-		}
-
-		if (log.isTraceEnabled()) {
-			log.trace("Created new OID: {}", this.toString());
 		}
 	}
 
@@ -256,9 +252,7 @@ public class Oid implements Comparable<Oid> {
 	}
 
 	/**
-	 * Get the OID's unique namespace.
-	 *
-	 * @return The namespace
+	 * @return The OID's unique namespace.
 	 */
 	public String namespace() {
 		return namespace;
@@ -275,10 +269,6 @@ public class Oid implements Comparable<Oid> {
 
 	public long[] quantifier() {
 		return quantifier;
-	}
-
-	public String[] relativize(Oid oid) {
-		return Arrays.copyOfRange(path(), oid.path.length, path.length);
 	}
 
 	@Override

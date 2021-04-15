@@ -76,8 +76,8 @@ public interface STDocument extends STObject {
 		}
 
 		STDocument document = this;
-		for (int i = oid().path().length - 1; i < path.length - 1; i++) {
-			document = document(path[i]);
+		for (int i = oid().path().length; i < path.length - 1; i++) {
+			document = document.document(path[i]);
 		}
 
 		return document.attribute(path[path.length - 1]);
@@ -114,11 +114,11 @@ public interface STDocument extends STObject {
 		}
 
 		STDocument document = this;
-		for (int i = 0; i < path.length - 1; i++) {
-			document = document(path[i]);
+		for (int i = oid().path().length; i < path.length; i++) {
+			document = document.document(path[i]);
 		}
 
-		return document.document(path[path.length - 1]);
+		return document;
 	}
 
 	/**

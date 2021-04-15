@@ -310,7 +310,7 @@
 		"attributes": []
 	},
 	{
-		"name": "/profile//server/trust_anchor/",
+		"name": "/trust_anchor/",
 		"attributes": [
 			{
 				"name": "name",

@@ -9,11 +9,16 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
+import static com.sandpolis.core.instance.State.ProtoAttributeValue.newBuilder;
+
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.google.protobuf.UnsafeByteOperations;
 import com.sandpolis.core.instance.State.ProtoAttributeValue;
 import com.sandpolis.core.instance.State.ProtoAttributeValues;
 import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
@@ -25,10 +30,35 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 	}
 
 	public static enum AttributeType {
-		BOOLEAN, BOOLEAN_ARRAY, UNSET;
+		STRING(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getString()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setString((String) value.value()).build()),
+		LONG(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getLong()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setLong((Long) value.value()).build()),
+		INTEGER(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getInteger()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setInteger((Integer) value.value()).build()),
+		BOOLEAN(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBoolean()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setBoolean((boolean) value.value()).build()),
+		BYTES(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBytes().toByteArray()),
+				value -> newBuilder().setTimestamp(value.timestamp())
+						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build()),
+		X509CERTIFICATE(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBytes().toByteArray()),
+				value -> newBuilder().setTimestamp(value.timestamp())
+						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build()),
+		BOOLEAN_ARRAY(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBooleanArrayList()),
+				value -> newBuilder().setTimestamp(value.timestamp()).build());
+
+		public final Function<ProtoAttributeValue, EphemeralAttributeValue> unpack;
+
+		public final Function<EphemeralAttributeValue, ProtoAttributeValue> pack;
+
+		private AttributeType(Function<ProtoAttributeValue, EphemeralAttributeValue> unpack,
+				Function<EphemeralAttributeValue, ProtoAttributeValue> pack) {
+			this.unpack = unpack;
+			this.pack = pack;
+		}
 	}
 
-	protected AttributeType type = AttributeType.UNSET;
+	protected AttributeType type;
 
 	/**
 	 * The current value of the attribute.
@@ -55,8 +85,8 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 	 */
 	protected Supplier<?> source;
 
-	public EphemeralAttribute(STDocument parent, Oid oid) {
-		super(parent, oid);
+	public EphemeralAttribute(STDocument parent, String id) {
+		super(parent, id);
 	}
 
 	@Override
@@ -90,44 +120,13 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 			if (oid.quantifier() == null) {
 				// This OID refers to the current value
 				var old = current;
-				current = unpackProto(change.getValue(0));
+				current = type.unpack.apply(change.getValue(0));
 				fireAttributeValueChangedEvent(this, old, current);
 			} else {
 				// This OID refers to one or more historical values
-				change.getValueList().stream().map(this::unpackProto).forEach(history::add);
+				change.getValueList().stream().map(type.unpack::apply).forEach(history::add);
 			}
 		});
-	}
-
-	private EphemeralAttributeValue unpackProto(ProtoAttributeValue value) {
-		if (type == null) {
-			if (value.getBooleanArrayCount() != 0) {
-				type = AttributeType.BOOLEAN_ARRAY;
-			}
-		}
-
-		switch (type) {
-		case BOOLEAN:
-			return new EphemeralAttributeValue(value.getTimestamp(), value.getBoolean());
-		case BOOLEAN_ARRAY:
-			return new EphemeralAttributeValue(value.getTimestamp(), value.getBooleanArrayList());
-		default:
-			throw new IllegalArgumentException();
-		}
-	}
-
-	private ProtoAttributeValue packProto(EphemeralAttributeValue value) {
-		if (type == null) {
-			throw new IllegalStateException();
-		}
-
-		var builder = ProtoAttributeValue.newBuilder().setTimestamp(value.timestamp());
-		switch (type) {
-		case BOOLEAN:
-			return builder.setBoolean((boolean) value.value()).build();
-		default:
-			throw new IllegalStateException();
-		}
 	}
 
 	@Override
@@ -174,9 +173,22 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 	}
 
 	private AttributeType findType(Object value) {
+		if (value instanceof String) {
+			return AttributeType.STRING;
+		}
 		if (value instanceof Boolean) {
 			return AttributeType.BOOLEAN;
-		} else if (value instanceof boolean[]) {
+		}
+		if (value instanceof Long) {
+			return AttributeType.LONG;
+		}
+		if (value instanceof Integer) {
+			return AttributeType.INTEGER;
+		}
+		if (value instanceof X509Certificate) {
+			return AttributeType.X509CERTIFICATE;
+		}
+		if (value instanceof boolean[]) {
 			return AttributeType.BOOLEAN_ARRAY;
 		}
 		throw new IllegalArgumentException("Unknown attribute value type: " + value.getClass());
@@ -213,11 +225,12 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 			// Request for current value only
 			if (source != null) {
 				snapshot.putChanged(oid().toString(), ProtoAttributeValues.newBuilder()
-						.addValue(packProto(new EphemeralAttributeValue(System.currentTimeMillis(), source.get())))
+						.addValue(
+								type.pack.apply(new EphemeralAttributeValue(System.currentTimeMillis(), source.get())))
 						.build());
 			} else {
 				snapshot.putChanged(oid().toString(),
-						ProtoAttributeValues.newBuilder().addValue(packProto(current)).build());
+						ProtoAttributeValues.newBuilder().addValue(type.pack.apply(current)).build());
 			}
 		} else if (oid.length == 1) {
 			// Request is for historical value

@@ -25,8 +25,8 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
 	protected final Map<String, STDocument> documents;
 
-	public EphemeralDocument(STDocument parent, Oid oid) {
-		super(parent, oid);
+	public EphemeralDocument(STDocument parent, String id) {
+		super(parent, id);
 		this.attributes = new HashMap<>();
 		this.documents = new HashMap<>();
 	}
@@ -46,7 +46,7 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 		synchronized (documents) {
 			STDocument document = documents.get(id);
 			if (document == null) {
-				document = new EphemeralDocument(this, oid.child(id));
+				document = new EphemeralDocument(this, id);
 				documents.put(id, document);
 				fireDocumentAddedEvent(this, document);
 			}
@@ -59,7 +59,7 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 		synchronized (attributes) {
 			STAttribute attribute = attributes.get(id);
 			if (attribute == null) {
-				attribute = new EphemeralAttribute(this, oid.child(id));
+				attribute = new EphemeralAttribute(this, id);
 				attributes.put(id, attribute);
 			}
 			return attribute;

@@ -44,14 +44,9 @@ public abstract class AbstractSTObject implements STObject {
 
 	protected final AbstractSTObject parent;
 
-	public AbstractSTObject(STDocument parent, Oid oid) {
+	public AbstractSTObject(STDocument parent, String id) {
 		this.parent = (AbstractSTObject) parent;
-		this.oid = oid;
-
-		// The parent's OID must be an ancestor of the given OID
-		if (parent != null && !parent.oid().isAncestorOf(oid)) {
-			throw new IllegalArgumentException();
-		}
+		this.oid = this.parent != null ? this.parent.oid.child(id) : Oid.of("/");
 	}
 
 	@Override
