@@ -18,7 +18,6 @@ open module com.sandpolis.core.instance {
 	exports com.sandpolis.core.instance.state.st;
 	exports com.sandpolis.core.instance.state.vst;
 	exports com.sandpolis.core.instance.state;
-	exports com.sandpolis.core.instance.store.event;
 	exports com.sandpolis.core.instance.store;
 	exports com.sandpolis.core.instance.thread;
 	exports com.sandpolis.core.instance.util;

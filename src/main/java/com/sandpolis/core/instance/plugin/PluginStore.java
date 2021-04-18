@@ -36,7 +36,6 @@ import com.sandpolis.core.foundation.util.JarUtil;
 import com.sandpolis.core.instance.Environment;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
-import com.sandpolis.core.instance.plugin.PluginEvents.PluginLoadedEvent;
 import com.sandpolis.core.instance.plugin.PluginStore.PluginStoreConfig;
 import com.sandpolis.core.instance.state.PluginOid;
 import com.sandpolis.core.instance.state.st.STDocument;
@@ -63,12 +62,18 @@ import com.sandpolis.core.instance.store.STCollectionStore;
  */
 public final class PluginStore extends STCollectionStore<Plugin> implements ConfigurableStore<PluginStoreConfig> {
 
+	public static final record PluginLoadedEvent(Plugin plugin) {
+	}
+
 	@ConfigStruct
 	public static final class PluginStoreConfig {
 
 		public STDocument collection;
 
 		public Function<X509Certificate, Boolean> verifier;
+	}
+
+	public static final record PluginUnloadedEvent(Plugin plugin) {
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(PluginStore.class);
@@ -208,7 +213,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 			log.error("Failed to load plugin", e);
 			return;
 		}
-		post(PluginLoadedEvent::new, plugin);
+		post(new PluginLoadedEvent(plugin));
 	}
 
 	/**

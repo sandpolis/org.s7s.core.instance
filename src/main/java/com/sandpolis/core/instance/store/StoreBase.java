@@ -18,8 +18,6 @@ import org.slf4j.Logger;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
-import com.sandpolis.core.instance.store.event.Event;
-import com.sandpolis.core.instance.store.event.ParameterizedEvent;
 
 /**
  * <p>
@@ -60,27 +58,9 @@ public abstract class StoreBase {
 	 * Broadcast the given event to the store's bus. This method blocks until every
 	 * event handler completes.
 	 *
-	 * @param constructor The event constructor
+	 * @param event The event to post
 	 */
-	public final void post(Supplier<? extends Event> constructor) {
-		Event event = constructor.get();
-
-		if (log.isDebugEnabled())
-			log.debug("Event fired: {}", event);
-
-		bus.post(event);
-	}
-
-	/**
-	 * Broadcast the given event to the store's bus. This method blocks until every
-	 * event handler completes.
-	 *
-	 * @param <P>         The event parameter's type
-	 * @param constructor The event constructor
-	 * @param parameter   The event parameter
-	 */
-	public final <P> void post(Function<P, ? extends ParameterizedEvent<P>> constructor, P parameter) {
-		ParameterizedEvent<P> event = constructor.apply(parameter);
+	public final void post(Object event) {
 
 		if (log.isDebugEnabled())
 			log.debug("Event fired: {}", event);
@@ -91,24 +71,11 @@ public abstract class StoreBase {
 	/**
 	 * Broadcast the given event asynchronously to the store's bus.
 	 *
-	 * @param constructor The event constructor
+	 * @param event The event to post
 	 */
-	public final void postAsync(Supplier<? extends Event> constructor) {
+	public final void postAsync(Object event) {
 		ThreadStore.get("store.event_bus").submit(() -> {
-			post(constructor);
-		});
-	}
-
-	/**
-	 * Broadcast the given event asynchronously to the store's bus.
-	 *
-	 * @param <P>         The event parameter's type
-	 * @param constructor The event constructor
-	 * @param parameter   The event parameter
-	 */
-	public final <P> void postAsync(Function<P, ? extends ParameterizedEvent<P>> constructor, P parameter) {
-		ThreadStore.get("store.event_bus").submit(() -> {
-			post(constructor, parameter);
+			post(event);
 		});
 	}
 

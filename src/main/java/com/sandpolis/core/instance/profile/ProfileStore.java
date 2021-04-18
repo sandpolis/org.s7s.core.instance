@@ -33,6 +33,12 @@ import com.sandpolis.core.instance.store.STCollectionStore;
  */
 public final class ProfileStore extends STCollectionStore<Profile> implements ConfigurableStore<ProfileStoreConfig> {
 
+	public static final record ProfileOnlineEvent(Profile profile) {
+	}
+
+	public static final record ProfileOfflineEvent(Profile profile) {
+	}
+
 	@ConfigStruct
 	public static final class ProfileStoreConfig {
 

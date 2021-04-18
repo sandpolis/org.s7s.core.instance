@@ -26,30 +26,27 @@ import com.sandpolis.core.instance.state.oid.Oid;
 
 public class EphemeralAttribute extends AbstractSTObject implements STAttribute {
 
-	public static record EphemeralAttributeValue(long timestamp, Object value) {
-	}
-
 	public static enum AttributeType {
-		STRING(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getString()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setString((String) value.value()).build()),
-		LONG(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getLong()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setLong((Long) value.value()).build()),
-		INTEGER(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getInteger()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setInteger((Integer) value.value()).build()),
 		BOOLEAN(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBoolean()),
 				value -> newBuilder().setTimestamp(value.timestamp()).setBoolean((boolean) value.value()).build()),
+		BOOLEAN_ARRAY(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBooleanArrayList()),
+				value -> newBuilder().setTimestamp(value.timestamp()).build()),
 		BYTES(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBytes().toByteArray()),
 				value -> newBuilder().setTimestamp(value.timestamp())
 						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build()),
+		INTEGER(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getInteger()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setInteger((Integer) value.value()).build()),
+		LONG(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getLong()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setLong((Long) value.value()).build()),
+		STRING(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getString()),
+				value -> newBuilder().setTimestamp(value.timestamp()).setString((String) value.value()).build()),
 		X509CERTIFICATE(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBytes().toByteArray()),
 				value -> newBuilder().setTimestamp(value.timestamp())
-						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build()),
-		BOOLEAN_ARRAY(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBooleanArrayList()),
-				value -> newBuilder().setTimestamp(value.timestamp()).build());
-
-		public final Function<ProtoAttributeValue, EphemeralAttributeValue> unpack;
+						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build());
 
 		public final Function<EphemeralAttributeValue, ProtoAttributeValue> pack;
+
+		public final Function<ProtoAttributeValue, EphemeralAttributeValue> unpack;
 
 		private AttributeType(Function<ProtoAttributeValue, EphemeralAttributeValue> unpack,
 				Function<EphemeralAttributeValue, ProtoAttributeValue> pack) {
@@ -58,7 +55,8 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		}
 	}
 
-	protected AttributeType type;
+	public static record EphemeralAttributeValue(long timestamp, Object value) {
+	}
 
 	/**
 	 * The current value of the attribute.
@@ -85,8 +83,59 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 	 */
 	protected Supplier<?> source;
 
+	protected AttributeType type;
+
 	public EphemeralAttribute(STDocument parent, String id) {
 		super(parent, id);
+	}
+
+	/**
+	 * Check the retention condition and remove all violating elements.
+	 */
+	private void checkRetention() {
+		if (retention == null)
+			return;
+
+		if (history == null)
+			history = new ArrayList<>();
+
+		switch (retention) {
+		case ITEM_LIMITED:
+			while (history.size() > retentionLimit) {
+				history.remove(0);
+			}
+			break;
+		case TIME_LIMITED:
+			while (history.size() > 0 && history.get(0).timestamp() > (current.timestamp() - retentionLimit)) {
+				history.remove(0);
+			}
+			break;
+		case UNLIMITED:
+			// Do nothing
+			break;
+		}
+	}
+
+	private AttributeType findType(Object value) {
+		if (value instanceof String) {
+			return AttributeType.STRING;
+		}
+		if (value instanceof Boolean) {
+			return AttributeType.BOOLEAN;
+		}
+		if (value instanceof Long) {
+			return AttributeType.LONG;
+		}
+		if (value instanceof Integer) {
+			return AttributeType.INTEGER;
+		}
+		if (value instanceof X509Certificate) {
+			return AttributeType.X509CERTIFICATE;
+		}
+		if (value instanceof boolean[]) {
+			return AttributeType.BOOLEAN_ARRAY;
+		}
+		throw new IllegalArgumentException("Unknown attribute value type: " + value.getClass());
 	}
 
 	@Override
@@ -172,28 +221,6 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		fireAttributeValueChangedEvent(this, old, current);
 	}
 
-	private AttributeType findType(Object value) {
-		if (value instanceof String) {
-			return AttributeType.STRING;
-		}
-		if (value instanceof Boolean) {
-			return AttributeType.BOOLEAN;
-		}
-		if (value instanceof Long) {
-			return AttributeType.LONG;
-		}
-		if (value instanceof Integer) {
-			return AttributeType.INTEGER;
-		}
-		if (value instanceof X509Certificate) {
-			return AttributeType.X509CERTIFICATE;
-		}
-		if (value instanceof boolean[]) {
-			return AttributeType.BOOLEAN_ARRAY;
-		}
-		throw new IllegalArgumentException("Unknown attribute value type: " + value.getClass());
-	}
-
 	public synchronized void setRetention(RetentionPolicy retention) {
 		this.retention = retention;
 		checkRetention();
@@ -264,32 +291,5 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		if (current != null)
 			return current.toString();
 		return null;
-	}
-
-	/**
-	 * Check the retention condition and remove all violating elements.
-	 */
-	private void checkRetention() {
-		if (retention == null)
-			return;
-
-		if (history == null)
-			history = new ArrayList<>();
-
-		switch (retention) {
-		case ITEM_LIMITED:
-			while (history.size() > retentionLimit) {
-				history.remove(0);
-			}
-			break;
-		case TIME_LIMITED:
-			while (history.size() > 0 && history.get(0).timestamp() > (current.timestamp() - retentionLimit)) {
-				history.remove(0);
-			}
-			break;
-		case UNLIMITED:
-			// Do nothing
-			break;
-		}
 	}
 }

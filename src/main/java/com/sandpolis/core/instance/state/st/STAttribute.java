@@ -11,6 +11,8 @@ package com.sandpolis.core.instance.state.st;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.sandpolis.core.instance.Metatypes;
@@ -71,6 +73,13 @@ public interface STAttribute extends STObject {
 		return get() != null;
 	}
 
+	public default <E> void ifPresent(Consumer<E> consumer) {
+		var value = get();
+		if (value != null) {
+			consumer.accept((E) value);
+		}
+	}
+
 	/**
 	 * Set the current value of the attribute.
 	 *
@@ -94,30 +103,98 @@ public interface STAttribute extends STObject {
 	public long timestamp();
 
 	public default String asString() {
-		return "";
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof String v) {
+			return v;
+		}
+		if (value instanceof Integer v) {
+			return Integer.toString(v);
+		}
+
+		throw new ClassCastException();
 	}
 
 	public default long asLong() {
-		return 0;
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof Long v) {
+			return v;
+		}
+		if (value instanceof String v) {
+			return Long.parseLong(v);
+		}
+
+		throw new ClassCastException();
 	}
 
 	public default int asInt() {
-		return 0;
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof Integer v) {
+			return v;
+		}
+		if (value instanceof String v) {
+			return Integer.parseInt(v);
+		}
+
+		throw new ClassCastException();
 	}
 
 	public default boolean asBoolean() {
-		return false;
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof Boolean v) {
+			return v;
+		}
+		if (value instanceof String v) {
+			return Boolean.parseBoolean(v);
+		}
+
+		throw new ClassCastException();
 	}
 
 	public default byte[] asBytes() {
-		return null;
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof byte[]v) {
+			return v;
+		}
+
+		throw new ClassCastException();
 	}
 
 	public default InstanceType asInstanceType() {
-		return Metatypes.InstanceType.forNumber(asInt());
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof InstanceType v) {
+			return v;
+		}
+
+		throw new ClassCastException();
 	}
 
 	public default X509Certificate asX590Certificate() {
-		return null;
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof X509Certificate v) {
+			return v;
+		}
+
+		throw new ClassCastException();
 	}
 }
