@@ -11,6 +11,8 @@ package com.sandpolis.core.instance.state.st;
 
 import static com.sandpolis.core.instance.State.ProtoAttributeValue.newBuilder;
 
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,30 +21,81 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.protobuf.UnsafeByteOperations;
+import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
+import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.State.ProtoAttributeValue;
 import com.sandpolis.core.instance.State.ProtoAttributeValues;
 import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
 import com.sandpolis.core.instance.state.oid.Oid;
+import com.sandpolis.core.foundation.Platform.OsType;
+import com.sandpolis.core.foundation.util.CertUtil;
 
 public class EphemeralAttribute extends AbstractSTObject implements STAttribute {
 
 	public static enum AttributeType {
-		BOOLEAN(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBoolean()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setBoolean((boolean) value.value()).build()),
-		BOOLEAN_ARRAY(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBooleanArrayList()),
+		BOOLEAN( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getBoolean()), //
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setBoolean((boolean) value.value()).build()), //
+		BOOLEAN_ARRAY( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getBooleanArrayList()), //
 				value -> newBuilder().setTimestamp(value.timestamp()).build()),
-		BYTES(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBytes().toByteArray()),
-				value -> newBuilder().setTimestamp(value.timestamp())
-						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build()),
-		INTEGER(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getInteger()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setInteger((Integer) value.value()).build()),
-		LONG(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getLong()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setLong((Long) value.value()).build()),
-		STRING(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getString()),
-				value -> newBuilder().setTimestamp(value.timestamp()).setString((String) value.value()).build()),
-		X509CERTIFICATE(proto -> new EphemeralAttributeValue(proto.getTimestamp(), proto.getBytes().toByteArray()),
-				value -> newBuilder().setTimestamp(value.timestamp())
-						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build());
+		BYTES( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getBytes().toByteArray()), //
+				value -> newBuilder().setTimestamp(value.timestamp())//
+						.setBytes(UnsafeByteOperations.unsafeWrap((byte[]) value.value())).build()), //
+		INSTANCE_FLAVOR( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						InstanceFlavor.forNumber(proto.getInteger())), //
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setInteger(((InstanceFlavor) value.value()).getNumber()).build()), //
+		INSTANCE_TYPE( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						InstanceType.forNumber(proto.getInteger())), //
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setInteger(((InstanceType) value.value()).getNumber()).build()), //
+		INTEGER( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getInteger()),
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setInteger((Integer) value.value()).build()), //
+		LONG( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getLong()), //
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setLong((Long) value.value()).build()), //
+		OS_TYPE( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						OsType.forNumber(proto.getInteger())), //
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setInteger(((OsType) value.value()).getNumber()).build()), //
+		STRING( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getString()), //
+				value -> newBuilder().setTimestamp(value.timestamp()) //
+						.setString((String) value.value()).build()), //
+		X509CERTIFICATE( //
+				proto -> {
+					try {
+						return new EphemeralAttributeValue(proto.getTimestamp(), //
+								CertUtil.parseCert(proto.getBytes().toByteArray()));
+					} catch (CertificateException e) {
+						return null;
+					}
+				}, //
+				value -> {
+					try {
+						return newBuilder().setTimestamp(value.timestamp()) //
+								.setBytes(
+										UnsafeByteOperations.unsafeWrap(((X509Certificate) value.value()).getEncoded()))
+								.build();
+					} catch (CertificateEncodingException e) {
+						return null;
+					}
+				});
 
 		public final Function<EphemeralAttributeValue, ProtoAttributeValue> pack;
 
@@ -134,6 +187,12 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		}
 		if (value instanceof boolean[]) {
 			return AttributeType.BOOLEAN_ARRAY;
+		}
+		if (value instanceof InstanceType) {
+			return AttributeType.INSTANCE_TYPE;
+		}
+		if (value instanceof InstanceFlavor) {
+			return AttributeType.INSTANCE_FLAVOR;
 		}
 		throw new IllegalArgumentException("Unknown attribute value type: " + value.getClass());
 	}

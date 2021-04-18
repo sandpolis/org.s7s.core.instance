@@ -205,7 +205,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 			return;
 		}
 
-		log.debug("Loading plugin: {} ({})", plugin.get(PluginOid.NAME), plugin.get(PluginOid.PACKAGE_ID));
+		log.debug("Loading plugin: {} ({})", plugin.get(PluginOid.NAME).asString(), plugin.get(PluginOid.PACKAGE_ID).asString());
 
 		try {
 			plugin.load();
@@ -245,7 +245,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 						// Read plugin id
 						String id = JarUtil.getManifestValue(path.toFile(), "Plugin-Id").orElse(null);
 
-						return stream.noneMatch(plugin -> plugin.get(PluginOid.PACKAGE_ID).equals(id));
+						return stream.noneMatch(plugin -> plugin.get(PluginOid.PACKAGE_ID).asString().equals(id));
 					} catch (IOException e) {
 						return false;
 					}

@@ -83,8 +83,8 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	 */
 	public Optional<Profile> getClient(String username) {
 		requireNonNull(username);
-		return values().stream().filter(profile -> username.equals(profile.get(ClientOid.USERNAME).asString()))
-				.findFirst();
+		return values().stream().filter(profile -> profile.get(ClientOid.USERNAME).isPresent())
+				.filter(profile -> username.equals(profile.get(ClientOid.USERNAME).asString())).findFirst();
 	}
 
 	@Override

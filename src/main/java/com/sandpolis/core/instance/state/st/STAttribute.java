@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.sandpolis.core.instance.Metatypes;
+import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.state.st.EphemeralAttribute.EphemeralAttributeValue;
 
@@ -180,6 +180,18 @@ public interface STAttribute extends STObject {
 			throw new NoSuchElementException("No value present");
 
 		if (value instanceof InstanceType v) {
+			return v;
+		}
+
+		throw new ClassCastException();
+	}
+
+	public default InstanceFlavor asInstanceFlavor() {
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof InstanceFlavor v) {
 			return v;
 		}
 
