@@ -78,12 +78,16 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
 	@Override
 	public void forEachAttribute(Consumer<STAttribute> consumer) {
-		attributes.values().forEach(consumer);
+		synchronized (attributes) {
+			attributes.values().forEach(consumer);
+		}
 	}
 
 	@Override
 	public void forEachDocument(Consumer<STDocument> consumer) {
-		documents.values().forEach(consumer);
+		synchronized (documents) {
+			documents.values().forEach(consumer);
+		}
 	}
 
 	@Override
@@ -146,10 +150,10 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
 		if (oids.length == 0) {
 			synchronized (documents) {
-				documents.values().stream().map(STDocument::snapshot).forEach(snapshot::mergeFrom);
+				documents().stream().map(STDocument::snapshot).forEach(snapshot::mergeFrom);
 			}
 			synchronized (attributes) {
-				attributes.values().stream().map(STAttribute::snapshot).forEach(snapshot::mergeFrom);
+				attributes().stream().map(STAttribute::snapshot).forEach(snapshot::mergeFrom);
 			}
 		} else {
 			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray()) {
@@ -167,11 +171,15 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
 	@Override
 	public void set(String id, STAttribute attribute) {
-		var previous = attributes.put(id, attribute);
+		synchronized (attributes) {
+			var previous = attributes.put(id, attribute);
+		}
 	}
 
 	@Override
 	public void set(String id, STDocument document) {
-		var previous = documents.put(id, document);
+		synchronized (documents) {
+			var previous = documents.put(id, document);
+		}
 	}
 }

@@ -62,8 +62,9 @@ public abstract class StoreBase {
 	 */
 	public final void post(Object event) {
 
-		if (log.isDebugEnabled())
-			log.debug("Event fired: {}", event);
+		// Logging here seems to be a problem?
+//		if (log.isDebugEnabled())
+//			log.debug("Event fired: {}", event);
 
 		bus.post(event);
 	}

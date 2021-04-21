@@ -21,14 +21,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.protobuf.UnsafeByteOperations;
+import com.sandpolis.core.foundation.Platform.OsType;
+import com.sandpolis.core.foundation.util.CertUtil;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.State.ProtoAttributeValue;
 import com.sandpolis.core.instance.State.ProtoAttributeValues;
 import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
 import com.sandpolis.core.instance.state.oid.Oid;
-import com.sandpolis.core.foundation.Platform.OsType;
-import com.sandpolis.core.foundation.util.CertUtil;
 
 public class EphemeralAttribute extends AbstractSTObject implements STAttribute {
 
@@ -54,9 +54,9 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 						.setInteger(((InstanceFlavor) value.value()).getNumber()).build()), //
 		INSTANCE_TYPE( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
-						InstanceType.forNumber(proto.getInteger())), //
+						InstanceType.forNumber(proto.getInstanceType())), //
 				value -> newBuilder().setTimestamp(value.timestamp()) //
-						.setInteger(((InstanceType) value.value()).getNumber()).build()), //
+						.setInstanceType(((InstanceType) value.value()).getNumber()).build()), //
 		INTEGER( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
 						proto.getInteger()),
@@ -169,6 +169,25 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		}
 	}
 
+	private AttributeType findType(ProtoAttributeValue value) {
+		switch (value.getSingularTypeCase()) {
+		case BOOLEAN:
+			return AttributeType.BOOLEAN;
+		case BYTES:
+			return AttributeType.BYTES;
+		case INTEGER:
+			return AttributeType.INTEGER;
+		case LONG:
+			return AttributeType.LONG;
+		case STRING:
+			return AttributeType.STRING;
+		case INSTANCE_TYPE:
+			return AttributeType.INSTANCE_TYPE;
+		default:
+			throw new IllegalArgumentException("Unknown attribute value type: " + value);
+		}
+	}
+
 	private AttributeType findType(Object value) {
 		if (value instanceof String) {
 			return AttributeType.STRING;
@@ -187,6 +206,9 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		}
 		if (value instanceof boolean[]) {
 			return AttributeType.BOOLEAN_ARRAY;
+		}
+		if (value instanceof byte[]) {
+			return AttributeType.BYTES;
 		}
 		if (value instanceof InstanceType) {
 			return AttributeType.INSTANCE_TYPE;
@@ -224,6 +246,11 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 
 		snapshot.getChangedMap().forEach((path, change) -> {
 			var oid = Oid.of(path);
+
+			// Set type if necessary
+			if (type == null) {
+				type = findType(change.getValue(0));
+			}
 
 			if (oid.quantifier() == null) {
 				// This OID refers to the current value
@@ -310,10 +337,17 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		if (oid.length == 0) {
 			// Request for current value only
 			if (source != null) {
-				snapshot.putChanged(oid().toString(), ProtoAttributeValues.newBuilder()
-						.addValue(
-								type.pack.apply(new EphemeralAttributeValue(System.currentTimeMillis(), source.get())))
-						.build());
+				var value = source.get();
+				if (type == null) {
+					// Determine type experimentally
+					type = findType(value);
+				}
+
+				snapshot.putChanged(oid().toString(),
+						ProtoAttributeValues.newBuilder()
+								.addValue(
+										type.pack.apply(new EphemeralAttributeValue(System.currentTimeMillis(), value)))
+								.build());
 			} else {
 				snapshot.putChanged(oid().toString(),
 						ProtoAttributeValues.newBuilder().addValue(type.pack.apply(current)).build());
@@ -332,9 +366,7 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 	}
 
 	/**
-	 * Get the timestamp associated with the current value.
-	 *
-	 * @return The current timestamp
+	 * @return The timestamp associated with the current value
 	 */
 	public synchronized long timestamp() {
 		if (source != null)
