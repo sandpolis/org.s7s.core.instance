@@ -10,8 +10,6 @@
 package com.sandpolis.core.instance.state.st;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -21,9 +19,9 @@ import com.sandpolis.core.instance.state.oid.Oid;
 
 public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
-	protected final Map<String, STAttribute> attributes;
+	private final Map<String, STAttribute> attributes;
 
-	protected final Map<String, STDocument> documents;
+	private final Map<String, STDocument> documents;
 
 	public EphemeralDocument(STDocument parent, String id) {
 		super(parent, id);
@@ -34,11 +32,6 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 	@Override
 	public int attributeCount() {
 		return attributes.size();
-	}
-
-	@Override
-	public Collection<STAttribute> attributes() {
-		return Collections.unmodifiableCollection(attributes.values());
 	}
 
 	@Override
@@ -69,11 +62,6 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 	@Override
 	public int documentCount() {
 		return documents.size();
-	}
-
-	@Override
-	public Collection<STDocument> documents() {
-		return Collections.unmodifiableCollection(documents.values());
 	}
 
 	@Override
@@ -150,10 +138,10 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
 		if (oids.length == 0) {
 			synchronized (documents) {
-				documents().stream().map(STDocument::snapshot).forEach(snapshot::mergeFrom);
+				documents.values().stream().map(STDocument::snapshot).forEach(snapshot::mergeFrom);
 			}
 			synchronized (attributes) {
-				attributes().stream().map(STAttribute::snapshot).forEach(snapshot::mergeFrom);
+				attributes.values().stream().map(STAttribute::snapshot).forEach(snapshot::mergeFrom);
 			}
 		} else {
 			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray()) {

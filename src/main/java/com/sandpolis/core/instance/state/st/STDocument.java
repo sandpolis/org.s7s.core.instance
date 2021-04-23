@@ -10,7 +10,6 @@
 package com.sandpolis.core.instance.state.st;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -88,11 +87,6 @@ public interface STDocument extends STObject {
 	 */
 	public int attributeCount();
 
-	/**
-	 * @return A collection of all sub-attributes
-	 */
-	public Collection<STAttribute> attributes();
-
 	public default void copyFrom(STDocument other) {
 		other.forEachDocument(document -> {
 			this.document(document.oid().last()).copyFrom(document);
@@ -127,27 +121,18 @@ public interface STDocument extends STObject {
 	public int documentCount();
 
 	/**
-	 * @return An immutable collection of all {@link STDocument} members
-	 */
-	public Collection<STDocument> documents();
-
-	/**
 	 * Perform the given action on all {@link STAttribute} members.
 	 *
 	 * @param consumer The action
 	 */
-	public default void forEachAttribute(Consumer<STAttribute> consumer) {
-		attributes().forEach(consumer);
-	}
+	public void forEachAttribute(Consumer<STAttribute> consumer);
 
 	/**
 	 * Perform the given action on all {@link STDocument} members.
 	 *
 	 * @param consumer The action
 	 */
-	public default void forEachDocument(Consumer<STDocument> consumer) {
-		documents().forEach(consumer);
-	}
+	public void forEachDocument(Consumer<STDocument> consumer);
 
 	/**
 	 * Remove the given {@link STAttribute} member.

@@ -27,6 +27,7 @@ message ProtoAttributeValue {
         bool    boolean  = 6;
         double  double   = 7;
         int32   instance_type  = 8;
+        int32   os_type  = 9;
     }
 
     repeated string  string_array   = 30;

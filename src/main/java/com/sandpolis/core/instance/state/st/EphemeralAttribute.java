@@ -69,9 +69,9 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 						.setLong((Long) value.value()).build()), //
 		OS_TYPE( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
-						OsType.forNumber(proto.getInteger())), //
+						OsType.forNumber(proto.getOsType())), //
 				value -> newBuilder().setTimestamp(value.timestamp()) //
-						.setInteger(((OsType) value.value()).getNumber()).build()), //
+						.setOsType(((OsType) value.value()).getNumber()).build()), //
 		STRING( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
 						proto.getString()), //
@@ -183,6 +183,8 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 			return AttributeType.STRING;
 		case INSTANCE_TYPE:
 			return AttributeType.INSTANCE_TYPE;
+		case OS_TYPE:
+			return AttributeType.OS_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown attribute value type: " + value);
 		}
@@ -215,6 +217,9 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		}
 		if (value instanceof InstanceFlavor) {
 			return AttributeType.INSTANCE_FLAVOR;
+		}
+		if (value instanceof OsType) {
+			return AttributeType.OS_TYPE;
 		}
 		throw new IllegalArgumentException("Unknown attribute value type: " + value.getClass());
 	}

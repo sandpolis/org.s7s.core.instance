@@ -65,6 +65,7 @@ public abstract class StoreBase {
 		// Logging here seems to be a problem?
 //		if (log.isDebugEnabled())
 //			log.debug("Event fired: {}", event);
+		System.out.println("Event fired: " + event);
 
 		bus.post(event);
 	}
