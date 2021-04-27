@@ -20,15 +20,7 @@
 				"type": "java.lang.Integer"
 			},
 			{
-				"name": "ip_address",
-				"type": "java.lang.String"
-			},
-			{
-				"name": "latency",
-				"type": "java.lang.Integer"
-			},
-			{
-				"name": "online",
+				"name": "status",
 				"type": "java.lang.Boolean"
 			}
 		]
@@ -82,95 +74,6 @@
 			},
 			{
 				"name": "local_instance_flavor",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceFlavor"
-			},
-			{
-				"name": "upload_total",
-				"type": "java.lang.Long"
-			},
-			{
-				"name": "download_total",
-				"type": "java.lang.Long"
-			},
-			{
-				"name": "connected",
-				"type": "java.lang.Boolean"
-			},
-			{
-				"name": "authenticated",
-				"type": "java.lang.Boolean"
-			},
-			{
-				"name": "certificate_valid",
-				"type": "java.lang.Boolean"
-			},
-			{
-				"name": "cumulative_read_bytes",
-				"type": "java.lang.Long"
-			},
-			{
-				"name": "cumulative_write_bytes",
-				"type": "java.lang.Long"
-			},
-			{
-				"name": "read_throughput",
-				"type": "java.lang.Long"
-			},
-			{
-				"name": "write_throughput",
-				"type": "java.lang.Long"
-			}
-		]
-	},
-	{
-		"name": "/network_connection/",
-		"attributes": [
-			{
-				"name": "right_port",
-				"type": "java.lang.Integer"
-			},
-			{
-				"name": "left_port",
-				"type": "java.lang.Integer"
-			},
-			{
-				"name": "right_address",
-				"type": "java.lang.String"
-			},
-			{
-				"name": "left_address",
-				"type": "java.lang.String"
-			},
-			{
-				"name": "right_cvid",
-				"type": "java.lang.Integer"
-			},
-			{
-				"name": "left_cvid",
-				"type": "java.lang.Integer"
-			},
-			{
-				"name": "right_uuid",
-				"type": "java.lang.String"
-			},
-			{
-				"name": "left_uuid",
-				"type": "java.lang.String"
-			},
-			{
-				"name": "right_instance",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceType"
-			},
-			{
-				"name": "left_instance",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceType"
-			},
-			{
-				"name": "right_instance_flavor",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceFlavor"
-			},
-			{
-				"name": "left_instance_flavor",
 				"type": "com.sandpolis.core.instance.Metatypes.InstanceFlavor"
 			},
 			{

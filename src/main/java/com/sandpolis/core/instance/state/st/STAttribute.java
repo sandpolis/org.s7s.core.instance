@@ -54,99 +54,6 @@ public interface STAttribute extends STObject {
 		UNLIMITED;
 	}
 
-	/**
-	 * Get the history of the attribute's value if enabled by the
-	 * {@link RetentionPolicy}.
-	 *
-	 * @return An unmodifiable list
-	 */
-	public List<EphemeralAttributeValue> history();
-
-	public Object get();
-
-	/**
-	 * Get whether the attribute has a current value.
-	 *
-	 * @return Whether the attribute's value is {@code null}
-	 */
-	public default boolean isPresent() {
-		return get() != null;
-	}
-
-	public default <E> void ifPresent(Consumer<E> consumer) {
-		var value = get();
-		if (value != null) {
-			consumer.accept((E) value);
-		}
-	}
-
-	/**
-	 * Set the current value of the attribute.
-	 *
-	 * @param value The new value to replace the current value or {@code null}
-	 */
-	public void set(Object value);
-
-	/**
-	 * Specify a source for the attribute's value. Setting an attribute source
-	 * "binds" the attribute and will cause {@link #set(Object)} calls to fail.
-	 *
-	 * @param source The source or {@code null} to remove the previous source
-	 */
-	public void source(Supplier<?> source);
-
-	/**
-	 * Get the timestamp associated with the attribute's current value.
-	 *
-	 * @return The current timestamp
-	 */
-	public long timestamp();
-
-	public default String asString() {
-		var value = get();
-		if (value == null)
-			throw new NoSuchElementException("No value present");
-
-		if (value instanceof String v) {
-			return v;
-		}
-		if (value instanceof Integer v) {
-			return Integer.toString(v);
-		}
-
-		throw new ClassCastException();
-	}
-
-	public default long asLong() {
-		var value = get();
-		if (value == null)
-			throw new NoSuchElementException("No value present");
-
-		if (value instanceof Long v) {
-			return v;
-		}
-		if (value instanceof String v) {
-			return Long.parseLong(v);
-		}
-
-		throw new ClassCastException();
-	}
-
-	public default int asInt() {
-		var value = get();
-		if (value == null)
-			throw new NoSuchElementException("No value present");
-
-		if (value instanceof Integer v) {
-			return v;
-		}
-		if (value instanceof String v) {
-			return Integer.parseInt(v);
-		}
-
-		throw new ClassCastException();
-	}
-
 	public default boolean asBoolean() {
 		var value = get();
 		if (value == null)
@@ -174,6 +81,18 @@ public interface STAttribute extends STObject {
 		throw new ClassCastException();
 	}
 
+	public default InstanceFlavor asInstanceFlavor() {
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof InstanceFlavor v) {
+			return v;
+		}
+
+		throw new ClassCastException();
+	}
+
 	public default InstanceType asInstanceType() {
 		var value = get();
 		if (value == null)
@@ -186,13 +105,46 @@ public interface STAttribute extends STObject {
 		throw new ClassCastException();
 	}
 
-	public default InstanceFlavor asInstanceFlavor() {
+	public default int asInt() {
 		var value = get();
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof InstanceFlavor v) {
+		if (value instanceof Integer v) {
 			return v;
+		}
+		if (value instanceof String v) {
+			return Integer.parseInt(v);
+		}
+
+		throw new ClassCastException();
+	}
+
+	public default long asLong() {
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof Long v) {
+			return v;
+		}
+		if (value instanceof String v) {
+			return Long.parseLong(v);
+		}
+
+		throw new ClassCastException();
+	}
+
+	public default String asString() {
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof String v) {
+			return v;
+		}
+		if (value instanceof Integer v) {
+			return Integer.toString(v);
 		}
 
 		throw new ClassCastException();
@@ -209,4 +161,52 @@ public interface STAttribute extends STObject {
 
 		throw new ClassCastException();
 	}
+
+	public Object get();
+
+	/**
+	 * Get the history of the attribute's value if enabled by the
+	 * {@link RetentionPolicy}.
+	 *
+	 * @return An unmodifiable list
+	 */
+	public List<EphemeralAttributeValue> history();
+
+	public default <E> void ifPresent(Consumer<E> consumer) {
+		var value = get();
+		if (value != null) {
+			consumer.accept((E) value);
+		}
+	}
+
+	/**
+	 * Get whether the attribute has a current value.
+	 *
+	 * @return Whether the attribute's value is {@code null}
+	 */
+	public default boolean isPresent() {
+		return get() != null;
+	}
+
+	/**
+	 * Set the current value of the attribute.
+	 *
+	 * @param value The new value to replace the current value or {@code null}
+	 */
+	public void set(Object value);
+
+	/**
+	 * Specify a source for the attribute's value. Setting an attribute source
+	 * "binds" the attribute and will cause {@link #set(Object)} calls to fail.
+	 *
+	 * @param source The source or {@code null} to remove the previous source
+	 */
+	public void source(Supplier<?> source);
+
+	/**
+	 * Get the timestamp associated with the attribute's current value.
+	 *
+	 * @return The current timestamp
+	 */
+	public long timestamp();
 }
