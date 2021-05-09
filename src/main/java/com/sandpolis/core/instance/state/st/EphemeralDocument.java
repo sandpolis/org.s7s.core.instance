@@ -9,13 +9,9 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
-import com.sandpolis.core.instance.state.oid.Oid;
 
 public class EphemeralDocument extends AbstractSTObject implements STDocument {
 
@@ -79,27 +75,6 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 	}
 
 	@Override
-	public void merge(ProtoSTObjectUpdate snapshot) {
-
-		// Handle removals
-		snapshot.getRemovedList().stream().map(Oid::of).forEach(removal -> {
-			if (oid().path().length - removal.path().length == 1) {
-				if (removal.quantifier() != null) {
-					remove(removal.last());
-				} else {
-					// TODO
-				}
-			} else {
-				// TODO
-			}
-		});
-
-		snapshot.getChangedMap().forEach((path, change) -> {
-			attribute(Oid.of(path).path()).merge(ProtoSTObjectUpdate.newBuilder().putChanged(path, change).build());
-		});
-	}
-
-	@Override
 	public void remove(STAttribute attribute) {
 		synchronized (attributes) {
 			if (attributes.values().remove(attribute)) {
@@ -132,35 +107,10 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 	}
 
 	@Override
-	public ProtoSTObjectUpdate snapshot(Oid... oids) {
-
-		var snapshot = ProtoSTObjectUpdate.newBuilder();
-
-		if (oids.length == 0) {
-			synchronized (documents) {
-				documents.values().stream().map(STDocument::snapshot).forEach(snapshot::mergeFrom);
-			}
-			synchronized (attributes) {
-				attributes.values().stream().map(STAttribute::snapshot).forEach(snapshot::mergeFrom);
-			}
-		} else {
-			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray()) {
-				var children = Arrays.stream(oids).filter(oid -> oid.first() != head).toArray(Oid[]::new);
-
-				if (documents.containsKey(head))
-					snapshot.mergeFrom(documents.get(head).snapshot(children));
-				if (attributes.containsKey(head))
-					snapshot.mergeFrom(attributes.get(head).snapshot());
-			}
-		}
-
-		return snapshot.build();
-	}
-
-	@Override
 	public void set(String id, STAttribute attribute) {
 		synchronized (attributes) {
 			var previous = attributes.put(id, attribute);
+			attribute.replaceParent(this);
 		}
 	}
 
@@ -168,6 +118,17 @@ public class EphemeralDocument extends AbstractSTObject implements STDocument {
 	public void set(String id, STDocument document) {
 		synchronized (documents) {
 			var previous = documents.put(id, document);
+			document.replaceParent(this);
 		}
+	}
+
+	@Override
+	public STDocument getDocument(String id) {
+		return documents.get(id);
+	}
+
+	@Override
+	public STAttribute getAttribute(String id) {
+		return attributes.get(id);
 	}
 }

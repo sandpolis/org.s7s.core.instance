@@ -30,23 +30,18 @@ public abstract class AbstractSTObject implements STObject {
 	 */
 	private EventBus bus;
 
+	private final String id;
+
 	/**
 	 * The number of listeners registered to the {@link #bus}.
 	 */
 	private int listeners;
 
-	protected final Oid oid;
-
-	@Override
-	public Oid oid() {
-		return oid;
-	}
-
-	protected final AbstractSTObject parent;
+	protected AbstractSTObject parent;
 
 	public AbstractSTObject(STDocument parent, String id) {
 		this.parent = (AbstractSTObject) parent;
-		this.oid = this.parent != null ? this.parent.oid.child(id) : Oid.of("/");
+		this.id = id;
 	}
 
 	@Override
@@ -56,22 +51,6 @@ public abstract class AbstractSTObject implements STObject {
 		}
 		bus.register(listener);
 		listeners++;
-	}
-
-	@Override
-	public STDocument parent() {
-		return (STDocument) parent;
-	}
-
-	@Override
-	public synchronized void removeListener(Object listener) {
-		if (bus != null) {
-			bus.unregister(listener);
-			listeners--;
-		}
-		if (listeners == 0) {
-			bus = null;
-		}
 	}
 
 	protected synchronized void fireAttributeValueChangedEvent(STAttribute attribute, EphemeralAttributeValue oldValue,
@@ -121,5 +100,38 @@ public abstract class AbstractSTObject implements STObject {
 
 		if (parent != null)
 			parent.fireDocumentRemovedEvent(document, oldDocument);
+	}
+
+	@Override
+	public Oid oid() {
+		if (parent == null) {
+			if (id == null) {
+				return Oid.of("/");
+			} else {
+				return Oid.of("/").child(id);
+			}
+		}
+		return parent.oid().child(id);
+	}
+
+	@Override
+	public STDocument parent() {
+		return (STDocument) parent;
+	}
+
+	@Override
+	public synchronized void removeListener(Object listener) {
+		if (bus != null) {
+			bus.unregister(listener);
+			listeners--;
+		}
+		if (listeners == 0) {
+			bus = null;
+		}
+	}
+
+	@Override
+	public void replaceParent(STDocument parent) {
+		this.parent = (AbstractSTObject) parent;
 	}
 }

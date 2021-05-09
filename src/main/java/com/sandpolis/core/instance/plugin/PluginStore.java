@@ -205,7 +205,8 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 			return;
 		}
 
-		log.debug("Loading plugin: {} ({})", plugin.get(PluginOid.NAME).asString(), plugin.get(PluginOid.PACKAGE_ID).asString());
+		log.debug("Loading plugin: {} ({})", plugin.get(PluginOid.NAME).asString(),
+				plugin.get(PluginOid.PACKAGE_ID).asString());
 
 		try {
 			plugin.load();

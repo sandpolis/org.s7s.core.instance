@@ -9,10 +9,12 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
 import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
@@ -38,7 +40,7 @@ public interface STDocument extends STObject {
 	/**
 	 * Retrieve or create an attribute at the given OID. Any intermediate documents
 	 * will be created if necessary.
-	 * 
+	 *
 	 * @param oid An OID which must be a descendant of this document's OID
 	 * @return A new or old attribute
 	 */
@@ -47,17 +49,15 @@ public interface STDocument extends STObject {
 	}
 
 	/**
-	 * Retrieve or create a child attribute with the given ID.
-	 * 
-	 * @param id The child ID
-	 * @return A new or old attribute
+	 * @param id The ID of the child to retrieve or create
+	 * @return A child attribute with the given ID
 	 */
 	public STAttribute attribute(String id);
 
 	/**
 	 * Retrieve or create an attribute at the given OID. Any intermediate documents
 	 * will be created if necessary.
-	 * 
+	 *
 	 * @param path An OID path which must be a descendant of this document's OID
 	 * @return A new or old attribute
 	 */
@@ -87,20 +87,23 @@ public interface STDocument extends STObject {
 	 */
 	public int attributeCount();
 
-	public default void copyFrom(STDocument other) {
-		other.forEachDocument(document -> {
-			this.document(document.oid().last()).copyFrom(document);
-		});
-		other.forEachAttribute(attribute -> {
-			this.attribute(attribute.oid().last()).set(attribute.get());
-		});
-	}
+	/*
+	 * public default void copyFrom(STDocument other) {
+	 * other.forEachDocument(document -> {
+	 * this.document(document.oid().last()).copyFrom(document); });
+	 * other.forEachAttribute(attribute -> {
+	 * this.attribute(attribute.oid().last()).set(attribute.get()); }); }
+	 */
 
 	public default STDocument document(Oid oid) {
 		return document(oid.path());
 	}
 
 	public STDocument document(String id);
+
+	public STDocument getDocument(String id);
+
+	public STAttribute getAttribute(String id);
 
 	public default STDocument document(String[] path) {
 		if (path.length == 0) {
@@ -158,4 +161,65 @@ public interface STDocument extends STObject {
 	public void set(String id, STAttribute attribute);
 
 	public void set(String id, STDocument document);
+
+	@Override
+	public default void merge(ProtoSTObjectUpdate snapshot) {
+
+		var oid = oid();
+
+		// Handle removals
+		snapshot.getRemovedList().stream().map(Oid::of).forEach(removal -> {
+			if (oid.path().length - removal.path().length == 1) {
+				if (removal.quantifier() != null) {
+					remove(removal.last());
+				} else {
+					// TODO
+				}
+			} else {
+				// TODO
+			}
+		});
+
+		snapshot.getChangedMap().forEach((path, change) -> {
+
+			var change_oid = Oid.of(path);
+
+			if (oid.isAncestorOf(change_oid)) {
+
+				// TODO!
+			}
+
+		});
+	}
+
+	@Override
+	public default ProtoSTObjectUpdate snapshot(Oid... oids) {
+
+		var snapshot = ProtoSTObjectUpdate.newBuilder();
+
+		if (oids.length == 0) {
+			forEachDocument(document -> {
+				snapshot.mergeFrom(document.snapshot());
+			});
+			forEachAttribute(attribute -> {
+				snapshot.mergeFrom(attribute.snapshot());
+			});
+		} else {
+			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray(String[]::new)) {
+				var children = Arrays.stream(oids).filter(oid -> oid.first() != head).toArray(Oid[]::new);
+
+				var document = getDocument(head);
+				if (document != null) {
+					snapshot.mergeFrom(document.snapshot(children));
+				}
+
+				var attribute = getAttribute(head);
+				if (attribute != null) {
+					snapshot.mergeFrom(attribute.snapshot());
+				}
+			}
+		}
+
+		return snapshot.build();
+	}
 }

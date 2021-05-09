@@ -138,8 +138,9 @@ public class Plugin extends AbstractSTDomainObject {
 		// Load plugin class if available
 		handle = ServiceLoader.load(SandpolisPlugin.class, classloader).stream().filter(prov -> {
 			// Restrict to services in the plugin component
-			return prov.type().getName().startsWith(String.format("%s.%s.%s", get(PluginOid.PACKAGE_ID),
-					Core.INSTANCE.toString().toLowerCase(), Core.FLAVOR.toString().toLowerCase()));
+			return prov.type().getName()
+					.startsWith(String.format("%s.%s.%s", get(PluginOid.PACKAGE_ID),
+							Core.INSTANCE.toString().toLowerCase(), Core.FLAVOR.toString().toLowerCase()));
 		}).map(ServiceLoader.Provider::get).findFirst().orElse(null);
 
 		if (handle != null)

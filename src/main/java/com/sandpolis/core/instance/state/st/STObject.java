@@ -48,6 +48,8 @@ public interface STObject {
 	 */
 	public Oid oid();
 
+	public void replaceParent(STDocument parent);
+
 	/**
 	 * Get this object's parent.
 	 *
