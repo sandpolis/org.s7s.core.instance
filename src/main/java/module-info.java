@@ -21,6 +21,7 @@ open module com.sandpolis.core.instance {
 	exports com.sandpolis.core.instance.store;
 	exports com.sandpolis.core.instance.thread;
 	exports com.sandpolis.core.instance.util;
+	exports com.sandpolis.core.instance.init;
 	exports com.sandpolis.core.instance;
 
 	requires ch.qos.logback.classic;

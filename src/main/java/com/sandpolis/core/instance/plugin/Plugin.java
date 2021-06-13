@@ -31,7 +31,7 @@ import com.google.common.io.Files;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.Resources;
 import com.sandpolis.core.foundation.util.JarUtil;
-import com.sandpolis.core.instance.Core;
+import com.sandpolis.core.instance.Entrypoint;
 import com.sandpolis.core.instance.Environment;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
@@ -125,7 +125,7 @@ public class Plugin extends AbstractSTDomainObject {
 	void load() throws IOException {
 		checkState(!get(PluginOid.LOADED).asBoolean());
 
-		Path component = getComponent(Core.INSTANCE, Core.FLAVOR);
+		Path component = getComponent(Entrypoint.data().instance(), Entrypoint.data().flavor());
 
 		// Build new classloader
 		if (exists(component)) {
@@ -140,7 +140,8 @@ public class Plugin extends AbstractSTDomainObject {
 			// Restrict to services in the plugin component
 			return prov.type().getName()
 					.startsWith(String.format("%s.%s.%s", get(PluginOid.PACKAGE_ID),
-							Core.INSTANCE.toString().toLowerCase(), Core.FLAVOR.toString().toLowerCase()));
+							Entrypoint.data().instance().toString().toLowerCase(),
+							Entrypoint.data().flavor().toString().toLowerCase()));
 		}).map(ServiceLoader.Provider::get).findFirst().orElse(null);
 
 		if (handle != null)

@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sandpolis.core.foundation.ConfigStruct;
-import com.sandpolis.core.instance.Core;
+import com.sandpolis.core.instance.Entrypoint;
 import com.sandpolis.core.instance.profile.ProfileStore.ProfileStoreConfig;
 import com.sandpolis.core.instance.state.ClientOid;
 import com.sandpolis.core.instance.state.ProfileOid;
@@ -98,9 +98,9 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 		setDocument(config.collection);
 
 		// Create the local instance if it doesn't exist
-		if (getByUuid(Core.UUID).isEmpty()) {
+		if (getByUuid(Entrypoint.data().uuid()).isEmpty()) {
 			create(profile -> {
-				profile.set(ProfileOid.UUID, Core.UUID);
+				profile.set(ProfileOid.UUID, Entrypoint.data().uuid());
 			});
 		}
 	}

@@ -80,12 +80,9 @@ public enum Environment {
 	 * @return A {@link Path} to the main jar file or {@code null}
 	 */
 	private static Path discoverJar() {
-		if (MainDispatch.getMain() == null)
-			// Called before dispatch
-			return null;
 
 		try {
-			return Paths.get(MainDispatch.getMain().getProtectionDomain().getCodeSource().getLocation().toURI());
+			return Paths.get(Entrypoint.data().main().getProtectionDomain().getCodeSource().getLocation().toURI());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -117,14 +114,16 @@ public enum Environment {
 	 * @param name The instance name
 	 */
 	public static void printEnvironment(Logger log, String name) {
-		log.info("{} ({})", TextUtil.rainbowText(name), Core.SO_BUILD.getProperty("instance.version", "?.?.?"));
+
+		final var so_build = Entrypoint.data().so_build();
+
+		log.info("{} ({})", TextUtil.rainbowText(name), so_build.getProperty("instance.version", "?.?.?"));
 		if (log.isDebugEnabled()) {
 			log.debug("------------------");
 			log.debug("        Build Env:");
-			log.debug("        Timestamp: {}",
-					new Date(Long.parseLong(Core.SO_BUILD.getProperty("build.timestamp", "0"))));
-			log.debug("         Platform: {}", Core.SO_BUILD.getProperty("build.platform", "Unknown"));
-			log.debug("              JVM: {}", Core.SO_BUILD.getProperty("build.java.version", "Unknown"));
+			log.debug("        Timestamp: {}", new Date(Long.parseLong(so_build.getProperty("build.timestamp", "0"))));
+			log.debug("         Platform: {}", so_build.getProperty("build.platform", "Unknown"));
+			log.debug("              JVM: {}", so_build.getProperty("build.java.version", "Unknown"));
 			log.debug("------------------");
 			log.debug("      Runtime Env:");
 			log.debug("        Timestamp: {}", new Date());
