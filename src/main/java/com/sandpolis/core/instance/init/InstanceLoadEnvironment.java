@@ -23,6 +23,8 @@ public class InstanceLoadEnvironment extends InitTask {
 		Environment.LOG.requireWritable();
 		Environment.PLUGIN.requireWritable();
 		Environment.TMP.requireWritable();
+
+		Environment.logEnvironment();
 		return outcome.success();
 	}
 

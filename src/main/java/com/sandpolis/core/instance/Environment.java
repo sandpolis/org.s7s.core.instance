@@ -14,16 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.ProtectionDomain;
-import java.util.Date;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sandpolis.core.foundation.config.ConfigProperty;
-import com.sandpolis.core.foundation.util.TextUtil;
 import com.sandpolis.core.instance.config.CfgInstance;
 
 /**
- * {@link Environment} contains nformation about the runtime file hierarchy.
+ * {@link Environment} contains information about the runtime file hierarchy.
  *
  * @since 4.0.0
  */
@@ -63,6 +62,8 @@ public enum Environment {
 	 * The temporary directory.
 	 */
 	TMP(discoverPath(CfgInstance.PATH_TMP, System.getProperty("java.io.tmpdir")));
+
+	private static final Logger log = LoggerFactory.getLogger(Environment.class);
 
 	public static void clearEnvironment() {
 		LIB.set(null);
@@ -113,32 +114,17 @@ public enum Environment {
 	 * @param log  The output log
 	 * @param name The instance name
 	 */
-	public static void printEnvironment(Logger log, String name) {
+	public static void logEnvironment() {
 
-		final var so_build = Entrypoint.data().so_build();
-
-		log.info("{} ({})", TextUtil.rainbowText(name), so_build.getProperty("instance.version", "?.?.?"));
 		if (log.isDebugEnabled()) {
-			log.debug("------------------");
-			log.debug("        Build Env:");
-			log.debug("        Timestamp: {}", new Date(Long.parseLong(so_build.getProperty("build.timestamp", "0"))));
-			log.debug("         Platform: {}", so_build.getProperty("build.platform", "Unknown"));
-			log.debug("              JVM: {}", so_build.getProperty("build.java.version", "Unknown"));
-			log.debug("------------------");
-			log.debug("      Runtime Env:");
-			log.debug("        Timestamp: {}", new Date());
-			log.debug("         Platform: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
-			log.debug("              JVM: {} ({})", System.getProperty("java.version"),
-					System.getProperty("java.vendor"));
-			log.debug("------------------");
-			log.debug("            Paths:");
-			log.debug("         JAR path: {}", JAR.path);
-			log.debug("         LIB path: {}", LIB.path);
-			log.debug("         LOG path: {}", LOG.path);
-			log.debug("      PLUGIN path: {}", PLUGIN.path);
-			log.debug("        DATA path: {}", DATA.path);
-			log.debug("         CFG path: {}", CFG.path);
-			log.debug("         TMP path: {}", TMP.path);
+			log.debug("Runtime Environment:");
+			log.debug("  JAR path: {}", JAR.path);
+			log.debug("  LIB path: {}", LIB.path);
+			log.debug("  LOG path: {}", LOG.path);
+			log.debug("  PLUGIN path: {}", PLUGIN.path);
+			log.debug("  DATA path: {}", DATA.path);
+			log.debug("  CFG path: {}", CFG.path);
+			log.debug("  TMP path: {}", TMP.path);
 		}
 	}
 
