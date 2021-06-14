@@ -66,7 +66,7 @@ public interface STAttribute extends STObject {
 			return Boolean.parseBoolean(v);
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default byte[] asBytes() {
@@ -78,7 +78,7 @@ public interface STAttribute extends STObject {
 			return v;
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default InstanceFlavor asInstanceFlavor() {
@@ -90,7 +90,7 @@ public interface STAttribute extends STObject {
 			return v;
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default InstanceType asInstanceType() {
@@ -102,7 +102,7 @@ public interface STAttribute extends STObject {
 			return v;
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default int asInt() {
@@ -117,7 +117,7 @@ public interface STAttribute extends STObject {
 			return Integer.parseInt(v);
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default long asLong() {
@@ -132,7 +132,7 @@ public interface STAttribute extends STObject {
 			return Long.parseLong(v);
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default String asString() {
@@ -147,7 +147,7 @@ public interface STAttribute extends STObject {
 			return Integer.toString(v);
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public default X509Certificate asX590Certificate() {
@@ -159,7 +159,7 @@ public interface STAttribute extends STObject {
 			return v;
 		}
 
-		throw new ClassCastException();
+		throw new ClassCastException(value.getClass().getName());
 	}
 
 	public Object get();
