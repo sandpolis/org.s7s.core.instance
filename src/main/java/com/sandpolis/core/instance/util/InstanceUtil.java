@@ -24,12 +24,8 @@ public class InstanceUtil {
 
 	public static InstanceFlavor[] getFlavors(InstanceType instance) {
 		switch (instance) {
-		case CHARCOAL:
-			return new InstanceFlavor[] {};
 		case AGENT:
 			return new InstanceFlavor[] { VANILLA };
-		case INSTALLER:
-			return new InstanceFlavor[] {};
 		case SERVER:
 			return new InstanceFlavor[] { VANILLA };
 		case CLIENT:

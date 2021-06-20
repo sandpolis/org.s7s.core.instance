@@ -25,3 +25,6 @@ jobs:
         SIGNING_PGP_PASSWORD: ${{ secrets.SIGNING_PGP_PASSWORD }}
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_TOKEN: ${{ github.token }}
+        S7S_BUILD_PROTO_RUST: 1
+        S7S_BUILD_PROTO_SWIFT: 1
+        S7S_BUILD_PROTO_CPP: 1

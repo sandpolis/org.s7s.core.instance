@@ -17,8 +17,8 @@ option optimize_for = CODE_SIZE;
 // An enumeration of all possible instance types.
 enum InstanceType {
 
-    // An application connected to the Sandpolis network for debugging purposes
-    CHARCOAL = 0;
+    // Indicates an unknown instance type
+    NONE = 0;
 
     // An application that coordinates communication between clients and agents
     SERVER = 1;
@@ -28,35 +28,34 @@ enum InstanceType {
 
     // An application used for managing agents and servers
     CLIENT = 3;
-
-    // An application responsible for installing and updating other instances
-    INSTALLER = 4;
 }
 
 // An enumeration of all official instance subtypes.
 enum InstanceFlavor {
 
-    // Only valid for charcoal and installer instances types
-    NONE = 0;
+    // Indicates an unknown instance subtype
+    GENERIC = 0;
 
-    // The official Java-based server or agent instance
+    // The standard server or agent:
+    //  - https://github.com/sandpolis/com.sandpolis.server.vanilla
+    //  - https://github.com/sandpolis/com.sandpolis.agent.vanilla
     VANILLA = 1;
 
-    // The official cross-platform client instance
-    MEGA = 2;
+    // C++ agent: https://github.com/sandpolis/com.sandpolis.agent.nano
+    NANO = 2;
 
-    // The official native client instance
+    // Rust agent: https://github.com/sandpolis/com.sandpolis.agent.micro
     MICRO = 3;
 
-    // The official terminal client instance
+    // Terminal client: https://github.com/sandpolis/com.sandpolis.client.ascetic
     ASCETIC = 4;
 
-    // The official desktop client instance
+    // Desktop client: https://github.com/sandpolis/com.sandpolis.client.lifegem
     LIFEGEM = 5;
 
-    // The official Android client instance
+    // Android client: https://github.com/sandpolis/com.sandpolis.client.soapstone
     SOAPSTONE = 6;
 
-    // The official iOS client instance
+    // iOS client: https://github.com/sandpolis/com.sandpolis.client.lockstone
     LOCKSTONE = 7;
 }
