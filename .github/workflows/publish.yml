@@ -31,7 +31,6 @@ jobs:
         swift build -c release
         mkdir -p ${HOME}/.local/bin
         cp .build/release/protoc-gen-swift ${HOME}/.local/bin
-        which protoc-gen-swift
 
     - name: Checkout repository
       uses: actions/checkout@v2
