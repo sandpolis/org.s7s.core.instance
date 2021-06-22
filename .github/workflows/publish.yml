@@ -8,14 +8,34 @@ jobs:
     name: Publish release
     runs-on: ubuntu-latest
     steps:
-    - name: Initialize Java
+    - name: Install Java
       uses: actions/setup-java@v1
       with:
         java-version: 16
+
+    - name: Install protoc-gen-rust
+      uses: actions-rs/cargo@v1
+      with:
+        command: install
+        args: protobuf-codegen
+
+    - name: Checkout swift-protobuf
+      uses: actions/checkout@v2
+      with:
+        repository: apple/swift-protobuf
+        path: /swift-protobuf
+
+    - name: Install protoc-gen-swift
+      working_directory: /swift-protobuf
+      run: |
+        swift build -c release
+        cp .build/release/protoc-gen-swift /usr/bin
+
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         submodules: recursive
+
     - name: Publish release
       uses: eskatos/gradle-command-action@v1
       with:
