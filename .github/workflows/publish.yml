@@ -26,7 +26,7 @@ jobs:
         path: /swift-protobuf
 
     - name: Install protoc-gen-swift
-      working_directory: /swift-protobuf
+      working-directory: /swift-protobuf
       run: |
         swift build -c release
         cp .build/release/protoc-gen-swift /usr/bin
