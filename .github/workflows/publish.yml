@@ -23,10 +23,10 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: apple/swift-protobuf
-        path: /swift-protobuf
+        path: ./swift-protobuf
 
     - name: Install protoc-gen-swift
-      working-directory: /swift-protobuf
+      working-directory: ./swift-protobuf
       run: |
         swift build -c release
         cp .build/release/protoc-gen-swift /usr/bin
