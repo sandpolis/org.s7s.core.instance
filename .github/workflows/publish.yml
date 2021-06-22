@@ -29,9 +29,8 @@ jobs:
       working-directory: ./swift-protobuf
       run: |
         swift build -c release
-        readlink -f '.build/release/protoc-gen-swift' >> ${GITHUB_PATH}
-        cat ${GITHUB_PATH}
-        echo "PATH: ${PATH}"
+        ls -la ${HOME}/.local/bin
+        cp .build/release/protoc-gen-swift ${HOME}/.local/bin
         which protoc-gen-swift
 
     - name: Checkout repository
