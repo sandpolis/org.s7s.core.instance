@@ -30,7 +30,7 @@ dependencies {
 	}
 
 	if (project.getParent() == null) {
-		api("com.sandpolis:core.foundation:0.2.0")
+		api("com.sandpolis:core.foundation:+")
 	} else {
 		api(project(":module:com.sandpolis.core.foundation"))
 	}
