@@ -19,13 +19,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
-import com.sandpolis.core.foundation.Result.Outcome;
 import com.sandpolis.core.foundation.util.SystemUtil;
 import com.sandpolis.core.foundation.util.TextUtil;
 import com.sandpolis.core.foundation.util.TextUtil.Color;
@@ -67,7 +65,7 @@ public abstract class Entrypoint {
 
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(Entrypoint.class);
+	private final Logger log;
 
 	private static EntrypointInfo metadata;
 
@@ -99,6 +97,7 @@ public abstract class Entrypoint {
 
 		Entrypoint.metadata = new EntrypointInfo(main, instance, flavor, readUuid(instance, flavor).toString(),
 				readBuildInfo(main));
+		log = LoggerFactory.getLogger(Entrypoint.class);
 	}
 
 	/**

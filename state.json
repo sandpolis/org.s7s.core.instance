@@ -348,6 +348,11 @@
 				"name": "totp_secret",
 				"type": "java.lang.Byte[]",
 				"description": "The user's TOTP secret"
+			},
+			{
+				"name": "current_cvid",
+				"type": "java.lang.Integer[]",
+				"description": "The user's current CVIDs"
 			}
 		]
 	},

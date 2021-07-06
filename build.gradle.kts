@@ -24,8 +24,11 @@ dependencies {
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 
 	// https://github.com/qos-ch/logback
-	implementation("ch.qos.logback:logback-core:1.3.0-alpha5")
+	implementation("ch.qos.logback:logback-core:1.3.0-alpha5") {
+		exclude(group = "edu.washington.cs.types.checker", module = "checker-framework")
+	}
 	implementation("ch.qos.logback:logback-classic:1.3.0-alpha5") {
+		exclude(group = "edu.washington.cs.types.checker", module = "checker-framework")
 		exclude(group = "com.sun.mail", module = "javax.mail")
 	}
 

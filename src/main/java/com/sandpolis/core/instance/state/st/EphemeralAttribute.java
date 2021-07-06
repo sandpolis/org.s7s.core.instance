@@ -41,7 +41,11 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		BOOLEAN_ARRAY( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
 						proto.getBooleanArrayList()), //
-				value -> newBuilder().setTimestamp(value.timestamp()).build()),
+				value -> newBuilder().setTimestamp(value.timestamp()).build()), // TODO
+		INT_ARRAY( //
+				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
+						proto.getIntegerArrayList()), //
+				value -> newBuilder().setTimestamp(value.timestamp()).build()), // TODO
 		BYTES( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
 						proto.getBytes().toByteArray()), //
@@ -208,6 +212,9 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		}
 		if (value instanceof boolean[]) {
 			return AttributeType.BOOLEAN_ARRAY;
+		}
+		if (value instanceof int[]) {
+			return AttributeType.INT_ARRAY;
 		}
 		if (value instanceof byte[]) {
 			return AttributeType.BYTES;

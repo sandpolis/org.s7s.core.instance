@@ -120,6 +120,18 @@ public interface STAttribute extends STObject {
 		throw new ClassCastException(value.getClass().getName());
 	}
 
+	public default int[] asIntArray() {
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof int[] v) {
+			return v;
+		}
+
+		throw new ClassCastException(value.getClass().getName());
+	}
+	
 	public default long asLong() {
 		var value = get();
 		if (value == null)
