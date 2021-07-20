@@ -9,11 +9,12 @@
 //============================================================================//
 package com.sandpolis.core.instance.util;
 
-import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.ASCETIC;
-import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.LIFEGEM;
-import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.LOCKSTONE;
-import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.SOAPSTONE;
-import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.VANILLA;
+import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.CLIENT_ASCETIC;
+import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.CLIENT_LIFEGEM;
+import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.CLIENT_LOCKSTONE;
+import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.CLIENT_SOAPSTONE;
+import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.SERVER_VANILLA;
+import static com.sandpolis.core.instance.Metatypes.InstanceFlavor.AGENT_KILO;
 
 import java.util.function.BiConsumer;
 
@@ -25,11 +26,11 @@ public class InstanceUtil {
 	public static InstanceFlavor[] getFlavors(InstanceType instance) {
 		switch (instance) {
 		case AGENT:
-			return new InstanceFlavor[] { VANILLA };
+			return new InstanceFlavor[] { AGENT_KILO };
 		case SERVER:
-			return new InstanceFlavor[] { VANILLA };
+			return new InstanceFlavor[] { SERVER_VANILLA };
 		case CLIENT:
-			return new InstanceFlavor[] { ASCETIC, LIFEGEM, SOAPSTONE, LOCKSTONE };
+			return new InstanceFlavor[] { CLIENT_ASCETIC, CLIENT_LIFEGEM, CLIENT_SOAPSTONE, CLIENT_LOCKSTONE };
 		default:
 			return null;
 		}

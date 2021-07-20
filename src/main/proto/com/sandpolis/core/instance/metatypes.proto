@@ -17,17 +17,20 @@ option optimize_for = CODE_SIZE;
 // An enumeration of all possible instance types.
 enum InstanceType {
 
-    // Indicates an unknown instance type
+    // Indicates the runtime environment does not have an instance type
     NONE = 0;
 
-    // An application that coordinates communication between clients and agents
+    // A headless application that coordinates communication between clients and agents
     SERVER = 1;
 
-    // An application that runs continuously on hosts in the Sandpolis network
+    // A headless application that runs continuously on hosts in the Sandpolis network
     AGENT = 2;
 
-    // An application used for managing agents and servers
+    // A UI application used for managing agents and servers
     CLIENT = 3;
+
+    // A headless application that installs or updates an agent
+    DISTAGENT = 4;
 }
 
 // An enumeration of all official instance subtypes.
@@ -36,26 +39,33 @@ enum InstanceFlavor {
     // Indicates an unknown instance subtype
     GENERIC = 0;
 
-    // The standard server or agent:
-    //  - https://github.com/sandpolis/com.sandpolis.server.vanilla
-    //  - https://github.com/sandpolis/com.sandpolis.agent.vanilla
-    VANILLA = 1;
+    // Standard server: https://github.com/sandpolis/com.sandpolis.server.vanilla
+    SERVER_VANILLA = 10;
 
-    // C++ agent: https://github.com/sandpolis/com.sandpolis.agent.nano
-    NANO = 2;
+    // Standard agent: https://github.com/sandpolis/com.sandpolis.agent.kilo
+    AGENT_KILO = 20;
 
     // Rust agent: https://github.com/sandpolis/com.sandpolis.agent.micro
-    MICRO = 3;
+    AGENT_MICRO = 21;
 
-    // Terminal client: https://github.com/sandpolis/com.sandpolis.client.ascetic
-    ASCETIC = 4;
+    // C++ agent: https://github.com/sandpolis/com.sandpolis.agent.nano
+    AGENT_NANO = 22;
 
     // Desktop client: https://github.com/sandpolis/com.sandpolis.client.lifegem
-    LIFEGEM = 5;
+    CLIENT_LIFEGEM = 30;
+
+    // Terminal client: https://github.com/sandpolis/com.sandpolis.client.ascetic
+    CLIENT_ASCETIC = 31;
 
     // Android client: https://github.com/sandpolis/com.sandpolis.client.soapstone
-    SOAPSTONE = 6;
+    CLIENT_SOAPSTONE = 32;
 
     // iOS client: https://github.com/sandpolis/com.sandpolis.client.lockstone
-    LOCKSTONE = 7;
+    CLIENT_LOCKSTONE = 33;
+
+    // Rust distagent: https://github.com/sandpolis/com.sandpolis.distagent.rust
+    DISTAGENT_RUST = 40;
+
+    // Java distagent: https://github.com/sandpolis/com.sandpolis.distagent.java
+    DISTAGENT_JAVA = 41;
 }
