@@ -9,7 +9,13 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
-import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import com.sandpolis.core.foundation.ConfigStruct;
+import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData;
 import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
@@ -39,7 +45,7 @@ public interface STObject {
 	 *
 	 * @param snapshot A state object snapshot
 	 */
-	public void merge(ProtoSTObjectUpdate snapshot);
+	public void merge(EV_STStreamData snapshot);
 
 	/**
 	 * Get the object's OID.
@@ -65,6 +71,12 @@ public interface STObject {
 	 */
 	public void removeListener(Object listener);
 
+	@ConfigStruct
+	public static final class STSnapshotStruct {
+		public Oid oid;
+		public List<Oid> whitelist = new ArrayList<>();
+	}
+
 	/**
 	 * Extract the object's state into a new snapshot. If whitelist OIDs are
 	 * specified, the snapshot will be "partial" and therefore only contain
@@ -74,5 +86,19 @@ public interface STObject {
 	 * @param oids Whitelisted OIDs
 	 * @return A new protocol buffer representing the object
 	 */
-	public ProtoSTObjectUpdate snapshot(Oid... oids);
+	public Stream<EV_STStreamData> snapshot(STSnapshotStruct config);
+
+	public default Stream<EV_STStreamData> snapshot(Consumer<STSnapshotStruct> configurator) {
+		var config = new STSnapshotStruct();
+		configurator.accept(config);
+
+		if (config.oid == null)
+			config.oid = oid();
+		return snapshot(config);
+	}
+
+	public default Stream<EV_STStreamData> snapshot() {
+		return snapshot(config -> {
+		});
+	}
 }

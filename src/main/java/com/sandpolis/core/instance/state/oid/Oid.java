@@ -13,12 +13,13 @@ import static com.sandpolis.core.instance.state.STStore.STStore;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ObjectArrays;
 import com.sandpolis.core.instance.state.st.STObject;
 
 /**
@@ -38,8 +39,6 @@ import com.sandpolis.core.instance.state.st.STObject;
  * objects of the same type.
  */
 public class Oid implements Comparable<Oid> {
-
-	private static final Pattern ATTR_QUANTIFIER = Pattern.compile(".+\\[(.*)\\.\\.(.*)\\]$");
 
 	private static final Logger log = LoggerFactory.getLogger(Oid.class);
 
@@ -116,35 +115,100 @@ public class Oid implements Comparable<Oid> {
 	 */
 	protected final String[] path;
 
-	/**
-	 * A timestamp range that selects values from attribute history.
-	 */
-	protected final long[] quantifier;
+	public final Optional<Long> timestampSelectorStart;
+
+	public final Optional<Long> timestampSelectorEnd;
+
+	public final Optional<Integer> indexSelectorStart;
+
+	public final Optional<Integer> indexSelectorEnd;
 
 	protected Oid(String namespace, String[] path) {
 		this.namespace = namespace;
 		this.path = path;
 
-		// Parse quantifier if present
+		// Parse temporal selectors at end
 		if (path.length > 0) {
-			var matcher = ATTR_QUANTIFIER.matcher(path[path.length - 1]);
-			if (matcher.matches()) {
-				quantifier = new long[] { 0, Long.MAX_VALUE };
-
-				String start = matcher.group(1);
-				String end = matcher.group(2);
-
-				if (!start.isBlank()) {
-					quantifier[0] = Long.parseLong(start);
+			String last = path[path.length - 1];
+			if (last.endsWith(")")) {
+				int s = last.lastIndexOf('(');
+				if (s == -1) {
+					throw new IllegalArgumentException("Expected timestamp range selector '('");
 				}
-				if (!end.isBlank()) {
-					quantifier[1] = Long.parseLong(end);
+				var range = last.substring(s + 1, last.length() - 1);
+				if (range.isBlank()) {
+					throw new IllegalArgumentException("Empty timestamp range selector");
 				}
+
+				// Remove selector from path
+				path[path.length - 1] = last.substring(0, s);
+
+				var parts = range.split("\\.\\.");
+				if (parts.length == 2) {
+					if (!parts[0].isBlank()) {
+						timestampSelectorStart = Optional.of(Long.parseLong(parts[0]));
+					} else {
+						timestampSelectorStart = Optional.of(0L);
+					}
+
+					if (!parts[1].isBlank()) {
+						timestampSelectorEnd = Optional.of(Long.parseLong(parts[1]));
+					} else {
+						timestampSelectorEnd = Optional.of(Long.MAX_VALUE);
+					}
+				} else {
+					timestampSelectorStart = Optional.of(Long.parseLong(parts[0]));
+					timestampSelectorEnd = Optional.of(Long.parseLong(parts[0]));
+				}
+
+				indexSelectorStart = Optional.empty();
+				indexSelectorEnd = Optional.empty();
+
+			} else if (last.endsWith("]")) {
+				int s = last.lastIndexOf('[');
+				if (s == -1) {
+					throw new IllegalArgumentException("Expected index range selector '['");
+				}
+				var range = last.substring(s + 1, last.length() - 1);
+				if (range.isBlank()) {
+					throw new IllegalArgumentException("Empty index range selector");
+				}
+
+				// Remove selector from path
+				path[path.length - 1] = last.substring(0, s);
+
+				var parts = range.split("\\.\\.");
+				if (parts.length == 2) {
+					if (!parts[0].isBlank()) {
+						indexSelectorStart = Optional.of(Integer.parseInt(parts[0]));
+					} else {
+						indexSelectorStart = Optional.of(0);
+					}
+
+					if (!parts[1].isBlank()) {
+						indexSelectorEnd = Optional.of(Integer.parseInt(parts[1]));
+					} else {
+						indexSelectorEnd = Optional.of(Integer.MAX_VALUE);
+					}
+				} else {
+					indexSelectorStart = Optional.of(Integer.parseInt(parts[0]));
+					indexSelectorEnd = Optional.of(Integer.parseInt(parts[0]));
+				}
+
+				timestampSelectorStart = Optional.empty();
+				timestampSelectorEnd = Optional.empty();
+
 			} else {
-				quantifier = null;
+				timestampSelectorStart = Optional.empty();
+				timestampSelectorEnd = Optional.empty();
+				indexSelectorStart = Optional.empty();
+				indexSelectorEnd = Optional.empty();
 			}
 		} else {
-			quantifier = null;
+			timestampSelectorStart = Optional.empty();
+			timestampSelectorEnd = Optional.empty();
+			indexSelectorStart = Optional.empty();
+			indexSelectorEnd = Optional.empty();
 		}
 	}
 
@@ -267,12 +331,12 @@ public class Oid implements Comparable<Oid> {
 		return path;
 	}
 
-	public long[] quantifier() {
-		return quantifier;
-	}
-
 	@Override
 	public String toString() {
 		return namespace + ":/" + Arrays.stream(path).collect(Collectors.joining("/"));
+	}
+
+	public Oid relative(String path) {
+		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class));
 	}
 }

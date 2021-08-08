@@ -11,10 +11,13 @@ package com.sandpolis.core.instance.state.st;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.sandpolis.core.instance.State.ProtoSTObjectUpdate;
+import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData;
 import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
@@ -163,63 +166,50 @@ public interface STDocument extends STObject {
 	public void set(String id, STDocument document);
 
 	@Override
-	public default void merge(ProtoSTObjectUpdate snapshot) {
+	public default void merge(EV_STStreamData snapshot) {
 
-		var oid = oid();
+		if (snapshot.getRemoved()) {
+			STDocument document = this;
+			String[] path = snapshot.getOid().split("/");
 
-		// Handle removals
-		snapshot.getRemovedList().stream().map(Oid::of).forEach(removal -> {
-			if (oid.path().length - removal.path().length == 1) {
-				if (removal.quantifier() != null) {
-					remove(removal.last());
-				} else {
-					// TODO
-				}
-			} else {
-				// TODO
-			}
-		});
-
-		snapshot.getChangedMap().forEach((path, change) -> {
-
-			var change_oid = Oid.of(path);
-
-			if (oid.isAncestorOf(change_oid)) {
-
-				// TODO!
+			for (int i = 0; i < path.length - 1; i++) {
+				document = document.document(path[i]);
 			}
 
-		});
+			document.remove(path[path.length - 1]);
+		} else {
+			attribute(oid().relative(snapshot.getOid())).merge(snapshot);
+		}
 	}
 
 	@Override
-	public default ProtoSTObjectUpdate snapshot(Oid... oids) {
+	public default Stream<EV_STStreamData> snapshot(STSnapshotStruct config) {
 
-		var snapshot = ProtoSTObjectUpdate.newBuilder();
+		List<Stream<EV_STStreamData>> streams = new ArrayList<>();
 
-		if (oids.length == 0) {
+		if (config.whitelist.size() == 0) {
 			forEachDocument(document -> {
-				snapshot.mergeFrom(document.snapshot());
+				streams.add(document.snapshot(config));
 			});
 			forEachAttribute(attribute -> {
-				snapshot.mergeFrom(attribute.snapshot());
+				streams.add(attribute.snapshot(config));
 			});
 		} else {
-			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray(String[]::new)) {
-				var children = Arrays.stream(oids).filter(oid -> oid.first() != head).toArray(Oid[]::new);
-
-				var document = getDocument(head);
-				if (document != null) {
-					snapshot.mergeFrom(document.snapshot(children));
-				}
-
-				var attribute = getAttribute(head);
-				if (attribute != null) {
-					snapshot.mergeFrom(attribute.snapshot());
-				}
-			}
+//			for (var head : Arrays.stream(oids).map(Oid::first).distinct().toArray(String[]::new)) {
+//				var children = Arrays.stream(oids).filter(oid -> oid.first() != head).toArray(Oid[]::new);
+//
+//				var document = getDocument(head);
+//				if (document != null) {
+//					streams.add(document.snapshot(children));
+//				}
+//
+//				var attribute = getAttribute(head);
+//				if (attribute != null) {
+//					streams.add(attribute.snapshot(config));
+//				}
+//			}
 		}
 
-		return snapshot.build();
+		return streams.stream().flatMap(Function.identity());
 	}
 }
