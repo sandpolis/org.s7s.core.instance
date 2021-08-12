@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.sandpolis.core.foundation.Platform.OsType;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.state.st.EphemeralAttribute.EphemeralAttributeValue;
@@ -74,7 +75,7 @@ public interface STAttribute extends STObject {
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof byte[]v) {
+		if (value instanceof byte[] v) {
 			return v;
 		}
 
@@ -105,6 +106,18 @@ public interface STAttribute extends STObject {
 		throw new ClassCastException(value.getClass().getName());
 	}
 
+	public default OsType asOsType() {
+		var value = get();
+		if (value == null)
+			throw new NoSuchElementException("No value present");
+
+		if (value instanceof OsType v) {
+			return v;
+		}
+
+		throw new ClassCastException(value.getClass().getName());
+	}
+
 	public default int asInt() {
 		var value = get();
 		if (value == null)
@@ -125,7 +138,7 @@ public interface STAttribute extends STObject {
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof int[]v) {
+		if (value instanceof int[] v) {
 			return v;
 		}
 

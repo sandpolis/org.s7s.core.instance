@@ -53,6 +53,10 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 		super(log, Profile::new);
 	}
 
+	public STDocument instance() {
+		return collection.document(Entrypoint.data().uuid());
+	}
+
 	/**
 	 * Get a profile by CVID.
 	 *

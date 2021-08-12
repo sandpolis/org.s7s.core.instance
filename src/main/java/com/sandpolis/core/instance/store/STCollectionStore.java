@@ -34,7 +34,7 @@ public abstract class STCollectionStore<V extends AbstractSTDomainObject> extend
 
 	private Map<String, V> documents;
 
-	private STDocument collection;
+	protected STDocument collection;
 
 	private final Function<STDocument, V> constructor;
 

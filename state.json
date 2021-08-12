@@ -210,6 +210,52 @@
 		]
 	},
 	{
+		"name": "/profile//bootagent/gpt_partition/",
+		"attributes": [
+			{
+				"name": "uuid",
+				"type": "java.lang.String"
+			},
+			{
+				"name": "disk_name",
+				"type": "java.lang.String"
+			},
+			{
+				"name": "size",
+				"type": "java.lang.Long"
+			},
+			{
+				"name": "label",
+				"type": "java.lang.String"
+			},
+			{
+				"name": "bootagent",
+				"type": "java.lang.Boolean"
+			}
+		]
+	},
+	{
+		"name": "/profile//bootagent/operation/",
+		"attributes": [
+			{
+				"name": "uuid",
+				"type": "java.lang.String"
+			},
+			{
+				"name": "type",
+				"type": "java.lang.String"
+			},
+			{
+				"name": "progress",
+				"type": "java.lang.Double"
+			},
+			{
+				"name": "status",
+				"type": "java.lang.String"
+			}
+		]
+	},
+	{
 		"name": "/profile//agent/ip_location",
 		"attributes": [
 			{
