@@ -1,6 +1,6 @@
 [
 	{
-		"name": "/profile/",
+		"name": "/profile/*",
 		"attributes": [
 			{
 				"name": "instance_type",
@@ -26,7 +26,7 @@
 		]
 	},
 	{
-		"name": "/connection/",
+		"name": "/connection/*",
 		"attributes": [
 			{
 				"name": "remote_port",
@@ -115,7 +115,7 @@
 		]
 	},
 	{
-		"name": "/profile//plugin/",
+		"name": "/profile/*/plugin/*",
 		"attributes": [
 			{
 				"name": "package_id",
@@ -166,7 +166,7 @@
 		]
 	},
 	{
-		"name": "/profile//client",
+		"name": "/profile/*/client",
 		"attributes": [
 			{
 				"name": "username",
@@ -182,7 +182,7 @@
 		]
 	},
 	{
-		"name": "/profile//agent",
+		"name": "/profile/*/agent",
 		"attributes": [
 			{
 				"name": "hostname",
@@ -210,7 +210,7 @@
 		]
 	},
 	{
-		"name": "/profile//bootagent/gpt_partition/",
+		"name": "/profile/*/bootagent/gpt_partition/*",
 		"attributes": [
 			{
 				"name": "uuid",
@@ -235,7 +235,7 @@
 		]
 	},
 	{
-		"name": "/profile//bootagent/operation/",
+		"name": "/profile/*/bootagent/operation/*",
 		"attributes": [
 			{
 				"name": "uuid",
@@ -256,7 +256,7 @@
 		]
 	},
 	{
-		"name": "/profile//agent/ip_location",
+		"name": "/profile/*/agent/ip_location",
 		"attributes": [
 			{
 				"name": "as_name",
@@ -351,11 +351,11 @@
 		]
 	},
 	{
-		"name": "/profile//server",
+		"name": "/profile/*/server",
 		"attributes": []
 	},
 	{
-		"name": "/trust_anchor/",
+		"name": "/trust_anchor/*",
 		"attributes": [
 			{
 				"name": "name",
@@ -368,7 +368,7 @@
 		]
 	},
 	{
-		"name": "/user/",
+		"name": "/user/*",
 		"attributes": [
 			{
 				"name": "username",
@@ -403,7 +403,7 @@
 		]
 	},
 	{
-		"name": "/profile//server/listener/",
+		"name": "/profile/*/server/listener/*",
 		"attributes": [
 			{
 				"name": "name",
@@ -443,7 +443,7 @@
 		]
 	},
 	{
-		"name": "/profile//server/auth_mechanism/",
+		"name": "/profile/*/server/auth_mechanism/*",
 		"attributes": [
 			{
 				"name": "mech_id",
@@ -458,7 +458,7 @@
 		]
 	},
 	{
-		"name": "/group/",
+		"name": "/group/*",
 		"attributes": [
 			{
 				"name": "name",

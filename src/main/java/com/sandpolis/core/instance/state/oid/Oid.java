@@ -52,17 +52,17 @@ public class Oid implements Comparable<Oid> {
 		descendant = descendant.clone();
 		ancestor = ancestor.clone();
 
-		// Make any generic (empty) entries in ancestor also generic in the descendant
+		// Make any generic entries in ancestor also generic in the descendant
 		for (int i = 0; i < ancestor.length; i++) {
-			if (ancestor[i].isEmpty()) {
-				descendant[i] = "";
+			if (ancestor[i].equals("*")) {
+				descendant[i] = "*";
 			}
 		}
 
-		// Make any generic (empty) entries in descendant also generic in the ancestor
+		// Make any generic entries in descendant also generic in the ancestor
 		for (int i = 0; i < ancestor.length; i++) {
-			if (descendant[i].isEmpty()) {
-				ancestor[i] = "";
+			if (descendant[i].equals("*")) {
+				ancestor[i] = "*";
 			}
 		}
 
@@ -95,7 +95,7 @@ public class Oid implements Comparable<Oid> {
 		int i = 0;
 		for (var r : resolutions) {
 			for (; i < path.length; i++) {
-				if (path[i].isEmpty()) {
+				if (path[i].equals("*")) {
 					path[i++] = r;
 					break;
 				}
@@ -280,7 +280,7 @@ public class Oid implements Comparable<Oid> {
 	 * @return Whether the OID is concrete
 	 */
 	public boolean isConcrete() {
-		return !Arrays.stream(path()).anyMatch(String::isEmpty);
+		return !Arrays.stream(path()).anyMatch(c -> c.equals("*"));
 	}
 
 	/**
@@ -331,9 +331,13 @@ public class Oid implements Comparable<Oid> {
 		return path;
 	}
 
+	public String pathString() {
+		return Arrays.stream(path).collect(Collectors.joining("/"));
+	}
+
 	@Override
 	public String toString() {
-		return namespace + ":/" + Arrays.stream(path).collect(Collectors.joining("/"));
+		return namespace + ":/" + pathString();
 	}
 
 	public Oid relative(String path) {

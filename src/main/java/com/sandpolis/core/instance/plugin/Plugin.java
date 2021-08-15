@@ -35,7 +35,7 @@ import com.sandpolis.core.instance.Entrypoint;
 import com.sandpolis.core.instance.Environment;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
-import com.sandpolis.core.instance.state.PluginOid;
+import com.sandpolis.core.instance.state.InstanceOids.ProfileOid.PluginOid;
 import com.sandpolis.core.instance.state.st.STDocument;
 import com.sandpolis.core.instance.state.vst.AbstractSTDomainObject;
 
