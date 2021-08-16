@@ -75,7 +75,7 @@ public interface STAttribute extends STObject {
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof byte[] v) {
+		if (value instanceof byte[]v) {
 			return v;
 		}
 
@@ -138,7 +138,7 @@ public interface STAttribute extends STObject {
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof int[] v) {
+		if (value instanceof int[]v) {
 			return v;
 		}
 

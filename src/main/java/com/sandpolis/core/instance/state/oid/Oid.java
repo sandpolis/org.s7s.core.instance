@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import com.sandpolis.core.instance.state.st.STObject;
 
@@ -105,6 +106,10 @@ public class Oid implements Comparable<Oid> {
 		return new Oid(namespace, path);
 	}
 
+	public final Optional<Integer> indexSelectorEnd;
+
+	public final Optional<Integer> indexSelectorStart;
+
 	/**
 	 * The OID unique namespace.
 	 */
@@ -115,13 +120,9 @@ public class Oid implements Comparable<Oid> {
 	 */
 	protected final String[] path;
 
-	public final Optional<Long> timestampSelectorStart;
-
 	public final Optional<Long> timestampSelectorEnd;
 
-	public final Optional<Integer> indexSelectorStart;
-
-	public final Optional<Integer> indexSelectorEnd;
+	public final Optional<Long> timestampSelectorStart;
 
 	protected Oid(String namespace, String[] path) {
 		this.namespace = namespace;
@@ -335,12 +336,46 @@ public class Oid implements Comparable<Oid> {
 		return Arrays.stream(path).collect(Collectors.joining("/"));
 	}
 
+	public Oid relative(String path) {
+		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class));
+	}
+
+	public Oid resolve(String... resolutions) {
+
+		String[] path = this.path;
+
+		int i = 0;
+		for (var r : resolutions) {
+			for (; i < path.length; i++) {
+				if (path[i].equals("*")) {
+					path[i++] = r;
+					break;
+				}
+			}
+		}
+
+		return new Oid(namespace, path);
+	}
+
+	public Oid resolveLast(String... resolutions) {
+
+		String[] path = this.path;
+
+		int i = path.length - 1;
+		for (var r : Lists.reverse(Arrays.asList(resolutions))) {
+			for (; i > 0; i--) {
+				if (path[i].equals("*")) {
+					path[i--] = r;
+					break;
+				}
+			}
+		}
+
+		return new Oid(namespace, path);
+	}
+
 	@Override
 	public String toString() {
 		return namespace + ":/" + pathString();
-	}
-
-	public Oid relative(String path) {
-		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class));
 	}
 }

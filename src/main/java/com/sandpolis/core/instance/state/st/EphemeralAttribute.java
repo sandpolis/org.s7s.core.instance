@@ -47,14 +47,14 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 				value -> newBuilder() //
 						.setTimestamp(value.timestamp()) //
 						.setValueType(ValueType.BOOLEAN_ARRAY) //
-						.addAllBooleanArray((List) value.value())), //
+						.addAllBooleanArray(() -> Arrays.stream((Boolean[]) value.value()).iterator())), //
 		INT_ARRAY( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
 						proto.getIntegerArrayList()), //
 				value -> newBuilder() //
 						.setTimestamp(value.timestamp()) //
 						.setValueType(ValueType.INTEGER_ARRAY) //
-						.addAllIntegerArray((List) value.value())), //
+						.addAllIntegerArray(() -> Arrays.stream((int[]) value.value()).iterator())), //
 		BYTES( //
 				proto -> new EphemeralAttributeValue(proto.getTimestamp(), //
 						proto.getBytes().toByteArray()), //
@@ -211,13 +211,13 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 		if (value instanceof X509Certificate) {
 			return AttributeType.X509CERTIFICATE;
 		}
-		if (value instanceof boolean[]) {
+		if (value instanceof boolean[] || value instanceof Boolean[]) {
 			return AttributeType.BOOLEAN_ARRAY;
 		}
-		if (value instanceof int[]) {
+		if (value instanceof int[] || value instanceof Integer[]) {
 			return AttributeType.INT_ARRAY;
 		}
-		if (value instanceof byte[]) {
+		if (value instanceof byte[] || value instanceof Byte[]) {
 			return AttributeType.BYTES;
 		}
 		if (value instanceof InstanceType) {
