@@ -55,10 +55,14 @@ public interface STAttribute extends STObject {
 		UNLIMITED;
 	}
 
-	public default boolean asBoolean() {
+	public default boolean asBoolean(boolean... _default) {
 		var value = get();
-		if (value == null)
+		if (value == null) {
+			if (_default.length > 0) {
+				return _default[0];
+			}
 			throw new NoSuchElementException("No value present");
+		}
 
 		if (value instanceof Boolean v) {
 			return v;
@@ -75,8 +79,11 @@ public interface STAttribute extends STObject {
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof byte[]v) {
+		if (value instanceof byte[] v) {
 			return v;
+		}
+		if (value instanceof String v) {
+			return v.getBytes();
 		}
 
 		throw new ClassCastException(value.getClass().getName());
@@ -138,7 +145,7 @@ public interface STAttribute extends STObject {
 		if (value == null)
 			throw new NoSuchElementException("No value present");
 
-		if (value instanceof int[]v) {
+		if (value instanceof int[] v) {
 			return v;
 		}
 

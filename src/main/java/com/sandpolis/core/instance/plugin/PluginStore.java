@@ -20,6 +20,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -115,8 +116,12 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	}
 
 	public Stream<Plugin> getLoadedPlugins() {
-		return values().stream().filter(
-				plugin -> plugin.get(PluginOid.LOADED).asBoolean() && plugin.get(PluginOid.ENABLED).asBoolean());
+		return values().stream().filter(plugin -> plugin.get(PluginOid.LOADED).asBoolean(false)
+				&& plugin.get(PluginOid.ENABLED).asBoolean(true));
+	}
+
+	public <E> Stream<E> getHandles(Class<E> type) {
+		return getLoadedPlugins().map(plugin -> plugin.getHandle(type).orElse(null)).filter(Objects::nonNull);
 	}
 
 	/**
@@ -181,7 +186,10 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	 * @param plugin The plugin to load
 	 */
 	private void loadPlugin(Plugin plugin) {
-		checkState(!plugin.get(PluginOid.LOADED).asBoolean());
+		checkState(!plugin.get(PluginOid.LOADED).asBoolean(false));
+
+		log.debug("Loading plugin: {} ({})", plugin.get(PluginOid.NAME).asString(),
+				plugin.get(PluginOid.PACKAGE_ID).asString());
 
 		// Verify hash
 		try {
@@ -196,7 +204,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 
 		// Verify certificate
 		try {
-			if (!verifier.apply(CertUtil.parseCert(plugin.get(PluginOid.CERTIFICATE).asBytes()))) {
+			if (!verifier.apply(CertUtil.parseCert(plugin.get(PluginOid.CERTIFICATE).asString()))) {
 				log.error("Failed to verify plugin certificate");
 				return;
 			}
@@ -204,9 +212,6 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 			log.error("Failed to load plugin certificate", e);
 			return;
 		}
-
-		log.debug("Loading plugin: {} ({})", plugin.get(PluginOid.NAME).asString(),
-				plugin.get(PluginOid.PACKAGE_ID).asString());
 
 		try {
 			plugin.load();
@@ -222,10 +227,13 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	 */
 	public void loadPlugins() {
 		values().stream()
+
 				// Enabled plugins only
 				.filter(plugin -> plugin.get(PluginOid.ENABLED).asBoolean())
+
 				// Skip loaded plugins
-				.filter(plugin -> !plugin.get(PluginOid.LOADED).asBoolean())
+				.filter(plugin -> !plugin.get(PluginOid.LOADED).asBoolean(false))
+
 				// Load each plugin
 				.forEach(PluginStore::loadPlugin);
 	}
@@ -237,9 +245,11 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	 */
 	public void scanPluginDirectory() throws IOException {
 		// TODO will install an arbitrary version if there's more than one
-		Files.list(Environment.LIB.path())
-				// Core plugins only
-				.filter(path -> path.getFileName().toString().startsWith("sandpolis-plugin-"))
+		Files.list(Environment.PLUGIN.path())
+
+				// Skip non-plugins
+				.filter(path -> path.getFileName().toString().endsWith(".jar"))
+
 				// Skip installed plugins
 				.filter(path -> {
 					try (Stream<Plugin> stream = values().stream()) {

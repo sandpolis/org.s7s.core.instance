@@ -128,6 +128,18 @@ public class Oid implements Comparable<Oid> {
 		this.namespace = namespace;
 		this.path = path;
 
+		// Validate namespace
+		if (namespace == null || namespace.isEmpty()) {
+			throw new IllegalArgumentException("Illegal namespace");
+		}
+
+		// Validate path
+		for (int i = 0; i < path.length; i++) {
+			if (path[i].isBlank()) {
+				throw new IllegalArgumentException("Illegal path");
+			}
+		}
+
 		// Parse temporal selectors at end
 		if (path.length > 0) {
 			String last = path[path.length - 1];

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,9 +103,9 @@ public class Plugin extends AbstractSTDomainObject {
 		return classloader;
 	}
 
-	public <E> Stream<E> getExtensions(Class<E> extension) {
-		return (handle != null && extension.isAssignableFrom(handle.getClass())) ? Stream.of((E) handle)
-				: Stream.empty();
+	public <E> Optional<E> getHandle(Class<E> type) {
+		return (handle != null && type.isAssignableFrom(handle.getClass())) ? Optional.of((E) handle)
+				: Optional.empty();
 	}
 
 	/**
@@ -123,7 +124,7 @@ public class Plugin extends AbstractSTDomainObject {
 	 * @throws IOException
 	 */
 	void load() throws IOException {
-		checkState(!get(PluginOid.LOADED).asBoolean());
+		checkState(!get(PluginOid.LOADED).asBoolean(false));
 
 		Path component = getComponent(Entrypoint.data().instance(), Entrypoint.data().flavor());
 
@@ -147,11 +148,11 @@ public class Plugin extends AbstractSTDomainObject {
 		if (handle != null)
 			handle.loaded();
 
-		set(PluginOid.LOADED, false);
+		set(PluginOid.LOADED, true);
 	}
 
 	void unload() {
-		checkState(!get(PluginOid.LOADED).asBoolean());
+		checkState(!get(PluginOid.LOADED).asBoolean(false));
 
 		if (handle != null)
 			handle.unloaded();
