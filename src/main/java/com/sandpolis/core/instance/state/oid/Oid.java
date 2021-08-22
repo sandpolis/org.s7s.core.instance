@@ -14,6 +14,8 @@ import static com.sandpolis.core.instance.state.STStore.STStore;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -42,6 +44,10 @@ import com.sandpolis.core.instance.state.st.STObject;
 public class Oid implements Comparable<Oid> {
 
 	private static final Logger log = LoggerFactory.getLogger(Oid.class);
+
+	private static final Predicate<String> NAMESPACE_VALIDATOR = Pattern.compile("^[a-z\\.]+$").asMatchPredicate();
+
+	private static final Predicate<String> PATH_VALIDATOR = Pattern.compile("^[a-z0-9_\\-*]+$").asMatchPredicate();
 
 	private static boolean checkRelationship(String[] ancestor, String[] descendant) {
 
@@ -129,14 +135,14 @@ public class Oid implements Comparable<Oid> {
 		this.path = path;
 
 		// Validate namespace
-		if (namespace == null || namespace.isEmpty()) {
-			throw new IllegalArgumentException("Illegal namespace");
+		if (namespace == null || !NAMESPACE_VALIDATOR.test(namespace)) {
+			throw new IllegalArgumentException("Illegal namespace: " + namespace);
 		}
 
 		// Validate path
 		for (int i = 0; i < path.length; i++) {
-			if (path[i].isBlank()) {
-				throw new IllegalArgumentException("Illegal path");
+			if (!PATH_VALIDATOR.test(path[i])) {
+				throw new IllegalArgumentException("Illegal path: " + path[i]);
 			}
 		}
 

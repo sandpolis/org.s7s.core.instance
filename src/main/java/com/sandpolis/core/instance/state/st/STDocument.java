@@ -165,6 +165,10 @@ public interface STDocument extends STObject {
 
 	public void set(String id, STDocument document);
 
+	public default String getId() {
+		return oid().last();
+	}
+
 	@Override
 	public default void merge(EV_STStreamData snapshot) {
 

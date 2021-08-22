@@ -25,9 +25,9 @@ public abstract class AbstractSTDomainObject implements STDomainObject {
 		return document.oid();
 	}
 
-//	public abstract String getId();
-//
-//	public abstract STAttribute<String> id();
+	public String getId() {
+		return oid().last();
+	}
 
 	public STAttribute get(Oid oid) {
 		return document.attribute(oid);
