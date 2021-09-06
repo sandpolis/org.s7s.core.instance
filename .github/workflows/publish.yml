@@ -8,10 +8,11 @@ jobs:
     name: Publish release
     runs-on: ubuntu-latest
     steps:
-    - name: Install Java
-      uses: actions/setup-java@v1
+    - name: Setup Java
+      uses: actions/setup-java@v2
       with:
-        java-version: 16
+        distribution: temurin
+        java-version: 17-ea
 
     - name: Install protoc-gen-rust
       uses: actions-rs/cargo@v1
@@ -49,3 +50,4 @@ jobs:
         S7S_BUILD_PROTO_RUST: 1
         S7S_BUILD_PROTO_SWIFT: 1
         S7S_BUILD_PROTO_CPP: 1
+        S7S_BUILD_PROTO_PYTHON: 1
