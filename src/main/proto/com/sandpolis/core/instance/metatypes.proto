@@ -63,6 +63,9 @@ enum InstanceFlavor {
     // iOS client: https://github.com/sandpolis/com.sandpolis.client.lockstone
     CLIENT_LOCKSTONE = 33;
 
+    // Web client: https://github.com/sandpolis/com.sandpolis.client.brightstone
+    CLIENT_BRIGHTSTONE = 34;
+
     // Rust distagent: https://github.com/sandpolis/com.sandpolis.distagent.rust
     DISTAGENT_RUST = 40;
 
