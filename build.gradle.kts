@@ -21,7 +21,7 @@ dependencies {
 	testImplementation("net.jodah:concurrentunit:0.4.6")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
 	testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 
 	// https://github.com/qos-ch/logback
 	implementation("ch.qos.logback:logback-core:1.3.0-alpha5") {
