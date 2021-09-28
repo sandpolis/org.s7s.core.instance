@@ -41,7 +41,39 @@ import com.sandpolis.core.instance.state.st.STObject;
  * virtual object, or "generic" which means the OID corresponds to multiple
  * objects of the same type.
  */
-public class Oid implements Comparable<Oid> {
+public record Oid(
+
+		/**
+		 * 
+		 */
+		String namespace,
+
+		/**
+		 * 
+		 */
+		String[] path,
+
+		/**
+		 * 
+		 */
+		Optional<Integer> indexSelectorEnd,
+
+		/**
+		 * 
+		 */
+		Optional<Integer> indexSelectorStart,
+
+		/**
+		 * 
+		 */
+		Optional<Long> timestampSelectorEnd,
+
+		/**
+		 * 
+		 */
+		Optional<Long> timestampSelectorStart) {
+
+	private static final String DEFAULT_NAMESPACE = "com.sandpolis.core.instance";
 
 	private static final Logger log = LoggerFactory.getLogger(Oid.class);
 
@@ -82,10 +114,15 @@ public class Oid implements Comparable<Oid> {
 
 		String namespace;
 		String[] path;
+		Optional<Integer> indexSelectorEnd = Optional.empty();
+		Optional<Integer> indexSelectorStart = Optional.empty();
+		Optional<Long> timestampSelectorEnd = Optional.empty();
+		Optional<Long> timestampSelectorStart = Optional.empty();
 
+		// Determine namespace and path
 		var components = oid.split(":");
 		if (components.length == 1) {
-			namespace = "com.sandpolis.core.instance";
+			namespace = DEFAULT_NAMESPACE;
 			path = oid.replaceAll("^/+", "").split("/");
 		} else if (components.length == 2) {
 			namespace = components[0];
@@ -94,11 +131,17 @@ public class Oid implements Comparable<Oid> {
 			throw new IllegalArgumentException("Invalid namespace");
 		}
 
+		// Validate namespace
+		if (namespace == null || !NAMESPACE_VALIDATOR.test(namespace)) {
+			throw new IllegalArgumentException("Illegal namespace: " + namespace);
+		}
+
 		// If the only path element is blank, this is the root OID
 		if (path.length == 1 && path[0].isEmpty()) {
 			path = new String[] {};
 		}
 
+		// Perform resolutions
 		int i = 0;
 		for (var r : resolutions) {
 			for (; i < path.length; i++) {
@@ -109,40 +152,10 @@ public class Oid implements Comparable<Oid> {
 			}
 		}
 
-		return new Oid(namespace, path);
-	}
-
-	public final Optional<Integer> indexSelectorEnd;
-
-	public final Optional<Integer> indexSelectorStart;
-
-	/**
-	 * The OID unique namespace.
-	 */
-	protected final String namespace;
-
-	/**
-	 * The OID path.
-	 */
-	protected final String[] path;
-
-	public final Optional<Long> timestampSelectorEnd;
-
-	public final Optional<Long> timestampSelectorStart;
-
-	protected Oid(String namespace, String[] path) {
-		this.namespace = namespace;
-		this.path = path;
-
-		// Validate namespace
-		if (namespace == null || !NAMESPACE_VALIDATOR.test(namespace)) {
-			throw new IllegalArgumentException("Illegal namespace: " + namespace);
-		}
-
 		// Validate path
-		for (int i = 0; i < path.length; i++) {
+		for (i = 0; i < path.length; i++) {
 			if (!PATH_VALIDATOR.test(path[i])) {
-				throw new IllegalArgumentException("Illegal path: " + path[i]);
+				throw new IllegalArgumentException("Illegal path element: " + path[i]);
 			}
 		}
 
@@ -180,9 +193,6 @@ public class Oid implements Comparable<Oid> {
 					timestampSelectorEnd = Optional.of(Long.parseLong(parts[0]));
 				}
 
-				indexSelectorStart = Optional.empty();
-				indexSelectorEnd = Optional.empty();
-
 			} else if (last.endsWith("]")) {
 				int s = last.lastIndexOf('[');
 				if (s == -1) {
@@ -213,41 +223,18 @@ public class Oid implements Comparable<Oid> {
 					indexSelectorStart = Optional.of(Integer.parseInt(parts[0]));
 					indexSelectorEnd = Optional.of(Integer.parseInt(parts[0]));
 				}
-
-				timestampSelectorStart = Optional.empty();
-				timestampSelectorEnd = Optional.empty();
-
-			} else {
-				timestampSelectorStart = Optional.empty();
-				timestampSelectorEnd = Optional.empty();
-				indexSelectorStart = Optional.empty();
-				indexSelectorEnd = Optional.empty();
 			}
-		} else {
-			timestampSelectorStart = Optional.empty();
-			timestampSelectorEnd = Optional.empty();
-			indexSelectorStart = Optional.empty();
-			indexSelectorEnd = Optional.empty();
 		}
+
+		return new Oid(namespace, path, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
+				timestampSelectorStart);
 	}
 
 	public Oid child(String id) {
 		String[] childPath = Arrays.copyOf(path, path.length + 1);
 		childPath[childPath.length - 1] = id;
-		return new Oid(namespace, childPath);
-	}
-
-	@Override
-	public int compareTo(Oid oid) {
-		return Arrays.compare(path(), oid.path());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Oid other) {
-			return namespace == other.namespace && Arrays.equals(path, other.path);
-		}
-		return false;
+		return new Oid(namespace, childPath, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
+				timestampSelectorStart);
 	}
 
 	public String first() {
@@ -260,11 +247,6 @@ public class Oid implements Comparable<Oid> {
 
 	public <E extends STObject> E get() {
 		return (E) STStore.get(this);
-	}
-
-	@Override
-	public int hashCode() {
-		return namespace.hashCode() * path.hashCode();
 	}
 
 	/**
@@ -334,28 +316,13 @@ public class Oid implements Comparable<Oid> {
 		}
 	}
 
-	/**
-	 * @return The OID's unique namespace.
-	 */
-	public String namespace() {
-		return namespace;
-	}
-
-	/**
-	 * Get the OID's path.
-	 *
-	 * @return The path
-	 */
-	public String[] path() {
-		return path;
-	}
-
 	public String pathString() {
 		return Arrays.stream(path).collect(Collectors.joining("/"));
 	}
 
 	public Oid relative(String path) {
-		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class));
+		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class), indexSelectorEnd,
+				indexSelectorStart, timestampSelectorEnd, timestampSelectorStart);
 	}
 
 	public Oid resolve(String... resolutions) {
@@ -372,7 +339,8 @@ public class Oid implements Comparable<Oid> {
 			}
 		}
 
-		return new Oid(namespace, path);
+		return new Oid(namespace, path, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
+				timestampSelectorStart);
 	}
 
 	public Oid resolveLast(String... resolutions) {
@@ -389,7 +357,8 @@ public class Oid implements Comparable<Oid> {
 			}
 		}
 
-		return new Oid(namespace, path);
+		return new Oid(namespace, path, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
+				timestampSelectorStart);
 	}
 
 	@Override

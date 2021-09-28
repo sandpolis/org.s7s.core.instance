@@ -31,7 +31,7 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.Resources;
-import com.sandpolis.core.foundation.util.JarUtil;
+import com.sandpolis.core.foundation.S7SJarFile;
 import com.sandpolis.core.instance.Entrypoint;
 import com.sandpolis.core.instance.Environment;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
@@ -59,7 +59,9 @@ public class Plugin extends AbstractSTDomainObject {
 		if (get(PluginOid.HASH).isPresent())
 			throw new IllegalStateException();
 
-		var manifest = JarUtil.getManifest(path.toFile());
+		var jar = S7SJarFile.of(path);
+
+		var manifest = jar.getManifest();
 		set(PluginOid.PACKAGE_ID, manifest.getValue("Plugin-Id"));
 		set(PluginOid.COORDINATES, manifest.getValue("Plugin-Coordinate"));
 		set(PluginOid.NAME, manifest.getValue("Plugin-Name"));
@@ -70,19 +72,19 @@ public class Plugin extends AbstractSTDomainObject {
 		Path core = getComponent(null, null);
 		if (!exists(core))
 			createDirectories(core.getParent());
-		Resources.asByteSource(JarUtil.getResourceUrl(path, "core.jar")).copyTo(Files.asByteSink(core.toFile()));
+		Resources.asByteSource(jar.getResourceUrl("core.jar")).copyTo(Files.asByteSink(core.toFile()));
 
 		// Install components
 		for (InstanceType instance : InstanceType.values()) {
 			for (InstanceFlavor flavor : InstanceFlavor.values()) {
 				String internalPath = String.format("%s/%s.jar", instance.toString().toLowerCase(),
 						flavor.toString().toLowerCase());
-				if (JarUtil.resourceExists(path, internalPath)) {
+				if (jar.resourceExists(internalPath)) {
 					Path component = getComponent(instance, flavor);
 					if (!exists(component))
 						createDirectories(component.getParent());
 
-					Resources.asByteSource(JarUtil.getResourceUrl(path, internalPath))
+					Resources.asByteSource(jar.getResourceUrl(internalPath))
 							.copyTo(Files.asByteSink(component.toFile()));
 				}
 			}

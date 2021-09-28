@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
-import com.sandpolis.core.foundation.util.SystemUtil;
+import com.sandpolis.core.foundation.S7SSystem;
 import com.sandpolis.core.foundation.util.TextUtil;
 import com.sandpolis.core.foundation.util.TextUtil.Color;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
@@ -62,6 +62,9 @@ public abstract class Entrypoint {
 			 * Build information.
 			 */
 			Properties so_build) {
+	}
+
+	public static class BuildConfig {
 
 	}
 
@@ -155,7 +158,7 @@ public abstract class Entrypoint {
 	}
 
 	private Properties readBuildInfo(Class<?> main) {
-		try (var in = main.getResourceAsStream("/build.properties")) {
+		try (var in = main.getResourceAsStream("/build.json")) {
 			if (in == null) {
 				throw new RuntimeException("build.properties not found");
 			}
@@ -171,7 +174,7 @@ public abstract class Entrypoint {
 	private UUID readUuid(InstanceType instance, InstanceFlavor flavor) {
 		int seed = instance.getNumber() << 24;
 		seed |= flavor.getNumber() << 16;
-		seed |= SystemUtil.OS_TYPE.getNumber();
+		seed |= S7SSystem.OS_TYPE.getNumber();
 
 		var uuid_hash = Hashing.murmur3_128(seed).newHasher();
 

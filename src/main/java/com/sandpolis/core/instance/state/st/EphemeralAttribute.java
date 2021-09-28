@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 import com.google.protobuf.UnsafeByteOperations;
 import com.sandpolis.core.foundation.Platform.OsType;
-import com.sandpolis.core.foundation.util.CertUtil;
+import com.sandpolis.core.foundation.S7SCertificate;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData;
@@ -108,7 +108,7 @@ public class EphemeralAttribute extends AbstractSTObject implements STAttribute 
 				proto -> {
 					try {
 						return new EphemeralAttributeValue(proto.getTimestamp(), //
-								CertUtil.parseCert(proto.getBytes().toByteArray()));
+								S7SCertificate.of(proto.getBytes().toByteArray()).certificate());
 					} catch (CertificateException e) {
 						return null;
 					}

@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 import com.sandpolis.core.foundation.ConfigStruct;
-import com.sandpolis.core.foundation.util.CertUtil;
-import com.sandpolis.core.foundation.util.JarUtil;
+import com.sandpolis.core.foundation.S7SCertificate;
+import com.sandpolis.core.foundation.S7SJarFile;
 import com.sandpolis.core.instance.Environment;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
@@ -204,7 +204,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 
 		// Verify certificate
 		try {
-			if (!verifier.apply(CertUtil.parseCert(plugin.get(PluginOid.CERTIFICATE).asString()))) {
+			if (!verifier.apply(S7SCertificate.of(plugin.get(PluginOid.CERTIFICATE).asString()).certificate())) {
 				log.error("Failed to verify plugin certificate");
 				return;
 			}
@@ -254,7 +254,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 				.filter(path -> {
 					try (Stream<Plugin> stream = values().stream()) {
 						// Read plugin id
-						String id = JarUtil.getManifestValue(path.toFile(), "Plugin-Id").orElse(null);
+						String id = S7SJarFile.of(path).getManifestValue("Plugin-Id").orElse(null);
 
 						return stream.noneMatch(plugin -> plugin.get(PluginOid.PACKAGE_ID).asString().equals(id));
 					} catch (IOException e) {
