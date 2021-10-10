@@ -7,8 +7,47 @@
 //  as published by the Mozilla Foundation.                                   //
 //                                                                            //
 //============================================================================//
-package com.sandpolis.core.instance.util;
+package com.sandpolis.core.instance.state.oid;
 
-public class ExecUtil {
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class OidTest {
+
+	@Test
+	void testFirst() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testIsConcrete() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testLast() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testRelative() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testResolve() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testResolveLast() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testToString() {
+		fail("Not yet implemented");
+	}
 
 }

@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sandpolis.core.foundation.ConfigStruct;
 import com.sandpolis.core.instance.state.STStore.STStoreConfig;
 import com.sandpolis.core.instance.state.oid.Oid;
 import com.sandpolis.core.instance.state.st.STDocument;
@@ -48,8 +47,7 @@ public final class STStore extends StoreBase implements ConfigurableStore<STStor
 
 	@Override
 	public void init(Consumer<STStoreConfig> configurator) {
-		var config = new STStoreConfig();
-		configurator.accept(config);
+		var config = new STStoreConfig(configurator);
 
 		service = Executors.newFixedThreadPool(config.concurrency);
 		root = config.root;
@@ -60,10 +58,13 @@ public final class STStore extends StoreBase implements ConfigurableStore<STStor
 		service.shutdown();
 	}
 
-	@ConfigStruct
 	public final class STStoreConfig {
 		public int concurrency = 1;
 		public STDocument root;
+
+		private STStoreConfig(Consumer<STStoreConfig> configurator) {
+			configurator.accept(this);
+		}
 	}
 
 	public static final STStore STStore = new STStore();

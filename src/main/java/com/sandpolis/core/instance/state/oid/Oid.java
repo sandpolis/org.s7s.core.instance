@@ -9,8 +9,6 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.oid;
 
-import static com.sandpolis.core.instance.state.STStore.STStore;
-
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
-import com.sandpolis.core.instance.state.st.STObject;
+import com.google.common.hash.Hashing;
 
 /**
  * <p>
@@ -44,32 +42,32 @@ import com.sandpolis.core.instance.state.st.STObject;
 public record Oid(
 
 		/**
-		 * 
+		 *
 		 */
 		String namespace,
 
 		/**
-		 * 
+		 *
 		 */
 		String[] path,
 
 		/**
-		 * 
+		 *
 		 */
 		Optional<Integer> indexSelectorEnd,
 
 		/**
-		 * 
+		 *
 		 */
 		Optional<Integer> indexSelectorStart,
 
 		/**
-		 * 
+		 *
 		 */
 		Optional<Long> timestampSelectorEnd,
 
 		/**
-		 * 
+		 *
 		 */
 		Optional<Long> timestampSelectorStart) {
 
@@ -245,10 +243,6 @@ public record Oid(
 		}
 	}
 
-	public <E extends STObject> E get() {
-		return (E) STStore.get(this);
-	}
-
 	/**
 	 * Determine whether this OID is an ancestor of the given OID.
 	 *
@@ -364,5 +358,31 @@ public record Oid(
 	@Override
 	public String toString() {
 		return namespace + ":/" + pathString();
+	}
+
+	public static final int LENGTH_OTYPE = 2;
+
+	public static final int OTYPE_ATTRIBUTE = 2;
+	public static final int OTYPE_COLLECTION = 1;
+	public static final int OTYPE_DOCUMENT = 0;
+
+	public static long computeAttributeTag(long raw) {
+		return ((raw << LENGTH_OTYPE) | OTYPE_ATTRIBUTE) & Long.MAX_VALUE;
+	}
+
+	public static long computeCollectionTag(long raw) {
+		return ((raw << LENGTH_OTYPE) | OTYPE_COLLECTION) & Long.MAX_VALUE;
+	}
+
+	public static long computeDocumentTag(long raw) {
+		return ((raw << LENGTH_OTYPE) | OTYPE_DOCUMENT) & Long.MAX_VALUE;
+	}
+
+	public static int getOidType(long tag) {
+		return (int) (tag & ((1L << LENGTH_OTYPE) - 1));
+	}
+
+	public static long computeNamespace(String id) {
+		return computeDocumentTag(Hashing.murmur3_128().newHasher().putBytes(id.getBytes()).hash().asLong());
 	}
 }

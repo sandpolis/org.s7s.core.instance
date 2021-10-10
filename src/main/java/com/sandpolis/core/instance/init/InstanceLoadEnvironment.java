@@ -11,12 +11,11 @@ package com.sandpolis.core.instance.init;
 
 import com.sandpolis.core.instance.Environment;
 import com.sandpolis.core.instance.InitTask;
-import com.sandpolis.core.instance.TaskOutcome;
 
 public class InstanceLoadEnvironment extends InitTask {
 
 	@Override
-	public TaskOutcome run(TaskOutcome outcome) throws Exception {
+	public TaskOutcome run(TaskOutcome.Factory outcome) throws Exception {
 		Environment.LIB.requireReadable();
 		Environment.DATA.requireWritable();
 		Environment.CFG.requireWritable();
@@ -25,7 +24,8 @@ public class InstanceLoadEnvironment extends InitTask {
 		Environment.TMP.requireWritable();
 
 		Environment.logEnvironment();
-		return outcome.success();
+
+		return outcome.succeeded();
 	}
 
 	@Override

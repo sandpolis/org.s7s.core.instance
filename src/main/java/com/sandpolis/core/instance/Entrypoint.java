@@ -9,7 +9,6 @@
 //============================================================================//
 package com.sandpolis.core.instance;
 
-import java.io.IOException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -17,18 +16,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
+import com.sandpolis.core.foundation.S7SString;
+import com.sandpolis.core.foundation.S7SString.AnsiColor;
 import com.sandpolis.core.foundation.S7SSystem;
-import com.sandpolis.core.foundation.util.TextUtil;
-import com.sandpolis.core.foundation.util.TextUtil.Color;
+import com.sandpolis.core.instance.InitTask.TaskOutcome;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
+import com.sandpolis.core.instance.config.BuildConfig;
 import com.sandpolis.core.instance.config.CfgInstance;
 
 /**
@@ -56,16 +56,7 @@ public abstract class Entrypoint {
 			/**
 			 * The instance's UUID.
 			 */
-			String uuid,
-
-			/**
-			 * Build information.
-			 */
-			Properties so_build) {
-	}
-
-	public static class BuildConfig {
-
+			String uuid) {
 	}
 
 	private final Logger log;
@@ -98,8 +89,7 @@ public abstract class Entrypoint {
 
 	protected Entrypoint(Class<?> main, InstanceType instance, InstanceFlavor flavor) {
 
-		Entrypoint.metadata = new EntrypointInfo(main, instance, flavor, readUuid(instance, flavor).toString(),
-				readBuildInfo(main));
+		Entrypoint.metadata = new EntrypointInfo(main, instance, flavor, readUuid(instance, flavor).toString());
 		log = LoggerFactory.getLogger(Entrypoint.class);
 	}
 
@@ -113,27 +103,27 @@ public abstract class Entrypoint {
 
 		// Create a format string according to the width of the longest task description
 		String descFormat = String.format("%%%ds:",
-				Math.min(outcomes.stream().map(TaskOutcome::getName).mapToInt(String::length).max().getAsInt(), 70));
+				Math.min(outcomes.stream().map(TaskOutcome::name).mapToInt(String::length).max().getAsInt(), 70));
 
 		log.info("===== Initialization task summary =====");
 		for (var outcome : outcomes) {
 
 			// Format description and result
-			String line = String.format(descFormat + " %4s", outcome.getName(),
-					outcome.isSkipped() ? "SKIP"
-							: outcome.isSuccess() ? TextUtil.colorText(Color.GREEN, "OK")
-									: TextUtil.colorText(Color.RED, "FAIL"));
+			String line = String.format(descFormat + " %4s", outcome.name(),
+					outcome.skipped() ? "SKIP"
+							: outcome.success() ? S7SString.of("OK").colorize(AnsiColor.GREEN)
+									: S7SString.of("FAIL").colorize(AnsiColor.RED));
 
 			// Format duration
-			if (outcome.isSkipped() || !outcome.isSuccess())
+			if (outcome.skipped() || !outcome.success())
 				line += " ( ---- ms)";
-			else if (outcome.getDuration() > 9999)
-				line += String.format(" (%5.1f  s)", outcome.getDuration() / 1000.0);
+			else if (outcome.duration() > 9999)
+				line += String.format(" (%5.1f  s)", outcome.duration() / 1000.0);
 			else
-				line += String.format(" (%5d ms)", outcome.getDuration());
+				line += String.format(" (%5d ms)", outcome.duration());
 
 			// Write to log
-			if (outcome.isSkipped() || outcome.isSuccess()) {
+			if (outcome.skipped() || outcome.success()) {
 				log.info(line);
 			} else {
 				log.error(line);
@@ -142,32 +132,17 @@ public abstract class Entrypoint {
 
 		// Log any failure messages/exceptions
 		for (var outcome : outcomes) {
-			if (!outcome.isSkipped()) {
+			if (!outcome.skipped()) {
 
-				if (!outcome.isSuccess()) {
-					if (!outcome.getException().isEmpty())
-						log.error("An exception occurred in task \"{}\":\n{}", outcome.getName(),
-								outcome.getException());
-					else if (!outcome.getComment().isEmpty())
-						log.error("An error occurred in task \"{}\": {}", outcome.getName(), outcome.getComment());
+				if (!outcome.success()) {
+					if (outcome.exception() != null)
+						log.error("An exception occurred in task \"{}\":\n{}", outcome.name(), outcome.exception());
+					else if (outcome.reason() != null)
+						log.error("An error occurred in task \"{}\": {}", outcome.name(), outcome.reason());
 					else
-						log.error("An unknown error occurred in task \"{}\"", outcome.getName());
+						log.error("An unknown error occurred in task \"{}\"", outcome.name());
 				}
 			}
-		}
-	}
-
-	private Properties readBuildInfo(Class<?> main) {
-		try (var in = main.getResourceAsStream("/build.json")) {
-			if (in == null) {
-				throw new RuntimeException("build.properties not found");
-			}
-
-			var so_build = new Properties();
-			so_build.load(in);
-			return so_build;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
 	}
 
@@ -209,13 +184,14 @@ public abstract class Entrypoint {
 
 		final long timestamp = System.currentTimeMillis();
 
-		log.info("Starting instance: {} ({})", TextUtil.colorTextRainbow(instanceName),
-				metadata.so_build.getProperty("instance.version", "?.?.?"));
+		BuildConfig.get().ifPresent(build -> {
+			log.info("Starting instance: {} ({})", S7SString.of(instanceName).rainbowize(),
+					build.versions().instance());
+			log.debug("  Build Timestamp: {}", new Date(build.timestamp()));
+			log.debug("  Build Platform: {}", build.platform());
+			log.debug("  Build JVM: {}", build.versions().java());
+		});
 
-		log.debug("  Build Timestamp: {}",
-				new Date(Long.parseLong(metadata.so_build.getProperty("build.timestamp", "0"))));
-		log.debug("  Build Platform: {}", metadata.so_build.getProperty("build.platform", "Unknown"));
-		log.debug("  Build JVM: {}", metadata.so_build.getProperty("build.java.version", "Unknown"));
 		log.debug("  Runtime Platform: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.debug("  Runtime JVM: {} ({})", System.getProperty("java.version"), System.getProperty("java.vendor"));
 		log.debug("  Instance Type: {}", metadata.instance);
@@ -244,26 +220,24 @@ public abstract class Entrypoint {
 		// Execute registered initialization tasks
 		for (var task : tasks) {
 
-			TaskOutcome outcome = new TaskOutcome(task.description());
-			outcomes.add(outcome);
+			var outcome = TaskOutcome.Factory.of(task.description());
 
 			// Skip if the entire run failed or the task is not enabled
 			if (initFailed || !task.enabled()) {
-				outcome.skipped();
+				outcomes.add(outcome.skipped());
 				continue;
 			}
 
 			// Execute the task
 			try {
-				if (outcome != task.run(outcome)) {
-					throw new RuntimeException();
-				}
+				outcomes.add(task.run(outcome));
 			} catch (Exception e) {
-				outcome.failure(e);
+				outcomes.add(outcome.failed(e));
 			}
 
 			// Exit if the task failed and fatal is enabled
-			if (!outcome.isSkipped() && !outcome.isSuccess() && task.fatal()) {
+			if (!outcomes.get(outcomes.size() - 1).skipped() && !outcomes.get(outcomes.size() - 1).success()
+					&& task.fatal()) {
 				initFailed = true;
 			}
 		}

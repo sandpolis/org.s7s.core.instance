@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
-import com.sandpolis.core.foundation.ConfigStruct;
 import com.sandpolis.core.foundation.S7SCertificate;
 import com.sandpolis.core.foundation.S7SJarFile;
 import com.sandpolis.core.instance.Environment;
@@ -66,12 +65,15 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	public static final record PluginLoadedEvent(Plugin plugin) {
 	}
 
-	@ConfigStruct
 	public static final class PluginStoreConfig {
 
 		public STDocument collection;
 
 		public Function<X509Certificate, Boolean> verifier;
+
+		private PluginStoreConfig(Consumer<PluginStoreConfig> configurator) {
+			configurator.accept(this);
+		}
 	}
 
 	public static final record PluginUnloadedEvent(Plugin plugin) {
@@ -157,8 +159,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 
 	@Override
 	public void init(Consumer<PluginStoreConfig> configurator) {
-		var config = new PluginStoreConfig();
-		configurator.accept(config);
+		var config = new PluginStoreConfig(configurator);
 
 		setDocument(config.collection);
 	}

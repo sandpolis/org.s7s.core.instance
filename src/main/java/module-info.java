@@ -20,7 +20,6 @@ open module com.sandpolis.core.instance {
 	exports com.sandpolis.core.instance.state;
 	exports com.sandpolis.core.instance.store;
 	exports com.sandpolis.core.instance.thread;
-	exports com.sandpolis.core.instance.util;
 	exports com.sandpolis.core.instance.init;
 	exports com.sandpolis.core.instance;
 
@@ -31,6 +30,7 @@ open module com.sandpolis.core.instance {
 	requires com.sandpolis.core.foundation;
 	requires java.prefs;
 	requires org.slf4j;
+	requires com.fasterxml.jackson.databind;
 
 	uses com.sandpolis.core.instance.plugin.SandpolisPlugin;
 

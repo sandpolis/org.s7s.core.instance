@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sandpolis.core.foundation.ConfigStruct;
 import com.sandpolis.core.instance.store.ConfigurableStore;
 import com.sandpolis.core.instance.store.StoreBase;
 import com.sandpolis.core.instance.thread.ThreadStore.ThreadStoreConfig;
@@ -62,17 +61,19 @@ public final class ThreadStore extends StoreBase implements ConfigurableStore<Th
 
 	@Override
 	public void init(Consumer<ThreadStoreConfig> configurator) {
-		var config = new ThreadStoreConfig();
-		configurator.accept(config);
+		var config = new ThreadStoreConfig(configurator);
 
 		container = new HashMap<>();
 		container.putAll(config.defaults);
 	}
 
-	@ConfigStruct
 	public static final class ThreadStoreConfig {
 
 		public final Map<String, ExecutorService> defaults = new HashMap<>();
+
+		private ThreadStoreConfig(Consumer<ThreadStoreConfig> configurator) {
+			configurator.accept(this);
+		}
 	}
 
 	public static final ThreadStore ThreadStore = new ThreadStore();

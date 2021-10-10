@@ -17,8 +17,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sandpolis.core.foundation.ConfigStruct;
 import com.sandpolis.core.instance.Entrypoint;
+import com.sandpolis.core.instance.pref.PrefStore.PrefStoreConfig;
 import com.sandpolis.core.instance.profile.ProfileStore.ProfileStoreConfig;
 import com.sandpolis.core.instance.state.InstanceOids.ProfileOid.ClientOid;
 import com.sandpolis.core.instance.state.InstanceOids.ProfileOid;
@@ -39,10 +39,13 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	public static final record ProfileOfflineEvent(Profile profile) {
 	}
 
-	@ConfigStruct
 	public static final class ProfileStoreConfig {
 
 		public STDocument collection;
+
+		private ProfileStoreConfig(Consumer<ProfileStoreConfig> configurator) {
+			configurator.accept(this);
+		}
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(ProfileStore.class);
@@ -94,9 +97,7 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	@Override
 	public void init(Consumer<ProfileStoreConfig> configurator) {
 
-		// Prepare configuration
-		var config = new ProfileStoreConfig();
-		configurator.accept(config);
+		var config = new ProfileStoreConfig(configurator);
 
 		// Apply configuration
 		setDocument(config.collection);

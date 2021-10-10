@@ -9,64 +9,66 @@
 //============================================================================//
 package com.sandpolis.core.instance.config;
 
-import com.sandpolis.core.foundation.config.ConfigProperty;
-import com.sandpolis.core.foundation.config.SysEnvConfigProperty;
-
 public final class CfgInstance {
 
 	/**
 	 * Whether process mutexes will be checked and enforced.
 	 */
-	public static final ConfigProperty<Boolean> MUTEX = new SysEnvConfigProperty<>(Boolean.class, "s7s.mutex");
+	public static final ConfigProperty<Boolean> MUTEX = ConfigProperty.evaluate(Boolean.class, "s7s.mutex");
 
 	/**
 	 * The configuration directory.
 	 */
-	public static final ConfigProperty<String> PATH_CFG = new SysEnvConfigProperty<>(String.class, "s7s.path.config");
+	public static final ConfigProperty<String> PATH_CFG = ConfigProperty.evaluate(String.class, "s7s.path.config");
 
 	/**
 	 * The database directory.
 	 */
-	public static final ConfigProperty<String> PATH_DATA = new SysEnvConfigProperty<>(String.class, "s7s.path.data");
+	public static final ConfigProperty<String> PATH_DATA = ConfigProperty.evaluate(String.class, "s7s.path.data");
 
 	/**
 	 * The library directory.
 	 */
-	public static final ConfigProperty<String> PATH_LIB = new SysEnvConfigProperty<>(String.class, "s7s.path.lib");
+	public static final ConfigProperty<String> PATH_LIB = ConfigProperty.evaluate(String.class, "s7s.path.lib");
 
 	/**
 	 * The log output directory.
 	 */
-	public static final ConfigProperty<String> PATH_LOG = new SysEnvConfigProperty<>(String.class, "s7s.path.log");
+	public static final ConfigProperty<String> PATH_LOG = ConfigProperty.evaluate(String.class, "s7s.path.log");
 
 	/**
 	 * The plugin directory.
 	 */
-	public static final ConfigProperty<String> PATH_PLUGIN = new SysEnvConfigProperty<>(String.class,
-			"s7s.path.plugin");
+	public static final ConfigProperty<String> PATH_PLUGIN = ConfigProperty.evaluate(String.class, "s7s.path.plugin");
 
 	/**
 	 * The temporary directory.
 	 */
-	public static final ConfigProperty<String> PATH_TMP = new SysEnvConfigProperty<>(String.class, "s7s.path.tmp");
+	public static final ConfigProperty<String> PATH_TMP = ConfigProperty.evaluate(String.class, "s7s.path.tmp");
 
 	/**
 	 * Whether plugins can be loaded.
 	 */
-	public static final ConfigProperty<Boolean> PLUGIN_ENABLED = new DefaultConfigProperty<>(Boolean.class,
+	public static final ConfigProperty<Boolean> PLUGIN_ENABLED = ConfigProperty.evaluate(Boolean.class,
 			"s7s.plugins.enabled");
 
 	/**
 	 * Whether the startup summary will be logged.
 	 */
-	public static final ConfigProperty<Boolean> STARTUP_SUMMARY = new SysEnvConfigProperty<>(Boolean.class,
+	public static final ConfigProperty<Boolean> STARTUP_SUMMARY = ConfigProperty.evaluate(Boolean.class,
 			"s7s.startup.logging.summary");
 
 	/**
 	 * The temporary directory.
 	 */
-	public static final ConfigProperty<String[]> LOG_LEVELS = new DefaultConfigProperty<>(String[].class,
-			"s7s.log.levels", new String[] { "io.netty=WARN", "java.util.prefs=OFF", "com.sandpolis=INFO" });
+	public static final ConfigProperty<String[]> LOG_LEVELS = ConfigProperty.evaluate(String[].class, "s7s.log.levels",
+			new String[] { "io.netty=WARN", "java.util.prefs=OFF", "com.sandpolis=INFO" });
+
+	/**
+	 * Whether development features should be enabled.
+	 */
+	public static final ConfigProperty<Boolean> DEVELOPMENT_MODE = ConfigProperty.evaluate(Boolean.class,
+			"s7s.development_mode");
 
 	private CfgInstance() {
 	}

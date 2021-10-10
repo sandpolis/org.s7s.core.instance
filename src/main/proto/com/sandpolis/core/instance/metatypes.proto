@@ -20,17 +20,20 @@ enum InstanceType {
     // Indicates the runtime environment does not have an instance type
     NONE = 0;
 
-    // A headless application that coordinates communication between clients and agents
+    // A headless application that coordinates interaction among instances
     SERVER = 1;
 
-    // A headless application that runs continuously on hosts in the Sandpolis network
-    AGENT = 2;
-
     // A UI application used for managing agents and servers
-    CLIENT = 3;
+    CLIENT = 2;
 
-    // A headless application that installs or updates an agent
-    DISTAGENT = 4;
+    // A headless application that runs continuously on hosts in the Sandpolis network
+    AGENT = 3;
+
+    // A headless application that runs 
+    PROBE = 4;
+
+    // A headless application that installs or updates an agent or probe
+    DEPLOYER = 5;
 }
 
 // An enumeration of all official instance subtypes.
@@ -42,33 +45,33 @@ enum InstanceFlavor {
     // Standard server: https://github.com/sandpolis/com.sandpolis.server.vanilla
     SERVER_VANILLA = 10;
 
-    // Standard agent: https://github.com/sandpolis/com.sandpolis.agent.kilo
-    AGENT_KILO = 20;
-
-    // Rust agent: https://github.com/sandpolis/com.sandpolis.agent.micro
-    AGENT_MICRO = 21;
-
-    // C++ agent: https://github.com/sandpolis/com.sandpolis.agent.nano
-    AGENT_NANO = 22;
-
     // Desktop client: https://github.com/sandpolis/com.sandpolis.client.lifegem
-    CLIENT_LIFEGEM = 30;
+    CLIENT_LIFEGEM = 20;
 
     // Terminal client: https://github.com/sandpolis/com.sandpolis.client.ascetic
-    CLIENT_ASCETIC = 31;
+    CLIENT_ASCETIC = 21;
 
     // Android client: https://github.com/sandpolis/com.sandpolis.client.soapstone
-    CLIENT_SOAPSTONE = 32;
+    CLIENT_SOAPSTONE = 22;
 
     // iOS client: https://github.com/sandpolis/com.sandpolis.client.lockstone
-    CLIENT_LOCKSTONE = 33;
+    CLIENT_LOCKSTONE = 23;
 
     // Web client: https://github.com/sandpolis/com.sandpolis.client.brightstone
-    CLIENT_BRIGHTSTONE = 34;
+    CLIENT_BRIGHTSTONE = 24;
 
-    // Rust distagent: https://github.com/sandpolis/com.sandpolis.distagent.rust
-    DISTAGENT_RUST = 40;
+    // Standard agent: https://github.com/sandpolis/com.sandpolis.agent.kilo
+    AGENT_KILO = 30;
 
-    // Java distagent: https://github.com/sandpolis/com.sandpolis.distagent.java
-    DISTAGENT_JAVA = 41;
+    // Rust agent: https://github.com/sandpolis/com.sandpolis.agent.micro
+    AGENT_MICRO = 31;
+
+    // C++ probe: https://github.com/sandpolis/com.sandpolis.probe.nano
+    PROBE_NANO = 40;
+
+    // Rust deployer: https://github.com/sandpolis/com.sandpolis.deployer.rust
+    DEPLOYER_RUST = 50;
+
+    // Java deployer: https://github.com/sandpolis/com.sandpolis.deployer.java
+    DEPLOYER_JAVA = 51;
 }

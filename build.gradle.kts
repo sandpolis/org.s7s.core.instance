@@ -32,6 +32,9 @@ dependencies {
 		exclude(group = "com.sun.mail", module = "javax.mail")
 	}
 
+	// https://github.com/FasterXML/jackson-databind
+	api("com.fasterxml.jackson.core:jackson-databind:2.12.4")
+
 	if (project.getParent() == null) {
 		api("com.sandpolis:core.foundation:+")
 	} else {

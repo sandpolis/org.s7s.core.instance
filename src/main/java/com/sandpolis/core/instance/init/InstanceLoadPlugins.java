@@ -12,7 +12,6 @@ package com.sandpolis.core.instance.init;
 import static com.sandpolis.core.instance.plugin.PluginStore.PluginStore;
 
 import com.sandpolis.core.instance.InitTask;
-import com.sandpolis.core.instance.TaskOutcome;
 import com.sandpolis.core.instance.config.CfgInstance;
 
 public class InstanceLoadPlugins extends InitTask {
@@ -23,11 +22,11 @@ public class InstanceLoadPlugins extends InitTask {
 	}
 
 	@Override
-	public TaskOutcome run(TaskOutcome outcome) throws Exception {
+	public TaskOutcome run(TaskOutcome.Factory outcome) throws Exception {
 		PluginStore.scanPluginDirectory();
 		PluginStore.loadPlugins();
 
-		return outcome.success();
+		return outcome.succeeded();
 	}
 
 	@Override

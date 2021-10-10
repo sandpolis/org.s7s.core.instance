@@ -18,7 +18,7 @@ import java.security.ProtectionDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sandpolis.core.foundation.config.ConfigProperty;
+import com.sandpolis.core.instance.config.ConfigProperty;
 import com.sandpolis.core.instance.config.CfgInstance;
 
 /**
@@ -96,7 +96,7 @@ public enum Environment {
 			}
 
 			if (candidate instanceof ConfigProperty property) {
-				if (property.defined()) {
+				if (property.value().isPresent()) {
 					return Paths.get(property.value().get().toString());
 				}
 			} else if (candidate instanceof String path) {

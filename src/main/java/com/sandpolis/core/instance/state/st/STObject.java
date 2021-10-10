@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import com.sandpolis.core.foundation.ConfigStruct;
 import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData;
 import com.sandpolis.core.instance.state.oid.Oid;
 
@@ -71,10 +70,13 @@ public interface STObject {
 	 */
 	public void removeListener(Object listener);
 
-	@ConfigStruct
 	public static final class STSnapshotStruct {
 		public Oid oid;
 		public List<Oid> whitelist = new ArrayList<>();
+
+		private STSnapshotStruct(Consumer<STSnapshotStruct> configurator) {
+			configurator.accept(this);
+		}
 	}
 
 	/**
@@ -89,8 +91,7 @@ public interface STObject {
 	public Stream<EV_STStreamData> snapshot(STSnapshotStruct config);
 
 	public default Stream<EV_STStreamData> snapshot(Consumer<STSnapshotStruct> configurator) {
-		var config = new STSnapshotStruct();
-		configurator.accept(config);
+		var config = new STSnapshotStruct(configurator);
 
 		if (config.oid == null)
 			config.oid = oid();

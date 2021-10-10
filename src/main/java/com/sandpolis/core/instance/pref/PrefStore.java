@@ -20,7 +20,6 @@ import java.util.prefs.Preferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sandpolis.core.foundation.ConfigStruct;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.pref.PrefStore.PrefStoreConfig;
@@ -35,16 +34,22 @@ import com.sandpolis.core.instance.store.StoreBase;
  */
 public final class PrefStore extends StoreBase implements ConfigurableStore<PrefStoreConfig> {
 
-	private static final Logger log = LoggerFactory.getLogger(PrefStore.class);
+	public static final class PrefStoreConfig {
+		public final Map<String, Object> defaults = new HashMap<>();
 
-	public PrefStore() {
-		super(log);
+		public InstanceFlavor flavor;
+
+		public InstanceType instance;
+		public Class<?> prefNodeClass;
+
+		private PrefStoreConfig(Consumer<PrefStoreConfig> configurator) {
+			configurator.accept(this);
+		}
 	}
 
-	/**
-	 * The backing {@link Preferences} object.
-	 */
-	private Preferences container;
+	private static final Logger log = LoggerFactory.getLogger(PrefStore.class);
+
+	public static final PrefStore PrefStore = new PrefStore();
 
 	/**
 	 * Get the {@link Preferences} object unique to the given instance.
@@ -56,6 +61,57 @@ public final class PrefStore extends StoreBase implements ConfigurableStore<Pref
 	public static Preferences getPreferences(InstanceType instance, InstanceFlavor flavor) {
 		return Preferences.userRoot()
 				.node("com/sandpolis/" + instance.name().toLowerCase() + "/" + flavor.name().toLowerCase());
+	}
+
+	/**
+	 * The backing {@link Preferences} object.
+	 */
+	private Preferences container;
+
+	public PrefStore() {
+		super(log);
+	}
+
+	@Override
+	public void close() throws BackingStoreException {
+		if (container != null) {
+			log.debug("Closing preference node: " + container.absolutePath());
+			try {
+				container.flush();
+			} finally {
+				container = null;
+			}
+		}
+	}
+
+	/**
+	 * Get a value from the store.
+	 *
+	 * @param tag A unique String whose associated value is to be returned
+	 * @return The boolean value associated with the provided tag
+	 */
+	public boolean getBoolean(String tag) {
+		return container.getBoolean(tag, false);
+	}
+
+	/**
+	 * Get a value from the store.
+	 *
+	 * @param tag A unique String whose associated value is to be returned
+	 * @return The byte[] value associated with the provided tag
+	 */
+	public byte[] getBytes(String tag) {
+		return container.getByteArray(tag, null);
+	}
+
+	/**
+	 * Get a value from the store.
+	 *
+	 * @param tag A unique String whose associated value is to be returned
+	 * @return The int value associated with the provided tag
+	 */
+	public int getInt(String tag) {
+		return container.getInt(tag, 0);
 	}
 
 	/**
@@ -79,78 +135,25 @@ public final class PrefStore extends StoreBase implements ConfigurableStore<Pref
 		return container.get(tag, def);
 	}
 
-	/**
-	 * Add a value to the store. Old values are overwritten.
-	 *
-	 * @param tag   The unique key which will become associated with the new value
-	 * @param value The new value
-	 */
-	public void putString(String tag, String value) {
-		log.trace("Associating \"{}\": \"{}\"", tag, value);
-		container.put(tag, value);
-	}
+	@Override
+	public void init(Consumer<PrefStoreConfig> configurator) {
+		var config = new PrefStoreConfig(configurator);
 
-	/**
-	 * Get a value from the store.
-	 *
-	 * @param tag A unique String whose associated value is to be returned
-	 * @return The boolean value associated with the provided tag
-	 */
-	public boolean getBoolean(String tag) {
-		return container.getBoolean(tag, false);
-	}
+		if (container != null)
+			log.warn("Reinitializing store without flushing Preferences");
 
-	/**
-	 * Add a value to the store. Old values are overwritten.
-	 *
-	 * @param tag   The unique key which will become associated with the new value
-	 * @param value The new value
-	 */
-	public void putBoolean(String tag, boolean value) {
-		log.trace("Associating \"{}\": {}", tag, value);
-		container.putBoolean(tag, value);
-	}
+		if (config.prefNodeClass != null) {
+			container = Preferences.userNodeForPackage(config.prefNodeClass);
+		} else if (config.instance != null && config.flavor != null) {
+			container = getPreferences(config.instance, config.flavor);
+		}
 
-	/**
-	 * Get a value from the store.
-	 *
-	 * @param tag A unique String whose associated value is to be returned
-	 * @return The int value associated with the provided tag
-	 */
-	public int getInt(String tag) {
-		return container.getInt(tag, 0);
-	}
-
-	/**
-	 * Add a value to the store. Old values are overwritten.
-	 *
-	 * @param tag   The unique key which will become associated with the new value
-	 * @param value The new value
-	 */
-	public void putInt(String tag, int value) {
-		log.trace("Associating \"{}\": {}", tag, value);
-		container.putInt(tag, value);
-	}
-
-	/**
-	 * Get a value from the store.
-	 *
-	 * @param tag A unique String whose associated value is to be returned
-	 * @return The byte[] value associated with the provided tag
-	 */
-	public byte[] getBytes(String tag) {
-		return container.getByteArray(tag, null);
-	}
-
-	/**
-	 * Add a value to the store. Old values are overwritten.
-	 *
-	 * @param tag   The unique key which will become associated with the new value
-	 * @param value The new value
-	 */
-	public void putBytes(String tag, byte[] value) {
-		log.trace("Associating \"{}\": {}", tag, value);
-		container.putByteArray(tag, value);
+		try {
+			for (var entry : config.defaults.entrySet())
+				register(entry.getKey(), entry.getValue());
+		} catch (BackingStoreException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -176,6 +179,50 @@ public final class PrefStore extends StoreBase implements ConfigurableStore<Pref
 	}
 
 	/**
+	 * Add a value to the store. Old values are overwritten.
+	 *
+	 * @param tag   The unique key which will become associated with the new value
+	 * @param value The new value
+	 */
+	public void putBoolean(String tag, boolean value) {
+		log.trace("Associating \"{}\": {}", tag, value);
+		container.putBoolean(tag, value);
+	}
+
+	/**
+	 * Add a value to the store. Old values are overwritten.
+	 *
+	 * @param tag   The unique key which will become associated with the new value
+	 * @param value The new value
+	 */
+	public void putBytes(String tag, byte[] value) {
+		log.trace("Associating \"{}\": {}", tag, value);
+		container.putByteArray(tag, value);
+	}
+
+	/**
+	 * Add a value to the store. Old values are overwritten.
+	 *
+	 * @param tag   The unique key which will become associated with the new value
+	 * @param value The new value
+	 */
+	public void putInt(String tag, int value) {
+		log.trace("Associating \"{}\": {}", tag, value);
+		container.putInt(tag, value);
+	}
+
+	/**
+	 * Add a value to the store. Old values are overwritten.
+	 *
+	 * @param tag   The unique key which will become associated with the new value
+	 * @param value The new value
+	 */
+	public void putString(String tag, String value) {
+		log.trace("Associating \"{}\": \"{}\"", tag, value);
+		container.put(tag, value);
+	}
+
+	/**
 	 * Add a value to the store unless it's already present.
 	 *
 	 * @param tag   The unique key which will become associated with the new value
@@ -191,49 +238,4 @@ public final class PrefStore extends StoreBase implements ConfigurableStore<Pref
 			put(tag, value);
 		}
 	}
-
-	@Override
-	public void close() throws BackingStoreException {
-		if (container != null) {
-			log.debug("Closing preference node: " + container.absolutePath());
-			try {
-				container.flush();
-			} finally {
-				container = null;
-			}
-		}
-	}
-
-	@Override
-	public void init(Consumer<PrefStoreConfig> configurator) {
-		var config = new PrefStoreConfig();
-		configurator.accept(config);
-
-		if (container != null)
-			log.warn("Reinitializing store without flushing Preferences");
-
-		if (config.prefNodeClass != null) {
-			container = Preferences.userNodeForPackage(config.prefNodeClass);
-		} else if (config.instance != null && config.flavor != null) {
-			container = getPreferences(config.instance, config.flavor);
-		}
-
-		try {
-			for (var entry : config.defaults.entrySet())
-				register(entry.getKey(), entry.getValue());
-		} catch (BackingStoreException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@ConfigStruct
-	public static final class PrefStoreConfig {
-		public InstanceType instance;
-		public InstanceFlavor flavor;
-		public Class<?> prefNodeClass;
-
-		public final Map<String, Object> defaults = new HashMap<>();
-	}
-
-	public static final PrefStore PrefStore = new PrefStore();
 }
