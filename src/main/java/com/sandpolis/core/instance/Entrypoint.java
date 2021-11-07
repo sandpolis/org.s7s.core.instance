@@ -110,7 +110,7 @@ public abstract class Entrypoint {
 
 			// Format description and result
 			String line = String.format(descFormat + " %4s", outcome.name(),
-					outcome.skipped() ? "SKIP"
+					outcome.skipped() ? S7SString.of("SKIP").colorize(AnsiColor.BLUE)
 							: outcome.success() ? S7SString.of("OK").colorize(AnsiColor.GREEN)
 									: S7SString.of("FAIL").colorize(AnsiColor.RED));
 
@@ -123,11 +123,7 @@ public abstract class Entrypoint {
 				line += String.format(" (%5d ms)", outcome.duration());
 
 			// Write to log
-			if (outcome.skipped() || outcome.success()) {
-				log.info(line);
-			} else {
-				log.error(line);
-			}
+			log.info(line);
 		}
 
 		// Log any failure messages/exceptions

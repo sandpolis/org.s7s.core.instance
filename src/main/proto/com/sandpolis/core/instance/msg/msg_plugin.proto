@@ -78,3 +78,21 @@ message RQ_PluginInstall {
         string plugin_coordinates = 3;
     }
 }
+
+enum RS_PluginInstall {
+
+    // The operation was successful
+    PLUGIN_INSTALL_OK = 0;
+
+    // The operation failed
+    PLUGIN_INSTALL_FAILED = 1;
+
+    // The operation failed because plugins are disabled
+    PLUGIN_INSTALL_FAILED_DISABLED = 2;
+
+    // The operation failed because the plugin certificate could not be verified
+    PLUGIN_INSTALL_FAILED_CERTIFICATE = 3;
+
+    // The request was invalid
+    PLUGIN_INSTALL_INVALID = 4;
+}

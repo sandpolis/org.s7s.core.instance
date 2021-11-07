@@ -66,6 +66,9 @@ enum InstanceFlavor {
     // Rust agent: https://github.com/sandpolis/com.sandpolis.agent.micro
     AGENT_MICRO = 31;
 
+    // Boot agent: https://github.com/sandpolis/com.sandpolis.agent.boot
+    AGENT_BOOT = 32;
+
     // C++ probe: https://github.com/sandpolis/com.sandpolis.probe.nano
     PROBE_NANO = 40;
 

@@ -32,6 +32,12 @@ message RQ_STStream {
     int32 update_period = 6;
 }
 
+enum RS_STStream {
+    ST_STREAM_OK = 0;
+    ST_STREAM_INVALID = 1;
+    ST_STREAM_FAILED = 2;
+}
+
 message EV_STStreamData {
 
     enum ValueType {

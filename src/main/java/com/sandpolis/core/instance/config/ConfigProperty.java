@@ -31,7 +31,7 @@ public record ConfigProperty<T> (String name, Optional<T> value) {
 	private static final Logger log = LoggerFactory.getLogger(ConfigProperty.class);
 
 	public static <T> ConfigProperty<T> evaluate(Class<T> type, String name) {
-		return evaluate(type, name, null);
+		return evaluate(type, name, (T) null);
 	}
 
 	public static <T> ConfigProperty<T> evaluate(Class<T> type, String name, Supplier<T> supplier) {
