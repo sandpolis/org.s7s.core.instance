@@ -9,7 +9,7 @@
 //============================================================================//
 package com.sandpolis.core.instance.state.st;
 
-import static com.sandpolis.core.instance.msg.MsgState.EV_STStreamData.newBuilder;
+import static com.sandpolis.core.instance.Messages.EV_STStreamData.newBuilder;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -28,8 +28,8 @@ import com.sandpolis.core.foundation.Platform.OsType;
 import com.sandpolis.core.foundation.S7SCertificate;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
-import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData;
-import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData.ValueType;
+import com.sandpolis.core.instance.Messages.EV_STStreamData;
+import com.sandpolis.core.instance.Messages.EV_STStreamData.ValueType;
 
 public class EphemeralAttribute extends AbstractSTObject implements STAttribute {
 

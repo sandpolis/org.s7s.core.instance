@@ -16,7 +16,7 @@
 				"id": true
 			},
 			{
-				"name": "cvid",
+				"name": "sid",
 				"type": "java.lang.Integer"
 			},
 			{

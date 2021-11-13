@@ -61,14 +61,14 @@ public final class ProfileStore extends STCollectionStore<Profile> implements Co
 	}
 
 	/**
-	 * Get a profile by CVID.
+	 * Get a profile by SID.
 	 *
-	 * @param cvid The profile CVID
+	 * @param sid The profile SID
 	 * @return The requested profile
 	 */
-	public Optional<Profile> getByCvid(int cvid) {
-		return values().stream().filter(profile -> profile.get(ProfileOid.CVID).isPresent())
-				.filter(profile -> profile.get(ProfileOid.CVID).asInt() == cvid).findFirst();
+	public Optional<Profile> getBySid(int sid) {
+		return values().stream().filter(profile -> profile.get(ProfileOid.SID).isPresent())
+				.filter(profile -> profile.get(ProfileOid.SID).asInt() == sid).findFirst();
 	}
 
 	/**

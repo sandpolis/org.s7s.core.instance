@@ -9,43 +9,46 @@
 //============================================================================//
 syntax = "proto3";
 
-package core.instance.msg;
+package core.instance;
 
-option java_package = "com.sandpolis.core.instance.msg";
+option java_package = "com.sandpolis.core.instance";
 option optimize_for = CODE_SIZE;
 
-/**
- * Ping request.
- */
+// Ping request.
 message RQ_Ping {}
 
-/**
- * Ping response.
- */
-message RS_Ping {}
+// Ping response.
+enum RS_Ping {
+    PING_OK = 0;
+}
 
-// Request: Attempt a plugin operation.
-message RQ_PluginOperation {
-    enum PluginOperation {
-        PLUGIN_CREATE = 0;
-        PLUGIN_DELETE = 1;
-        PLUGIN_UPDATE = 2;
-        PLUGIN_SYNC = 3;
+message RQ_SyncPlugins {}
+
+message RS_SyncPlugins {
+
+    message PluginData {
+
+        string package_id = 1;
+
+        string version = 5;
+
+        oneof source {
+            // The plugin binary
+            bytes plugin_binary = 2;
+
+            // The plugin's HTTP location
+            string plugin_url = 3;
+
+            // The plugin's maven central coordinates
+            string plugin_coordinates = 4;
+        }
     }
-    PluginOperation operation = 1;
 
-    repeated core.instance.PluginConfig plugin_config = 2;
+    repeated PluginData plugin = 1;
 }
 
-message RS_PluginSync {
-
-    repeated core.instance.PluginConfig plugin_config = 1;
-}
-
-/**
- * A request to download an artifact.
- */
-message RQ_ArtifactDownload {
+// A request to download an artifact.
+message RQ_DownloadArtifact {
 
     // The coordinates of the artifact to download
     string coordinates = 1;
@@ -54,10 +57,8 @@ message RQ_ArtifactDownload {
     bool location = 2;
 }
 
-/**
- * The download response bearing the artifact binary or the artifact's address.
- */
-message RS_ArtifactDownload {
+// The download response bearing the artifact binary or the artifact's address.
+message RS_DownloadArtifact {
     oneof source {
         // The artifact binary
         bytes binary = 1;
@@ -70,10 +71,8 @@ message RS_ArtifactDownload {
     }
 }
 
-/**
- * A request to install a server plugin.
- */
-message RQ_PluginInstall {
+// A request to install a server plugin.
+message RQ_InstallPlugin {
 
     oneof source {
         // The plugin binary
@@ -87,7 +86,7 @@ message RQ_PluginInstall {
     }
 }
 
-enum RS_PluginInstall {
+enum RS_InstallPlugin {
 
     // The operation was successful
     PLUGIN_INSTALL_OK = 0;

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import com.sandpolis.core.instance.msg.MsgState.EV_STStreamData;
+import com.sandpolis.core.instance.Messages.EV_STStreamData;
 import com.sandpolis.core.instance.state.oid.Oid;
 
 /**
