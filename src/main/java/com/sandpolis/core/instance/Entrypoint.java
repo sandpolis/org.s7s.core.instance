@@ -244,9 +244,7 @@ public abstract class Entrypoint {
 		}
 
 		// Print task summary if required
-		else if (CfgInstance.STARTUP_SUMMARY.value().orElse(true)) {
-			logSummary(outcomes);
-		}
+		logSummary(outcomes);
 
 		// Launch idle loop
 		if (idle != null)

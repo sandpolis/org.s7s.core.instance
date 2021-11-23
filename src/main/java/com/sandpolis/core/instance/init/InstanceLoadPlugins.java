@@ -12,13 +12,13 @@ package com.sandpolis.core.instance.init;
 import static com.sandpolis.core.instance.plugin.PluginStore.PluginStore;
 
 import com.sandpolis.core.instance.InitTask;
-import com.sandpolis.core.instance.config.CfgInstance;
+import com.sandpolis.core.instance.config.InstanceConfig;
 
 public class InstanceLoadPlugins extends InitTask {
 
 	@Override
 	public boolean enabled() {
-		return CfgInstance.PLUGIN_ENABLED.value().orElse(true);
+		return InstanceConfig.PLUGIN_ENABLED.value().orElse(true);
 	}
 
 	@Override

@@ -11,7 +11,7 @@ package com.sandpolis.core.instance.config;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +34,11 @@ public record ConfigProperty<T> (String name, Optional<T> value) {
 		return evaluate(type, name, (T) null);
 	}
 
-	public static <T> ConfigProperty<T> evaluate(Class<T> type, String name, Supplier<T> supplier) {
-		return evaluate(type, name, supplier.get());
+	public static <T> ConfigProperty<T> evaluate(Class<T> type, String name, T defaultValue) {
+		return evaluate(type, name, (T) null, t -> true);
 	}
 
-	public static <T> ConfigProperty<T> evaluate(Class<T> type, String name, T defaultValue) {
+	public static <T> ConfigProperty<T> evaluate(Class<T> type, String name, T defaultValue, Predicate<T> validator) {
 
 		String value;
 
@@ -46,43 +46,52 @@ public record ConfigProperty<T> (String name, Optional<T> value) {
 		value = System.getProperty(name);
 		if (value != null) {
 			log.trace("Found system property: {}", name);
-			return new ConfigProperty<T>(name, parseValue(type, name, value));
+			return new ConfigProperty<T>(name, parseValue(type, name, value, validator));
 		}
 
 		// Second priority: environment variables
 		value = System.getenv().get(name.toUpperCase().replace('.', '_'));
 		if (value != null) {
 			log.trace("Found environment variable: {}", name.toUpperCase().replace('.', '_'));
-			return new ConfigProperty<T>(name, parseValue(type, name, value));
+			return new ConfigProperty<T>(name, parseValue(type, name, value, validator));
 		}
 
 		return new ConfigProperty<T>(name, Optional.ofNullable(defaultValue));
 	}
 
-	private static <T> Optional<T> parseValue(Class<T> type, String name, String value) {
+	private static <T> Optional<T> parseValue(Class<T> type, String name, String value, Predicate<T> validator) {
 		Objects.requireNonNull(value);
+
+		T v;
 
 		try {
 			if (type == String.class) {
-				return Optional.of((T) (String) value);
+				v = (T) (String) value;
 			}
 
 			else if (type == String[].class) {
-				return Optional.of((T) (String[]) value.split(","));
+				v = (T) (String[]) value.split(",");
 			}
 
 			else if (type == Integer.class) {
-				return Optional.of((T) (Integer) Integer.parseInt(value));
+				v = (T) (Integer) Integer.parseInt(value);
 			}
 
 			else if (type == Boolean.class) {
-				return Optional.of((T) (Boolean) Boolean.parseBoolean(value));
+				v = (T) (Boolean) Boolean.parseBoolean(value);
 			} else {
 				log.error("Unknown type: {}", type);
 				return Optional.empty();
 			}
 		} catch (Exception e) {
 			log.error("Failed to parse property: {}", name);
+			return Optional.empty();
+		}
+
+		// Validate the value last
+		if (validator.test(v)) {
+			return Optional.of(v);
+		} else {
 			return Optional.empty();
 		}
 	}

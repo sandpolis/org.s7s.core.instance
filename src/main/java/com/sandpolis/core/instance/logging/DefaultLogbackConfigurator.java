@@ -12,6 +12,7 @@ package com.sandpolis.core.instance.logging;
 import java.util.Arrays;
 
 import com.sandpolis.core.instance.config.CfgInstance;
+import com.sandpolis.core.instance.config.InstanceConfig;
 
 import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Level;
@@ -61,7 +62,7 @@ public class DefaultLogbackConfigurator extends BasicConfigurator {
 	}
 
 	protected void configureLevels(LoggerContext lc) {
-		CfgInstance.LOG_LEVELS.value().stream().flatMap(Arrays::stream).map(line -> line.split("=")).forEach(line -> {
+		InstanceConfig.LOG_LEVELS.value().stream().flatMap(Arrays::stream).map(line -> line.split("=")).forEach(line -> {
 			if (line.length == 2) {
 				lc.getLogger(line[0]).setLevel(Level.toLevel(line[1]));
 			}

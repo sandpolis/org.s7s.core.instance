@@ -45,11 +45,11 @@
 				"type": "java.lang.String"
 			},
 			{
-				"name": "remote_cvid",
+				"name": "remote_sid",
 				"type": "java.lang.Integer"
 			},
 			{
-				"name": "local_cvid",
+				"name": "local_sid",
 				"type": "java.lang.Integer"
 			},
 			{
@@ -404,9 +404,9 @@
 				"description": "The user's TOTP secret"
 			},
 			{
-				"name": "current_cvid",
+				"name": "current_sid",
 				"type": "java.lang.Integer[]",
-				"description": "The user's current CVIDs"
+				"description": "The user's current SIDs"
 			}
 		]
 	},

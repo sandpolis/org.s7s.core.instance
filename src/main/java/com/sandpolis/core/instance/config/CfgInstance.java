@@ -46,30 +46,6 @@ public final class CfgInstance {
 	 */
 	public static final ConfigProperty<String> PATH_TMP = ConfigProperty.evaluate(String.class, "s7s.path.tmp");
 
-	/**
-	 * Whether plugins can be loaded.
-	 */
-	public static final ConfigProperty<Boolean> PLUGIN_ENABLED = ConfigProperty.evaluate(Boolean.class,
-			"s7s.plugins.enabled");
-
-	/**
-	 * Whether the startup summary will be logged.
-	 */
-	public static final ConfigProperty<Boolean> STARTUP_SUMMARY = ConfigProperty.evaluate(Boolean.class,
-			"s7s.startup.logging.summary");
-
-	/**
-	 * The temporary directory.
-	 */
-	public static final ConfigProperty<String[]> LOG_LEVELS = ConfigProperty.evaluate(String[].class, "s7s.log.levels",
-			new String[] { "io.netty=WARN", "java.util.prefs=OFF", "com.sandpolis=INFO" });
-
-	/**
-	 * Whether development features should be enabled.
-	 */
-	public static final ConfigProperty<Boolean> DEVELOPMENT_MODE = ConfigProperty.evaluate(Boolean.class,
-			"s7s.development_mode");
-
 	private CfgInstance() {
 	}
 }
