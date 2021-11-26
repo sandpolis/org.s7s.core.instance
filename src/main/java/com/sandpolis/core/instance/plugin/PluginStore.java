@@ -33,7 +33,7 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 import com.sandpolis.core.foundation.S7SCertificate;
 import com.sandpolis.core.foundation.S7SJarFile;
-import com.sandpolis.core.instance.Environment;
+import com.sandpolis.core.instance.InstanceContext;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.plugin.PluginStore.PluginStoreConfig;
@@ -246,7 +246,7 @@ public final class PluginStore extends STCollectionStore<Plugin> implements Conf
 	 */
 	public void scanPluginDirectory() throws IOException {
 		// TODO will install an arbitrary version if there's more than one
-		Files.list(Environment.PLUGIN.path())
+		Files.list(InstanceContext.PATH_PLUGIN.get())
 
 				// Skip non-plugins
 				.filter(path -> path.getFileName().toString().endsWith(".jar"))

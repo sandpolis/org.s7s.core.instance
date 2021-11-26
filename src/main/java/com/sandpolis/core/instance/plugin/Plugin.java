@@ -33,7 +33,7 @@ import com.google.common.io.MoreFiles;
 import com.google.common.io.Resources;
 import com.sandpolis.core.foundation.S7SJarFile;
 import com.sandpolis.core.instance.Entrypoint;
-import com.sandpolis.core.instance.Environment;
+import com.sandpolis.core.instance.InstanceContext;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.state.InstanceOids.ProfileOid.PluginOid;
@@ -188,13 +188,13 @@ public class Plugin extends AbstractSTDomainObject {
 	 */
 	public Path getComponent(InstanceType instance, InstanceFlavor flavor) {
 		if (instance == null && flavor == null) {
-			return Environment.PLUGIN.path().resolve(get(PluginOid.PACKAGE_ID).asString()).resolve(getVersion())
+			return InstanceContext.PATH_PLUGIN.get().resolve(get(PluginOid.PACKAGE_ID).asString()).resolve(getVersion())
 					.resolve("core.jar");
 		} else {
 			Objects.requireNonNull(instance);
 			Objects.requireNonNull(flavor);
 
-			return Environment.PLUGIN.path().resolve(get(PluginOid.PACKAGE_ID).asString()).resolve(getVersion())
+			return InstanceContext.PATH_PLUGIN.get().resolve(get(PluginOid.PACKAGE_ID).asString()).resolve(getVersion())
 					.resolve(instance.toString().toLowerCase()).resolve(flavor.toString().toLowerCase() + ".jar");
 		}
 	}

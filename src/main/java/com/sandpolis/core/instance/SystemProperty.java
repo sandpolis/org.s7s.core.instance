@@ -7,31 +7,27 @@
 //  as published by the Mozilla Foundation.                                   //
 //                                                                            //
 //============================================================================//
-package com.sandpolis.core.instance.init;
+package com.sandpolis.core.instance;
 
-import static com.sandpolis.core.instance.plugin.PluginStore.PluginStore;
+import java.util.Optional;
 
-import com.sandpolis.core.instance.InitTask;
-import com.sandpolis.core.instance.InstanceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class InstanceLoadPlugins extends InitTask {
+public record SystemProperty(String name, Optional<String> value) {
 
-	@Override
-	public boolean enabled() {
-		return InstanceContext.PLUGIN_ENABLED.get();
+	private static final Logger log = LoggerFactory.getLogger(SystemProperty.class);
+
+	public SystemProperty(String name, Optional<String> value) {
+		this.name = name;
+		this.value = value;
+
+		if (value.isPresent()) {
+			log.trace("Loaded system property: {} -> \"{}\"", name, value.get());
+		}
 	}
 
-	@Override
-	public TaskOutcome run(TaskOutcome.Factory outcome) throws Exception {
-		PluginStore.scanPluginDirectory();
-		PluginStore.loadPlugins();
-
-		return outcome.succeeded();
+	public static SystemProperty of(String name) {
+		return new SystemProperty(name, Optional.ofNullable(System.getProperty(name)));
 	}
-
-	@Override
-	public String description() {
-		return "Load plugins";
-	}
-
 }

@@ -8,7 +8,6 @@
 //                                                                            //
 //============================================================================//
 open module com.sandpolis.core.instance {
-	exports com.sandpolis.core.instance.config;
 	exports com.sandpolis.core.instance.logging;
 	exports com.sandpolis.core.instance.plugin;
 	exports com.sandpolis.core.instance.pref;

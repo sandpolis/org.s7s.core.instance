@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sandpolis.core.instance.state.STStore.STStoreConfig;
 import com.sandpolis.core.instance.state.oid.Oid;
+import com.sandpolis.core.instance.state.st.STAttribute;
 import com.sandpolis.core.instance.state.st.STDocument;
 import com.sandpolis.core.instance.store.ConfigurableStore;
 import com.sandpolis.core.instance.store.StoreBase;
@@ -71,6 +72,10 @@ public final class STStore extends StoreBase implements ConfigurableStore<STStor
 
 	public STDocument get(Oid oid) {
 		return root.document(oid);
+	}
+
+	public STAttribute attribute(Oid oid) {
+		return root.attribute(oid);
 	}
 
 }

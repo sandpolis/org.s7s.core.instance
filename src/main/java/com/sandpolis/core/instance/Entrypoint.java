@@ -12,6 +12,8 @@ package com.sandpolis.core.instance;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,8 +30,6 @@ import com.sandpolis.core.foundation.S7SSystem;
 import com.sandpolis.core.instance.InitTask.TaskOutcome;
 import com.sandpolis.core.instance.Metatypes.InstanceFlavor;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
-import com.sandpolis.core.instance.config.BuildConfig;
-import com.sandpolis.core.instance.config.CfgInstance;
 
 /**
  * Main classes can inherit this class to have the instance setup automatically.
@@ -56,7 +56,12 @@ public abstract class Entrypoint {
 			/**
 			 * The instance's UUID.
 			 */
-			String uuid) {
+			String uuid,
+
+			/**
+			 * The instance jar path.
+			 */
+			Path jar) {
 	}
 
 	private final Logger log;
@@ -89,7 +94,12 @@ public abstract class Entrypoint {
 
 	protected Entrypoint(Class<?> main, InstanceType instance, InstanceFlavor flavor) {
 
-		Entrypoint.metadata = new EntrypointInfo(main, instance, flavor, readUuid(instance, flavor).toString());
+		try {
+			Entrypoint.metadata = new EntrypointInfo(main, instance, flavor, readUuid(instance, flavor).toString(),
+					Paths.get(main.getProtectionDomain().getCodeSource().getLocation().toURI()));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		log = LoggerFactory.getLogger(Entrypoint.class);
 	}
 
@@ -180,13 +190,13 @@ public abstract class Entrypoint {
 
 		final long timestamp = System.currentTimeMillis();
 
-		BuildConfig.get().ifPresent(build -> {
+		if (BuildConfig.EMBEDDED != null) {
 			log.info("Starting instance: {} ({})", S7SString.of(instanceName).rainbowize(),
-					build.versions().instance());
-			log.debug("  Build Timestamp: {}", new Date(build.timestamp()));
-			log.debug("  Build Platform: {}", build.platform());
-			log.debug("  Build JVM: {}", build.versions().java());
-		});
+					BuildConfig.EMBEDDED.versions().instance());
+			log.debug("  Build Timestamp: {}", new Date(BuildConfig.EMBEDDED.timestamp()));
+			log.debug("  Build Platform: {}", BuildConfig.EMBEDDED.platform());
+			log.debug("  Build JVM: {}", BuildConfig.EMBEDDED.versions().java());
+		}
 
 		log.debug("  Runtime Platform: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.debug("  Runtime JVM: {} ({})", System.getProperty("java.version"), System.getProperty("java.vendor"));

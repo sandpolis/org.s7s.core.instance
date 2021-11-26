@@ -7,32 +7,29 @@
 //  as published by the Mozilla Foundation.                                   //
 //                                                                            //
 //============================================================================//
-package com.sandpolis.core.instance.config;
+package com.sandpolis.core.instance;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sandpolis.core.instance.Entrypoint;
 
 public record BuildConfig(String platform, long timestamp, VersionConfig versions, List<String> dependencies) {
 
-	private static Optional<BuildConfig> instance;
+	public static final BuildConfig EMBEDDED = load();
 
-	public static Optional<BuildConfig> get() {
-		if (instance == null) {
-			try (var in = Entrypoint.data().main().getResourceAsStream("/config/build.json")) {
-				if (in != null) {
-					instance = Optional.of(new ObjectMapper().readValue(in, BuildConfig.class));
-				} else {
-					instance = Optional.empty();
-				}
-			} catch (IOException e) {
-				instance = Optional.empty();
+	public static BuildConfig load() {
+
+		try (var in = Entrypoint.data().main().getResourceAsStream("/config/com.sandpolis.build.json")) {
+			if (in != null) {
+				return new ObjectMapper().readValue(in, BuildConfig.class);
 			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		return instance;
+
+		return null;
 	}
 
 	public record VersionConfig(

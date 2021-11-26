@@ -7,35 +7,27 @@
 //  as published by the Mozilla Foundation.                                   //
 //                                                                            //
 //============================================================================//
-package com.sandpolis.core.instance.init;
+package com.sandpolis.core.instance;
 
-import com.sandpolis.core.instance.Environment;
-import com.sandpolis.core.instance.InitTask;
+import java.util.Optional;
 
-public class InstanceLoadEnvironment extends InitTask {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	@Override
-	public TaskOutcome run(TaskOutcome.Factory outcome) throws Exception {
-		Environment.LIB.requireReadable();
-		Environment.DATA.requireWritable();
-		Environment.CFG.requireWritable();
-		Environment.LOG.requireWritable();
-		Environment.PLUGIN.requireWritable();
-		Environment.TMP.requireWritable();
+public record EnvironmentVariable(String name, Optional<String> value) {
 
-		Environment.logEnvironment();
+	private static final Logger log = LoggerFactory.getLogger(EnvironmentVariable.class);
 
-		return outcome.succeeded();
+	public EnvironmentVariable(String name, Optional<String> value) {
+		this.name = name;
+		this.value = value;
+
+		if (value.isPresent()) {
+			log.trace("Loaded environment variable: {} -> \"{}\"", name, value.get());
+		}
 	}
 
-	@Override
-	public String description() {
-		return "Load runtime environment";
+	public static EnvironmentVariable of(String name) {
+		return new EnvironmentVariable(name, Optional.ofNullable(System.getenv().get(name)));
 	}
-
-	@Override
-	public boolean fatal() {
-		return true;
-	}
-
 }
