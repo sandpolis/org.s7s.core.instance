@@ -17,37 +17,35 @@ class OidTest {
 
 	@Test
 	void testFirst() {
-		fail("Not yet implemented");
+		assertEquals("test", Oid.of("/test/123").first());
 	}
 
 	@Test
 	void testIsConcrete() {
-		fail("Not yet implemented");
+		assertTrue(Oid.of("/test/123"));
+		assertFalse(Oid.of("/test/*/123"));
 	}
 
 	@Test
 	void testLast() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testRelative() {
-		fail("Not yet implemented");
+		assertEquals("123", Oid.of("/test/123").last());
+		assertEquals("123", Oid.of("/test/*/123").last());
 	}
 
 	@Test
 	void testResolve() {
-		fail("Not yet implemented");
+		assertEquals("com.sandpolis.core.instance:/test/a/b/*", Oid.of("/test/*/*/*").resolve("a", "b").toString());
 	}
 
 	@Test
 	void testResolveLast() {
-		fail("Not yet implemented");
+		assertEquals("com.sandpolis.core.instance:/test/*/a/b", Oid.of("/test/*/*/*").resolveLast("a", "b").toString());
 	}
 
 	@Test
 	void testToString() {
-		fail("Not yet implemented");
+		assertEquals("com.sandpolis.core.instance:/test/123", Oid.of("/test/123").toString());
+		assertEquals("com.sandpolis.core.net:/test/123", Oid.of("com.sandpolis.core.net:/test/123").toString());
 	}
 
 }
