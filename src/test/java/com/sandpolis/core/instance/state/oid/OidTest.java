@@ -22,8 +22,8 @@ class OidTest {
 
 	@Test
 	void testIsConcrete() {
-		assertTrue(Oid.of("/test/123"));
-		assertFalse(Oid.of("/test/*/123"));
+		assertTrue(Oid.of("/test/123").isConcrete());
+		assertFalse(Oid.of("/test/*/123").isConcrete());
 	}
 
 	@Test
