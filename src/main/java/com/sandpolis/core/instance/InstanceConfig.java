@@ -33,11 +33,9 @@ public record InstanceConfig(boolean container_resident, boolean development, Lo
 	public static final InstanceConfig EMBEDDED = load();
 
 	private static InstanceConfig load() {
-		try (var in = Entrypoint.data().main().getResourceAsStream("/config/com.sandpolis.core.instance.json")) {
+		try (var in = InstanceConfig.class.getResourceAsStream("/com.sandpolis.core.instance.json")) {
 			if (in != null) {
 				return new ObjectMapper().readValue(in, InstanceConfig.class);
-			} else {
-				log.debug("Config not found: /config/com.sandpolis.core.instance.json");
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

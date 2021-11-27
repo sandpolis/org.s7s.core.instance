@@ -63,11 +63,11 @@ public class RuntimeVariable<T> implements Supplier<T> {
 			if (cfg.secondary.value().isPresent()) {
 				try {
 					T v = parseValue(cfg.secondary.value().get());
-					if (v != null && cfg.validator == null || cfg.validator.test(v)) {
+					if (v != null && (cfg.validator == null || cfg.validator.test(v))) {
 						return v;
 					}
 				} catch (Exception e) {
-					// continue
+					log.debug("Failed to parse system property", e);
 				}
 			}
 		}
@@ -75,22 +75,22 @@ public class RuntimeVariable<T> implements Supplier<T> {
 			if (cfg.tertiary.value().isPresent()) {
 				try {
 					T v = parseValue(cfg.tertiary.value().get());
-					if (v != null && cfg.validator == null || cfg.validator.test(v)) {
+					if (v != null && (cfg.validator == null || cfg.validator.test(v))) {
 						return v;
 					}
 				} catch (Exception e) {
-					// continue
+					log.debug("Failed to parse environment variable", e);
 				}
 			}
 		}
 		if (cfg.defaultValue != null) {
 			try {
 				T v = cfg.defaultValue.get();
-				if (v != null && cfg.validator == null || cfg.validator.test(v)) {
+				if (v != null && (cfg.validator == null || cfg.validator.test(v))) {
 					return v;
 				}
 			} catch (Exception e) {
-				// continue
+				log.debug("Failed to parse default value", e);
 			}
 		}
 

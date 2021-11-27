@@ -9,3 +9,14 @@
 //============================================================================//
 
 rootProject.name = "com.sandpolis.core.instance"
+
+buildscript {
+	repositories {
+		maven {
+			url = uri("https://plugins.gradle.org/m2/")
+		}
+	}
+	dependencies {
+		classpath("com.sandpolis:com.sandpolis.build:+")
+	}
+}

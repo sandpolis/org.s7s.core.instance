@@ -10,10 +10,10 @@
 
 plugins {
 	id("java-library")
-	id("com.sandpolis.build.module") version "+"
-	id("com.sandpolis.build.protobuf") version "+"
-	id("com.sandpolis.build.publish") version "+"
-	id("com.sandpolis.build.codegen") version "+"
+	id("com.sandpolis.build.module")
+	id("com.sandpolis.build.protobuf")
+	id("com.sandpolis.build.publish")
+	id("com.sandpolis.build.codegen")
 }
 
 dependencies {

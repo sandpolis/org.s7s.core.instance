@@ -10,6 +10,7 @@
 package com.sandpolis.core.instance;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public abstract class InstanceContext {
 
@@ -30,6 +31,7 @@ public abstract class InstanceContext {
 		cfg.type = Path.class;
 		cfg.secondary = SystemProperty.of("s7s.path.data");
 		cfg.tertiary = EnvironmentVariable.of("S7S_PATH_DATA");
+		cfg.defaultValue = () -> Entrypoint.data().jar().resolveSibling("data");
 	});
 
 	/**
@@ -39,6 +41,7 @@ public abstract class InstanceContext {
 		cfg.type = Path.class;
 		cfg.secondary = SystemProperty.of("s7s.path.lib");
 		cfg.tertiary = EnvironmentVariable.of("S7S_PATH_LIB");
+		cfg.defaultValue = () -> Entrypoint.data().jar().resolveSibling("lib");
 	});
 
 	/**
@@ -48,6 +51,7 @@ public abstract class InstanceContext {
 		cfg.type = Path.class;
 		cfg.secondary = SystemProperty.of("s7s.path.log");
 		cfg.tertiary = EnvironmentVariable.of("S7S_PATH_LOG");
+		cfg.defaultValue = () -> Entrypoint.data().jar().resolveSibling("log");
 	});
 
 	/**
@@ -57,6 +61,7 @@ public abstract class InstanceContext {
 		cfg.type = Path.class;
 		cfg.secondary = SystemProperty.of("s7s.path.plugin");
 		cfg.tertiary = EnvironmentVariable.of("S7S_PATH_PLUGIN");
+		cfg.defaultValue = () -> Entrypoint.data().jar().resolveSibling("plugin");
 	});
 
 	/**
@@ -66,6 +71,7 @@ public abstract class InstanceContext {
 		cfg.type = Path.class;
 		cfg.secondary = SystemProperty.of("s7s.path.tmp");
 		cfg.tertiary = EnvironmentVariable.of("S7S_PATH_TMP");
+		cfg.defaultValue = () -> Paths.get(System.getProperty("java.io.tmpdir"));
 	});
 
 	public static final RuntimeVariable<String[]> LOG_LEVELS = RuntimeVariable.of(cfg -> {

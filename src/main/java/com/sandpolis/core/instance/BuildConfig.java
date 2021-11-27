@@ -21,7 +21,7 @@ public record BuildConfig(String platform, long timestamp, VersionConfig version
 
 	public static BuildConfig load() {
 
-		try (var in = Entrypoint.data().main().getResourceAsStream("/config/com.sandpolis.build.json")) {
+		try (var in = Entrypoint.data().main().getResourceAsStream("/com.sandpolis.build.json")) {
 			if (in != null) {
 				return new ObjectMapper().readValue(in, BuildConfig.class);
 			}

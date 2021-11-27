@@ -2,7 +2,7 @@
 	"container_resident": false,
 	"development": false,
 	"logging": {
-		"levels": "io.netty=WARN,java.util.prefs=OFF,com.sandpolis=INFO"
+		"levels": ["io.netty=WARN", "java.util.prefs=OFF", "com.sandpolis=INFO"]
 	},
 	"plugin": {
 		"enabled": true
