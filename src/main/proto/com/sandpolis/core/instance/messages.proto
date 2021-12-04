@@ -176,3 +176,95 @@ message EV_STStreamData {
     double          double         = 15;
     repeated double double_array   = 16;
 }
+
+// Request that a new session be created. Any previous sessions associated with the
+// instance are invalidated.
+message RQ_Session {
+
+    // The UUID of the requesting instance
+    string instance_uuid = 1;
+
+    // The instance type of the requesting instance
+    core.instance.InstanceType instance_type = 2;
+
+    // The instance flavor of the requesting instance
+    core.instance.InstanceFlavor instance_flavor = 3;
+}
+
+// Respond to a session request with a successful result.
+message RS_Session {
+
+    // A SID for the requesting instance
+    int32 instance_sid  = 1;
+
+    // The SID of the server
+    int32 server_sid = 2;
+
+    // The UUID of the server
+    string server_uuid = 3;
+}
+
+// Request the server for a new direct connection.
+message RQ_DirectConnection {
+
+    // The requested node
+    int32 sid = 1;
+
+    // An optional listener port. If specified, the requested node will attempt
+    // a connection on this port. Otherwise, the server will coordinate the connection.
+    int32 port = 3;
+}
+
+// Request that the recieving instance establish a new connection to the given host.
+message RQ_CoordinateConnection {
+
+    // The host IP address
+    string host = 1;
+
+    // The port
+    int32 port = 2;
+
+    // The transport protocol type
+    string transport = 3;
+
+    // The initial encryption key for the new connection.
+    bytes encryption_key = 4;
+}
+
+// Indicates that some node in the network has changed in connection status.
+message EV_NetworkChange {
+    message NodeAdded {
+        int32 sid = 1;
+        int32 parent = 2;
+    }
+    repeated NodeAdded node_added = 1;
+
+    message NodeRemoved {
+        int32 sid = 1;
+    }
+    repeated NodeRemoved node_removed = 2;
+
+    message LinkAdded {
+        int32 cvid1 = 1;
+        int32 cvid2 = 2;
+    }
+    repeated LinkAdded connection_added = 3;
+
+    message LinkRemoved {
+        int32 cvid1 = 1;
+        int32 cvid2 = 2;
+    }
+    repeated LinkRemoved connection_removed = 4;
+
+}
+
+message RQ_StopStream {
+
+    // The stream ID of the stream to stop
+    int32 id = 1;
+}
+
+enum RS_StopStream {
+    STOP_STREAM_OK = 0;
+    STOP_STREAM_INVALID = 1;
+}

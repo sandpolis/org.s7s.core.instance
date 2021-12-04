@@ -45,7 +45,7 @@ class OidTest {
 	@Test
 	void testToString() {
 		assertEquals("com.sandpolis.core.instance:/test/123", Oid.of("/test/123").toString());
-		assertEquals("com.sandpolis.core.net:/test/123", Oid.of("com.sandpolis.core.net:/test/123").toString());
+		assertEquals("com.sandpolis.core.instance:/test/123", Oid.of("com.sandpolis.core.instance:/test/123").toString());
 	}
 
 }
