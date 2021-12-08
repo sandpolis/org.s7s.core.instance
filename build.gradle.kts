@@ -46,6 +46,6 @@ dependencies {
 	if (project.getParent() == null) {
 		api("com.sandpolis:core.foundation:+")
 	} else {
-		api(project(":module:com.sandpolis.core.foundation"))
+		api(project(":core:com.sandpolis.core.foundation"))
 	}
 }

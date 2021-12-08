@@ -25,12 +25,12 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import com.sandpolis.core.instance.Entrypoint;
+import com.sandpolis.core.instance.InstanceContext;
 import com.sandpolis.core.instance.Metatypes.InstanceType;
 import com.sandpolis.core.instance.state.InstanceOids.ConnectionOid;
 import com.sandpolis.core.instance.state.st.STDocument;
 import com.sandpolis.core.instance.store.ConfigurableStore;
 import com.sandpolis.core.instance.store.STCollectionStore;
-import com.sandpolis.core.instance.NetContext;
 import com.sandpolis.core.instance.Message.MSG;
 import com.sandpolis.core.instance.connection.Connection;
 import com.sandpolis.core.instance.connection.ConnectionStore;
@@ -363,7 +363,7 @@ public final class NetworkStore extends STCollectionStore<Connection> implements
 			next = getPreferredServer().orElseThrow();
 		}
 
-		MessageFuture mf = receive(next, message.getId(), NetContext.MESSAGE_TIMEOUT.get(), TimeUnit.MILLISECONDS);
+		MessageFuture mf = receive(next, message.getId(), InstanceContext.MESSAGE_TIMEOUT.get(), TimeUnit.MILLISECONDS);
 		ConnectionStore.getBySid(next).get().send(message);
 		return mf;
 	}

@@ -20,6 +20,8 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sandpolis.core.foundation.S7SEnvironmentVariable;
+import com.sandpolis.core.foundation.S7SSystemProperty;
 import com.sandpolis.core.instance.state.STStore;
 import com.sandpolis.core.instance.state.oid.Oid;
 
@@ -36,8 +38,8 @@ public class RuntimeVariable<T> implements Supplier<T> {
 	public static class RuntimeVariableConfig<E> {
 		public Class<E> type;
 		public Oid primary;
-		public SystemProperty secondary;
-		public EnvironmentVariable tertiary;
+		public S7SSystemProperty secondary;
+		public S7SEnvironmentVariable tertiary;
 		public Supplier<E> defaultValue;
 		public Predicate<E> validator;
 

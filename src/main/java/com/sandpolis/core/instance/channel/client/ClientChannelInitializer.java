@@ -9,7 +9,6 @@
 //============================================================================//
 package com.sandpolis.core.instance.channel.client;
 
-import static com.sandpolis.core.instance.thread.ThreadStore.ThreadStore;
 import static com.sandpolis.core.instance.channel.HandlerKey.EXELET;
 import static com.sandpolis.core.instance.channel.HandlerKey.FRAME_DECODER;
 import static com.sandpolis.core.instance.channel.HandlerKey.FRAME_ENCODER;
@@ -23,13 +22,14 @@ import static com.sandpolis.core.instance.channel.HandlerKey.SESSION;
 import static com.sandpolis.core.instance.channel.HandlerKey.TLS;
 import static com.sandpolis.core.instance.channel.HandlerKey.TRAFFIC;
 import static com.sandpolis.core.instance.connection.ConnectionStore.ConnectionStore;
+import static com.sandpolis.core.instance.thread.ThreadStore.ThreadStore;
 
 import java.util.function.Consumer;
 
 import javax.net.ssl.SSLException;
 
+import com.sandpolis.core.instance.InstanceContext;
 import com.sandpolis.core.instance.Message.MSG;
-import com.sandpolis.core.instance.NetContext;
 import com.sandpolis.core.instance.channel.ChannelConstant;
 import com.sandpolis.core.instance.channel.ChannelStruct;
 import com.sandpolis.core.instance.connection.Connection;
@@ -86,12 +86,12 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 
 		ChannelPipeline p = ch.pipeline();
 
-		p.addLast(TRAFFIC.next(p), new ChannelTrafficShapingHandler(NetContext.TRAFFIC_INTERVAL.get()));
+		p.addLast(TRAFFIC.next(p), new ChannelTrafficShapingHandler(InstanceContext.TRAFFIC_INTERVAL.get()));
 
 		if (sslCtx != null)
 			p.addLast(TLS.next(p), sslCtx.newHandler(ch.alloc()));
 
-		if (NetContext.LOG_TRAFFIC_RAW.get())
+		if (InstanceContext.LOG_TRAFFIC_RAW.get())
 			p.addLast(LOG_RAW.next(p), new LoggingHandler(Connection.class));
 
 		p.addLast(FRAME_DECODER.next(p), new ProtobufVarint32FrameDecoder());
@@ -99,7 +99,7 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 		p.addLast(FRAME_ENCODER.next(p), HANDLER_PROTO_FRAME_ENCODER);
 		p.addLast(PROTO_ENCODER.next(p), HANDLER_PROTO_ENCODER);
 
-		if (NetContext.LOG_TRAFFIC_DECODED.get())
+		if (InstanceContext.LOG_TRAFFIC_DECODED.get())
 			p.addLast(LOG_DECODED.next(p), new LoggingHandler(Connection.class));
 
 		p.addLast(SESSION.next(p), HANDLER_SESSION);

@@ -9,7 +9,6 @@
 //============================================================================//
 package com.sandpolis.core.instance.channel.peer;
 
-import static com.sandpolis.core.instance.thread.ThreadStore.ThreadStore;
 import static com.sandpolis.core.instance.channel.HandlerKey.EXELET;
 import static com.sandpolis.core.instance.channel.HandlerKey.FRAME_DECODER;
 import static com.sandpolis.core.instance.channel.HandlerKey.FRAME_ENCODER;
@@ -21,10 +20,11 @@ import static com.sandpolis.core.instance.channel.HandlerKey.PROTO_ENCODER;
 import static com.sandpolis.core.instance.channel.HandlerKey.RESPONSE;
 import static com.sandpolis.core.instance.channel.HandlerKey.TRAFFIC;
 import static com.sandpolis.core.instance.connection.ConnectionStore.ConnectionStore;
+import static com.sandpolis.core.instance.thread.ThreadStore.ThreadStore;
 
 import java.util.function.Consumer;
 
-import com.sandpolis.core.instance.NetContext;
+import com.sandpolis.core.instance.InstanceContext;
 import com.sandpolis.core.instance.Message.MSG;
 import com.sandpolis.core.instance.channel.ChannelConstant;
 import com.sandpolis.core.instance.channel.ChannelStruct;
@@ -79,12 +79,12 @@ public class PeerChannelInitializer extends ChannelInitializer<Channel> {
 		if (ch instanceof DatagramChannel)
 			p.addLast(HOLEPUNCH.next(p), new HolePunchHandler());
 
-		p.addLast(TRAFFIC.next(p), new ChannelTrafficShapingHandler(NetContext.TRAFFIC_INTERVAL.get()));
+		p.addLast(TRAFFIC.next(p), new ChannelTrafficShapingHandler(InstanceContext.TRAFFIC_INTERVAL.get()));
 
 		p.addLast(ENCRYPTION_ENCODER.next(p), new PeerEncryptionEncoder());
 		p.addLast(ENCRYPTION_DECODER.next(p), new PeerEncryptionDecoder());
 
-		if (NetContext.LOG_TRAFFIC_RAW.get())
+		if (InstanceContext.LOG_TRAFFIC_RAW.get())
 			p.addLast(LOG_RAW.next(p), new LoggingHandler(Connection.class));
 
 		p.addLast(FRAME_DECODER.next(p), new ProtobufVarint32FrameDecoder());
@@ -92,7 +92,7 @@ public class PeerChannelInitializer extends ChannelInitializer<Channel> {
 		p.addLast(FRAME_ENCODER.next(p), HANDLER_PROTO_FRAME_ENCODER);
 		p.addLast(PROTO_ENCODER.next(p), HANDLER_PROTO_ENCODER);
 
-		if (NetContext.LOG_TRAFFIC_DECODED.get())
+		if (InstanceContext.LOG_TRAFFIC_DECODED.get())
 			p.addLast(LOG_DECODED.next(p), new LoggingHandler(Connection.class));
 
 		p.addLast(ThreadStore.get("net.exelet"), RESPONSE.next(p), new ResponseHandler());

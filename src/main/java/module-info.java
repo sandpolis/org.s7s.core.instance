@@ -20,7 +20,6 @@ open module com.sandpolis.core.instance {
 	exports com.sandpolis.core.instance.message;
 	exports com.sandpolis.core.instance.network;
 	exports com.sandpolis.core.instance.plugin;
-	exports com.sandpolis.core.instance.plugin;
 	exports com.sandpolis.core.instance.pref;
 	exports com.sandpolis.core.instance.profile;
 	exports com.sandpolis.core.instance.session;
