@@ -81,7 +81,8 @@ public class SessionRequestHandler extends AbstractSessionHandler {
 	 */
 	void handshake(Channel channel, InstanceType instance, InstanceFlavor flavor, String uuid) {
 		log.debug("Initiating session handshake");
-		channel.writeAndFlush(S7SMsg.rq().pack(
-				RQ_Session.newBuilder().setInstanceType(instance).setInstanceFlavor(flavor).setInstanceUuid(uuid)));
+		channel.writeAndFlush(S7SMsg.rq()
+				.pack(RQ_Session.newBuilder().setInstanceType(instance).setInstanceFlavor(flavor).setInstanceUuid(uuid))
+				.build());
 	}
 }

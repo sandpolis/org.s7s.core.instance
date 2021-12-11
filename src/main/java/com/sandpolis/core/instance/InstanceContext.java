@@ -110,7 +110,7 @@ public abstract class InstanceContext {
 	 */
 	public static final RuntimeVariable<Integer> MESSAGE_TIMEOUT = RuntimeVariable.of(cfg -> {
 		cfg.type = Integer.class;
-		cfg.primary = Oid.of("com.sandpolis.core.instance:/profile/" + Entrypoint.data().uuid() + "/message_timeout");
+		cfg.primary = Oid.of("com.sandpolis.core.instance:/profile/*/message_timeout");
 		cfg.secondary = S7SSystemProperty.of("s7s.net.message_timeout");
 		cfg.tertiary = S7SEnvironmentVariable.of("S7S_MESSAGE_TIMEOUT");
 		cfg.defaultValue = () -> 1000;
@@ -159,5 +159,5 @@ public abstract class InstanceContext {
 		cfg.type = Boolean.class;
 		cfg.secondary = S7SSystemProperty.of("s7s.net.logging.raw");
 	});
-	
+
 }
