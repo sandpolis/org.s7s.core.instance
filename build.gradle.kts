@@ -33,7 +33,7 @@ dependencies {
 	}
 
 	// https://github.com/netty/netty
-	api("io.netty:netty-common:4.1.70.Final")
+	api("io.netty:netty-common:4.1.72.Final")
 	api("io.netty:netty-codec:4.1.70.Final")
 	api("io.netty:netty-codec-dns:4.1.70.Final")
 	api("io.netty:netty-transport:4.1.70.Final")
