@@ -26,14 +26,17 @@ enum InstanceType {
     // A UI application used for managing agents and servers
     CLIENT = 2;
 
-    // A headless application that runs continuously on hosts in the Sandpolis network
+    // A headless application that provides read/write access to a host
     AGENT = 3;
 
-    // A headless application that runs 
+    // A headless application that provides read-only access to a host
     PROBE = 4;
 
     // A headless application that installs or updates an agent or probe
     DEPLOYER = 5;
+
+    // A UI application used to install other instances
+    INSTALLER = 6;
 }
 
 // An enumeration of all official instance subtypes.
@@ -42,39 +45,42 @@ enum InstanceFlavor {
     // Indicates an unknown instance subtype
     GENERIC = 0;
 
-    // Standard server: https://github.com/sandpolis/com.sandpolis.server.vanilla
-    SERVER_VANILLA = 10;
+    // Default server: https://github.com/sandpolis/org.s7s.instance.server
+    SERVER_DEFAULT = 10;
 
-    // Desktop client: https://github.com/sandpolis/com.sandpolis.client.lifegem
-    CLIENT_LIFEGEM = 20;
+    // Desktop client: https://github.com/sandpolis/org.s7s.instance.client.desktop
+    CLIENT_DESKTOP = 21;
 
-    // Terminal client: https://github.com/sandpolis/com.sandpolis.client.ascetic
-    CLIENT_ASCETIC = 21;
+    // Terminal client: https://github.com/sandpolis/org.s7s.instance.client.terminal
+    CLIENT_TERMINAL = 22;
 
-    // Android client: https://github.com/sandpolis/com.sandpolis.client.soapstone
-    CLIENT_SOAPSTONE = 22;
+    // Android client: https://github.com/sandpolis/org.s7s.instance.client.android
+    CLIENT_ANDROID = 23;
 
-    // iOS client: https://github.com/sandpolis/com.sandpolis.client.lockstone
-    CLIENT_LOCKSTONE = 23;
+    // iOS client: https://github.com/sandpolis/org.s7s.instance.client.ios
+    CLIENT_IOS = 24;
 
-    // Web client: https://github.com/sandpolis/com.sandpolis.client.brightstone
-    CLIENT_BRIGHTSTONE = 24;
+    // Web client: https://github.com/sandpolis/org.s7s.instance.client.web
+    CLIENT_WEB = 25;
 
-    // Standard agent: https://github.com/sandpolis/com.sandpolis.agent.kilo
-    AGENT_KILO = 30;
+    // Java agent: https://github.com/sandpolis/org.s7s.instance.agent.java
+    AGENT_JAVA = 31;
 
-    // Rust agent: https://github.com/sandpolis/com.sandpolis.agent.micro
-    AGENT_MICRO = 31;
+    // Rust agent: https://github.com/sandpolis/org.s7s.instance.agent.rust
+    AGENT_RUST = 32;
 
-    // Boot agent: https://github.com/sandpolis/com.sandpolis.agent.boot
-    AGENT_BOOT = 32;
+    // UEFI agent: https://github.com/sandpolis/org.s7s.instance.agent.uefi
+    AGENT_UEFI = 33;
 
-    // C++ probe: https://github.com/sandpolis/com.sandpolis.probe.nano
-    PROBE_NANO = 40;
+    // C++ probe: https://github.com/sandpolis/org.s7s.instance.probe.cpp
+    PROBE_CPP = 41;
 
-    // Rust deployer: https://github.com/sandpolis/com.sandpolis.deployer.rust
-    DEPLOYER_RUST = 50;
+    // Rust deployer: https://github.com/sandpolis/org.s7s.instance.deployer.rust
+    DEPLOYER_RUST = 51;
 
-    // Java deployer: https://github.com/sandpolis/com.sandpolis.deployer.java
-    DEPLOYER_JAVA = 51;
+    // Java deployer: https://github.com/sandpolis/org.s7s.instance.deployer.java
+    DEPLOYER_JAVA = 52;
+
+    // Default installer: https://github.com/sandpolis/org.s7s.instance.installer
+    INSTALLER_DEFAULT = 60;
 }

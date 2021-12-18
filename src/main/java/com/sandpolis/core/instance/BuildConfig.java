@@ -15,7 +15,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public record BuildConfig(String platform, long timestamp, VersionConfig versions, List<String> dependencies) {
+public record BuildConfig(String platform, long timestamp, VersionConfig versions,
+		List<DependencyConfig> dependencies) {
 
 	public static final BuildConfig EMBEDDED = load();
 
@@ -48,5 +49,9 @@ public record BuildConfig(String platform, long timestamp, VersionConfig version
 			 * The Java version used in the build.
 			 */
 			String java) {
+	}
+
+	public record DependencyConfig(String group, String artifact, String version, String classifier, String hash) {
+
 	}
 }
