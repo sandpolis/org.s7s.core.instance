@@ -1,45 +1,44 @@
 //============================================================================//
 //                                                                            //
-//                         Copyright © 2015 Sandpolis                         //
+//            Copyright © 2015 - 2022 Sandpolis Software Foundation           //
 //                                                                            //
 //  This source file is subject to the terms of the Mozilla Public License    //
-//  version 2. You may not use this file except in compliance with the MPL    //
-//  as published by the Mozilla Foundation.                                   //
+//  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
-open module com.sandpolis.core.instance {
-	exports com.sandpolis.core.instance.channel.client;
-	exports com.sandpolis.core.instance.channel.peer;
-	exports com.sandpolis.core.instance.channel;
-	exports com.sandpolis.core.instance.cmdlet;
-	exports com.sandpolis.core.instance.connection;
-	exports com.sandpolis.core.instance.exelet;
-	exports com.sandpolis.core.instance.handler;
-	exports com.sandpolis.core.instance.init;
-	exports com.sandpolis.core.instance.logging;
-	exports com.sandpolis.core.instance.message;
-	exports com.sandpolis.core.instance.network;
-	exports com.sandpolis.core.instance.plugin;
-	exports com.sandpolis.core.instance.pref;
-	exports com.sandpolis.core.instance.profile;
-	exports com.sandpolis.core.instance.session;
-	exports com.sandpolis.core.instance.state.oid;
-	exports com.sandpolis.core.instance.state.st.entangled;
-	exports com.sandpolis.core.instance.state.st;
-	exports com.sandpolis.core.instance.state.vst;
-	exports com.sandpolis.core.instance.state;
-	exports com.sandpolis.core.instance.store;
-	exports com.sandpolis.core.instance.stream;
-	exports com.sandpolis.core.instance.thread;
-	exports com.sandpolis.core.instance.util;
-	exports com.sandpolis.core.instance;
+open module org.s7s.core.instance {
+	exports org.s7s.core.instance.channel.client;
+	exports org.s7s.core.instance.channel.peer;
+	exports org.s7s.core.instance.channel;
+	exports org.s7s.core.instance.cmdlet;
+	exports org.s7s.core.instance.connection;
+	exports org.s7s.core.instance.exelet;
+	exports org.s7s.core.instance.handler;
+	exports org.s7s.core.instance.init;
+	exports org.s7s.core.instance.logging;
+	exports org.s7s.core.instance.message;
+	exports org.s7s.core.instance.network;
+	exports org.s7s.core.instance.plugin;
+	exports org.s7s.core.instance.pref;
+	exports org.s7s.core.instance.profile;
+	exports org.s7s.core.instance.session;
+	exports org.s7s.core.instance.state.oid;
+	exports org.s7s.core.instance.state.st.entangled;
+	exports org.s7s.core.instance.state.st;
+	exports org.s7s.core.instance.state.vst;
+	exports org.s7s.core.instance.state;
+	exports org.s7s.core.instance.store;
+	exports org.s7s.core.instance.stream;
+	exports org.s7s.core.instance.thread;
+	exports org.s7s.core.instance.util;
+	exports org.s7s.core.instance;
 
 	requires ch.qos.logback.classic;
 	requires ch.qos.logback.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.google.common;
 	requires com.google.protobuf;
-	requires com.sandpolis.core.foundation;
+	requires org.s7s.core.foundation;
 	requires io.netty.buffer;
 	requires io.netty.codec.dns;
 	requires io.netty.codec;
@@ -50,8 +49,7 @@ open module com.sandpolis.core.instance {
 	requires java.prefs;
 	requires org.slf4j;
 
-	uses com.sandpolis.core.instance.plugin.SandpolisPlugin;
+	uses org.s7s.core.instance.plugin.SandpolisPlugin;
 
-	provides ch.qos.logback.classic.spi.Configurator
-			with com.sandpolis.core.instance.logging.DefaultLogbackConfigurator;
+	provides ch.qos.logback.classic.spi.Configurator with org.s7s.core.instance.logging.DefaultLogbackConfigurator;
 }

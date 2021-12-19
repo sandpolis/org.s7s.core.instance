@@ -6,16 +6,23 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.message;
 
-rootProject.name = "org.s7s.core.instance"
+import com.google.protobuf.MessageLite;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
-	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
-	}
+/**
+ * A generic message handler.
+ *
+ * @param <E> The incoming {@link MessageLite} type
+ */
+@FunctionalInterface
+public interface MessageHandler<E extends MessageLite> {
+
+	/**
+	 * React to a message.
+	 *
+	 * @param message A {@link MessageLite}
+	 * @throws Exception
+	 */
+	public void handle(E message) throws Exception;
 }

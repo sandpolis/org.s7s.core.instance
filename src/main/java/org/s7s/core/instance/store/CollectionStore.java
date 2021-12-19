@@ -6,16 +6,32 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.store;
 
-rootProject.name = "org.s7s.core.instance"
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+import org.slf4j.Logger;
+
+public abstract class CollectionStore<V> extends StoreBase {
+
+	protected CollectionStore(Logger log) {
+		super(log);
 	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
+
+	protected List<V> container = new ArrayList<>();
+
+	public void removeValue(V value) {
+		container.remove(value);
 	}
+
+	public Stream<V> stream() {
+		return container.stream();
+	}
+
+	public int size() {
+		return container.size();
+	}
+
 }

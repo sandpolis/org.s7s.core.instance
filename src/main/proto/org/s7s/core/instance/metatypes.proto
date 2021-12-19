@@ -1,0 +1,85 @@
+//============================================================================//
+//                                                                            //
+//            Copyright © 2015 - 2022 Sandpolis Software Foundation           //
+//                                                                            //
+//  This source file is subject to the terms of the Mozilla Public License    //
+//  version 2. You may not use this file except in compliance with the MPLv2. //
+//                                                                            //
+//============================================================================//
+syntax = "proto3";
+
+package core.instance;
+
+option java_package = "org.s7s.core.instance";
+option optimize_for = CODE_SIZE;
+
+// An enumeration of all possible instance types.
+enum InstanceType {
+
+    // Indicates the runtime environment does not have an instance type
+    NONE = 0;
+
+    // A headless application that coordinates interaction among instances
+    SERVER = 1;
+
+    // A UI application used for managing agents and servers
+    CLIENT = 2;
+
+    // A headless application that provides read/write access to a host
+    AGENT = 3;
+
+    // A headless application that provides read-only access to a host
+    PROBE = 4;
+
+    // A headless application that installs or updates an agent or probe
+    DEPLOYER = 5;
+
+    // A UI application used to install other instances
+    INSTALLER = 6;
+}
+
+// An enumeration of all official instance subtypes.
+enum InstanceFlavor {
+
+    // Indicates an unknown instance subtype
+    GENERIC = 0;
+
+    // Default server: https://github.com/sandpolis/org.s7s.instance.server
+    SERVER_DEFAULT = 10;
+
+    // Desktop client: https://github.com/sandpolis/org.s7s.instance.client.desktop
+    CLIENT_DESKTOP = 21;
+
+    // Terminal client: https://github.com/sandpolis/org.s7s.instance.client.terminal
+    CLIENT_TERMINAL = 22;
+
+    // Android client: https://github.com/sandpolis/org.s7s.instance.client.android
+    CLIENT_ANDROID = 23;
+
+    // iOS client: https://github.com/sandpolis/org.s7s.instance.client.ios
+    CLIENT_IOS = 24;
+
+    // Web client: https://github.com/sandpolis/org.s7s.instance.client.web
+    CLIENT_WEB = 25;
+
+    // Java agent: https://github.com/sandpolis/org.s7s.instance.agent.java
+    AGENT_JAVA = 31;
+
+    // Rust agent: https://github.com/sandpolis/org.s7s.instance.agent.rust
+    AGENT_RUST = 32;
+
+    // UEFI agent: https://github.com/sandpolis/org.s7s.instance.agent.uefi
+    AGENT_UEFI = 33;
+
+    // C++ probe: https://github.com/sandpolis/org.s7s.instance.probe.cpp
+    PROBE_CPP = 41;
+
+    // Rust deployer: https://github.com/sandpolis/org.s7s.instance.deployer.rust
+    DEPLOYER_RUST = 51;
+
+    // Java deployer: https://github.com/sandpolis/org.s7s.instance.deployer.java
+    DEPLOYER_JAVA = 52;
+
+    // Default installer: https://github.com/sandpolis/org.s7s.instance.installer
+    INSTALLER_DEFAULT = 60;
+}

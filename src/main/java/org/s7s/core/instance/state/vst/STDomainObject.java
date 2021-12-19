@@ -6,16 +6,23 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.state.vst;
 
-rootProject.name = "org.s7s.core.instance"
+public interface STDomainObject {
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+	/**
+	 * An {@link IncompleteObjectException} is thrown when a {@link VirtObject} is
+	 * not {@link #complete} when expected to be.
+	 */
+	public static class IncompleteObjectException extends RuntimeException {
+		private static final long serialVersionUID = -6332437282463564387L;
 	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
+
+	public default boolean complete() {
+		return true;
+	}
+
+	public default boolean valid() {
+		return true;
 	}
 }

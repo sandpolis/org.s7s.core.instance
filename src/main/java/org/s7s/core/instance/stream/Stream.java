@@ -6,16 +6,26 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.stream;
 
-rootProject.name = "org.s7s.core.instance"
+import org.s7s.core.foundation.S7SRandom;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+/**
+ * A {@link Stream} is an ephemeral flow of events between two endpoints in the
+ * network.
+ *
+ * @author cilki
+ * @since 2.0.0
+ */
+public class Stream {
+
+	private int streamID;
+
+	public Stream() {
+		streamID = S7SRandom.nextNonzeroInt();
 	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
+
+	public int getStreamID() {
+		return streamID;
 	}
 }

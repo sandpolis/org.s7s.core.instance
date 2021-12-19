@@ -4,11 +4,11 @@
 		"attributes": [
 			{
 				"name": "instance_type",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceType"
+				"type": "org.s7s.core.instance.Metatypes.InstanceType"
 			},
 			{
 				"name": "instance_flavor",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceFlavor"
+				"type": "org.s7s.core.instance.Metatypes.InstanceFlavor"
 			},
 			{
 				"name": "uuid",
@@ -62,19 +62,19 @@
 			},
 			{
 				"name": "remote_instance",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceType"
+				"type": "org.s7s.core.instance.Metatypes.InstanceType"
 			},
 			{
 				"name": "local_instance",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceType"
+				"type": "org.s7s.core.instance.Metatypes.InstanceType"
 			},
 			{
 				"name": "remote_instance_flavor",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceFlavor"
+				"type": "org.s7s.core.instance.Metatypes.InstanceFlavor"
 			},
 			{
 				"name": "local_instance_flavor",
-				"type": "com.sandpolis.core.instance.Metatypes.InstanceFlavor"
+				"type": "org.s7s.core.instance.Metatypes.InstanceFlavor"
 			},
 			{
 				"name": "upload_total",
@@ -191,7 +191,7 @@
 			},
 			{
 				"name": "os_type",
-				"type": "com.sandpolis.core.foundation.Platform.OsType",
+				"type": "org.s7s.core.foundation.Platform.OsType",
 				"description": "The client's operating system type"
 			},
 			{

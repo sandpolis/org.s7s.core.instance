@@ -6,16 +6,21 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.store;
 
-rootProject.name = "org.s7s.core.instance"
+/**
+ * A store that tracks metadata such as the total number of times the store has
+ * been initialized, usage statistics, and any other domain-specific information
+ * that may be useful.
+ *
+ * @param <E> The metadata type
+ */
+public interface MetadataStore<E extends StoreMetadata> {
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
-	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
-	}
+	/**
+	 * Get a handle on the store's metadata which is updated in real-time.
+	 *
+	 * @return The metadata object
+	 */
+	public E getMetadata();
 }

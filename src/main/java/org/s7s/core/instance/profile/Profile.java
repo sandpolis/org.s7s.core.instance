@@ -6,16 +6,20 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.profile;
 
-rootProject.name = "org.s7s.core.instance"
+import org.s7s.core.instance.state.st.STDocument;
+import org.s7s.core.instance.state.vst.AbstractSTDomainObject;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
-	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
+/**
+ * A {@link Profile} is a generic container that stores data for an instance.
+ * Most of the data are stored in a tree structure similar to a document store.
+ *
+ * @since 4.0.0
+ */
+public class Profile extends AbstractSTDomainObject {
+
+	public Profile(STDocument parent) {
+		super(parent);
 	}
 }

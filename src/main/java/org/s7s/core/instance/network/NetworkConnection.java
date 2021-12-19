@@ -6,16 +6,15 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.network;
 
-rootProject.name = "org.s7s.core.instance"
+import org.s7s.core.instance.state.st.STDocument;
+import org.s7s.core.instance.state.vst.AbstractSTDomainObject;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+public class NetworkConnection extends AbstractSTDomainObject {
+
+	NetworkConnection(STDocument document) {
+		super(document);
 	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
-	}
+
 }

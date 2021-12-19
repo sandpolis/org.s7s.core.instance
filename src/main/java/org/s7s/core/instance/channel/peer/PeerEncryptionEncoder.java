@@ -6,16 +6,26 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.channel.peer;
 
-rootProject.name = "org.s7s.core.instance"
+import java.util.List;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
+
+/**
+ * This handler encrypts outgoing messages on a peer connection.
+ *
+ * @author cilki
+ * @since 5.0.0
+ */
+public class PeerEncryptionEncoder extends MessageToMessageEncoder<ByteBuf> {
+
+	@Override
+	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
+		// TODO Auto-generated method stub
+		out.add(msg);
 	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
-	}
+
 }

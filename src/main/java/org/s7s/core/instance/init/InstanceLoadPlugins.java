@@ -6,16 +6,31 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.init;
 
-rootProject.name = "org.s7s.core.instance"
+import static org.s7s.core.instance.plugin.PluginStore.PluginStore;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+import org.s7s.core.instance.InitTask;
+import org.s7s.core.instance.InstanceContext;
+
+public class InstanceLoadPlugins extends InitTask {
+
+	@Override
+	public boolean enabled() {
+		return InstanceContext.PLUGIN_ENABLED.get();
 	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
+
+	@Override
+	public TaskOutcome run(TaskOutcome.Factory outcome) throws Exception {
+		PluginStore.scanPluginDirectory();
+		PluginStore.loadPlugins();
+
+		return outcome.succeeded();
 	}
+
+	@Override
+	public String description() {
+		return "Load plugins";
+	}
+
 }

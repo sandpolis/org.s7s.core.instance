@@ -6,16 +6,20 @@
 //  version 2. You may not use this file except in compliance with the MPLv2. //
 //                                                                            //
 //============================================================================//
+package org.s7s.core.instance.plugin;
 
-rootProject.name = "org.s7s.core.instance"
+import org.s7s.core.instance.exelet.Exelet;
 
-buildscript {
-	repositories {
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
-	}
-	dependencies {
-		classpath("org.s7s:org.s7s.build:+")
-	}
+/**
+ * @author cilki
+ * @since 5.0.0
+ */
+public interface ExeletProvider {
+
+	/**
+	 * Get the Exelet classes that the plugin contains.
+	 *
+	 * @return A list of Exelet classes
+	 */
+	public Class<? extends Exelet>[] getExelets();
 }

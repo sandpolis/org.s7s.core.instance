@@ -1,0 +1,271 @@
+//============================================================================//
+//                                                                            //
+//            Copyright © 2015 - 2022 Sandpolis Software Foundation           //
+//                                                                            //
+//  This source file is subject to the terms of the Mozilla Public License    //
+//  version 2. You may not use this file except in compliance with the MPLv2. //
+//                                                                            //
+//============================================================================//
+syntax = "proto3";
+
+package core.instance;
+
+import "com/sandpolis/core/instance/metatypes.proto";
+
+option java_package = "org.s7s.core.instance";
+option optimize_for = CODE_SIZE;
+
+// Ping request.
+message RQ_Ping {}
+
+// Ping response.
+enum RS_Ping {
+    PING_OK = 0;
+}
+
+message RQ_SyncPlugins {}
+
+message RS_SyncPlugins {
+
+    message PluginData {
+
+        string package_id = 1;
+
+        string version = 5;
+
+        oneof source {
+            // The plugin binary
+            bytes plugin_binary = 2;
+
+            // The plugin's HTTP location
+            string plugin_url = 3;
+
+            // The plugin's maven central coordinates
+            string plugin_coordinates = 4;
+        }
+    }
+
+    repeated PluginData plugin = 1;
+}
+
+// A request to download an artifact.
+message RQ_DownloadArtifact {
+
+    // The coordinates of the artifact to download
+    string coordinates = 1;
+
+    // Whether it's acceptable to receive the external location of the artifact only
+    bool location = 2;
+}
+
+// The download response bearing the artifact binary or the artifact's address.
+message RS_DownloadArtifact {
+    oneof source {
+        // The artifact binary
+        bytes binary = 1;
+
+        // The artifact's HTTP location
+        string url = 2;
+
+        // The artifact's maven central coordinates
+        string coordinates = 3;
+    }
+}
+
+// A request to install a server plugin.
+message RQ_InstallPlugin {
+
+    oneof source {
+        // The plugin binary
+        bytes plugin_binary = 1;
+
+        // The plugin's HTTP location
+        string plugin_url = 2;
+
+        // The plugin's maven central coordinates
+        string plugin_coordinates = 3;
+    }
+}
+
+enum RS_InstallPlugin {
+
+    // The operation was successful
+    PLUGIN_INSTALL_OK = 0;
+
+    // The operation failed
+    PLUGIN_INSTALL_FAILED = 1;
+
+    // The operation failed because plugins are disabled
+    PLUGIN_INSTALL_FAILED_DISABLED = 2;
+
+    // The operation failed because the plugin certificate could not be verified
+    PLUGIN_INSTALL_FAILED_CERTIFICATE = 3;
+
+    // The request was invalid
+    PLUGIN_INSTALL_INVALID = 4;
+}
+
+message RQ_STStream {
+    enum Direction {
+        UPSTREAM = 0;
+        DOWNSTREAM = 1;
+        BIDIRECTIONAL = 2;
+    }
+
+    int32 stream_id = 1;
+
+    bool permanent = 2;
+
+    string oid = 3;
+    repeated string whitelist = 4;
+
+    Direction direction = 5;
+    int32 update_period = 6;
+}
+
+enum RS_STStream {
+    ST_STREAM_OK = 0;
+    ST_STREAM_INVALID = 1;
+    ST_STREAM_FAILED = 2;
+}
+
+message EV_STStreamData {
+
+    enum ValueType {
+        BYTES = 0;
+        BYTES_ARRAY = 1;
+        STRING = 2;
+        STRING_ARRAY = 3;
+        INTEGER = 4;
+        INTEGER_ARRAY = 5;
+        LONG = 6;
+        LONG_ARRAY = 7;
+        BOOLEAN = 8;
+        BOOLEAN_ARRAY = 9;
+        DOUBLE = 10;
+        DOUBLE_ARRAY = 11;
+        OS_TYPE = 12;
+        OS_TYPE_ARRAY = 13;
+        INSTANCE_TYPE = 14;
+        INSTANCE_TYPE_ARRAY = 15;
+        INSTANCE_FLAVOR = 16;
+        INSTANCE_FLAVOR_ARRAY = 17;
+    }
+
+    // The object's relative OID
+    string oid = 1;
+
+    // Whether the object corresponding to the OID was removed
+    bool removed = 2;
+
+    // The attribute value type
+    ValueType value_type = 3;
+
+    // The timestamp associated with the attribute value
+    int64 timestamp = 4;
+
+    bytes           bytes          = 5;
+    repeated bytes  bytes_array    = 6;
+    string          string         = 7;
+    repeated string string_array   = 8;
+    int32           integer        = 9;
+    repeated int32  integer_array  = 10;
+    int64           long           = 11;
+    repeated int64  long_array     = 12;
+    bool            boolean        = 13;
+    repeated bool   boolean_array  = 14;
+    double          double         = 15;
+    repeated double double_array   = 16;
+}
+
+// Request that a new session be created. Any previous sessions associated with the
+// instance are invalidated.
+message RQ_Session {
+
+    // The UUID of the requesting instance
+    string instance_uuid = 1;
+
+    // The instance type of the requesting instance
+    core.instance.InstanceType instance_type = 2;
+
+    // The instance flavor of the requesting instance
+    core.instance.InstanceFlavor instance_flavor = 3;
+}
+
+// Respond to a session request with a successful result.
+message RS_Session {
+
+    // A SID for the requesting instance
+    int32 instance_sid  = 1;
+
+    // The SID of the server
+    int32 server_sid = 2;
+
+    // The UUID of the server
+    string server_uuid = 3;
+}
+
+// Request the server for a new direct connection.
+message RQ_DirectConnection {
+
+    // The requested node
+    int32 sid = 1;
+
+    // An optional listener port. If specified, the requested node will attempt
+    // a connection on this port. Otherwise, the server will coordinate the connection.
+    int32 port = 3;
+}
+
+// Request that the recieving instance establish a new connection to the given host.
+message RQ_CoordinateConnection {
+
+    // The host IP address
+    string host = 1;
+
+    // The port
+    int32 port = 2;
+
+    // The transport protocol type
+    string transport = 3;
+
+    // The initial encryption key for the new connection.
+    bytes encryption_key = 4;
+}
+
+// Indicates that some node in the network has changed in connection status.
+message EV_NetworkChange {
+    message NodeAdded {
+        int32 sid = 1;
+        int32 parent = 2;
+    }
+    repeated NodeAdded node_added = 1;
+
+    message NodeRemoved {
+        int32 sid = 1;
+    }
+    repeated NodeRemoved node_removed = 2;
+
+    message LinkAdded {
+        int32 cvid1 = 1;
+        int32 cvid2 = 2;
+    }
+    repeated LinkAdded connection_added = 3;
+
+    message LinkRemoved {
+        int32 cvid1 = 1;
+        int32 cvid2 = 2;
+    }
+    repeated LinkRemoved connection_removed = 4;
+
+}
+
+message RQ_StopStream {
+
+    // The stream ID of the stream to stop
+    int32 id = 1;
+}
+
+enum RS_StopStream {
+    STOP_STREAM_OK = 0;
+    STOP_STREAM_INVALID = 1;
+}
