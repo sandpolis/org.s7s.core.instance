@@ -40,7 +40,7 @@ dependencies {
 	api("io.netty:netty-resolver-dns:4.1.70.Final")
 
 	// https://github.com/FasterXML/jackson-databind
-	api("com.fasterxml.jackson.core:jackson-databind:2.12.4")
+	api("com.fasterxml.jackson.core:jackson-databind:2.13.1")
 
 	if (project.getParent() == null) {
 		api("org.s7s:core.foundation:+")
