@@ -59,7 +59,7 @@ public final class PrefStore extends StoreBase implements ConfigurableStore<Pref
 	 */
 	public static Preferences getPreferences(InstanceType instance, InstanceFlavor flavor) {
 		return Preferences.userRoot()
-				.node("com/sandpolis/" + instance.name().toLowerCase() + "/" + flavor.name().toLowerCase());
+				.node("org/s7s/" + instance.name().toLowerCase() + "/" + flavor.name().toLowerCase());
 	}
 
 	/**
