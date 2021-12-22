@@ -44,8 +44,8 @@ enum InstanceFlavor {
     // Indicates an unknown instance subtype
     GENERIC = 0;
 
-    // Default server: https://github.com/sandpolis/org.s7s.instance.server
-    SERVER_DEFAULT = 10;
+    // Java server: https://github.com/sandpolis/org.s7s.instance.server
+    SERVER_JAVA = 11;
 
     // Desktop client: https://github.com/sandpolis/org.s7s.instance.client.desktop
     CLIENT_DESKTOP = 21;
@@ -80,6 +80,6 @@ enum InstanceFlavor {
     // Java deployer: https://github.com/sandpolis/org.s7s.instance.deployer.java
     DEPLOYER_JAVA = 52;
 
-    // Default installer: https://github.com/sandpolis/org.s7s.instance.installer
-    INSTALLER_DEFAULT = 60;
+    // Java installer: https://github.com/sandpolis/org.s7s.instance.installer
+    INSTALLER_JAVA = 61;
 }
