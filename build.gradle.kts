@@ -10,7 +10,6 @@
 plugins {
 	id("java-library")
 	id("org.s7s.build.module")
-	id("org.s7s.build.protobuf")
 	id("org.s7s.build.publish")
 	id("org.s7s.build.codegen")
 }
@@ -44,7 +43,9 @@ dependencies {
 
 	if (project.getParent() == null) {
 		api("org.s7s:core.foundation:+")
+		api("org.s7s:core.protocol:+")
 	} else {
 		api(project(":core:org.s7s.core.foundation"))
+		api(project(":core:org.s7s.core.protocol"))
 	}
 }
