@@ -39,6 +39,7 @@ open module org.s7s.core.instance {
 	requires com.google.common;
 	requires com.google.protobuf;
 	requires org.s7s.core.foundation;
+	requires transitive org.s7s.core.protocol;
 	requires io.netty.buffer;
 	requires io.netty.codec.dns;
 	requires io.netty.codec;

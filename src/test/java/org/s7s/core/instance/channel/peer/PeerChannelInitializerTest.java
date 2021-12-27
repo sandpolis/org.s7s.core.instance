@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.s7s.core.foundation.S7SRandom;
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;

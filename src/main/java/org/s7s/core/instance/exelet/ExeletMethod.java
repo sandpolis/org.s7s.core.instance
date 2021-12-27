@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.MessageLiteOrBuilder;
-import org.s7s.core.instance.state.InstanceOids.ConnectionOid;
+import org.s7s.core.instance.state.InstanceOids.ProfileOid.ConnectionOid;
 import org.s7s.core.instance.util.S7SMsg;
 
 public class ExeletMethod {

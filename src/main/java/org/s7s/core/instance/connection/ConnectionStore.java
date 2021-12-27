@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.s7s.core.instance.state.InstanceOids.ConnectionOid;
+import org.s7s.core.instance.state.InstanceOids.ProfileOid.ConnectionOid;
 import org.s7s.core.instance.state.st.STDocument;
 import org.s7s.core.instance.store.ConfigurableStore;
 import org.s7s.core.instance.store.STCollectionStore;

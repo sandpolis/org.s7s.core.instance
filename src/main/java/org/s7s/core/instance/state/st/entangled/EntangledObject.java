@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
-import org.s7s.core.instance.Messages.EV_STStreamData;
+import org.s7s.core.protocol.Stream.EV_STStreamData;
 import org.s7s.core.instance.state.oid.Oid;
 import org.s7s.core.instance.state.st.AbstractSTObject;
 import org.s7s.core.instance.state.st.STAttribute;

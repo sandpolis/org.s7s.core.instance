@@ -15,7 +15,7 @@ import static org.s7s.core.instance.network.NetworkStore.NetworkStore;
 import java.util.concurrent.CompletionStage;
 
 import com.google.protobuf.MessageLiteOrBuilder;
-import org.s7s.core.instance.state.InstanceOids.ConnectionOid;
+import org.s7s.core.instance.state.InstanceOids.ProfileOid.ConnectionOid;
 import org.s7s.core.instance.connection.Connection;
 import org.s7s.core.instance.exelet.Exelet;
 

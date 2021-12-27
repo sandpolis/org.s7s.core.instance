@@ -22,7 +22,7 @@ import com.google.protobuf.MessageLite;
 import com.google.protobuf.MessageLite.Builder;
 import com.google.protobuf.MessageLiteOrBuilder;
 import org.s7s.core.foundation.S7SRandom;
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 
 public record S7SMsg(MessageLiteOrBuilder msg) {
 

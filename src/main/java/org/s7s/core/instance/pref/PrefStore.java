@@ -19,8 +19,8 @@ import java.util.prefs.Preferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.s7s.core.instance.Metatypes.InstanceFlavor;
-import org.s7s.core.instance.Metatypes.InstanceType;
+import org.s7s.core.foundation.Instance.InstanceFlavor;
+import org.s7s.core.foundation.Instance.InstanceType;
 import org.s7s.core.instance.pref.PrefStore.PrefStoreConfig;
 import org.s7s.core.instance.store.ConfigurableStore;
 import org.s7s.core.instance.store.StoreBase;

@@ -8,7 +8,7 @@
 //============================================================================//
 package org.s7s.core.instance.session;
 
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.SimpleChannelInboundHandler;

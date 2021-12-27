@@ -21,9 +21,9 @@ import java.util.concurrent.CompletionStage;
 
 import org.s7s.core.foundation.S7SMavenArtifact;
 import org.s7s.core.instance.InstanceContext;
-import org.s7s.core.instance.Messages.RQ_DownloadArtifact;
-import org.s7s.core.instance.Messages.RS_DownloadArtifact;
-import org.s7s.core.instance.Messages.RS_SyncPlugins;
+import org.s7s.core.protocol.Plugin.RQ_DownloadArtifact;
+import org.s7s.core.protocol.Plugin.RS_DownloadArtifact;
+import org.s7s.core.protocol.Plugin.RS_SyncPlugins;
 import org.s7s.core.instance.plugin.Plugin;
 import org.s7s.core.instance.plugin.PluginStore;
 import org.s7s.core.instance.cmdlet.Cmdlet;

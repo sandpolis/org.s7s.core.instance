@@ -35,19 +35,19 @@
 	},
 	{
 		"name": "remote_instance",
-		"type": "org.s7s.core.instance.Metatypes.InstanceType"
+		"type": "org.s7s.core.foundation.Instance.InstanceType"
 	},
 	{
 		"name": "local_instance",
-		"type": "org.s7s.core.instance.Metatypes.InstanceType"
+		"type": "org.s7s.core.foundation.Instance.InstanceType"
 	},
 	{
 		"name": "remote_instance_flavor",
-		"type": "org.s7s.core.instance.Metatypes.InstanceFlavor"
+		"type": "org.s7s.core.foundation.Instance.InstanceFlavor"
 	},
 	{
 		"name": "local_instance_flavor",
-		"type": "org.s7s.core.instance.Metatypes.InstanceFlavor"
+		"type": "org.s7s.core.foundation.Instance.InstanceFlavor"
 	},
 	{
 		"name": "upload_total",

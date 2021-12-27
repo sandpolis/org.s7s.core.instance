@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 import org.s7s.core.instance.exelet.Exelet.Handler;
 
 import io.netty.channel.embedded.EmbeddedChannel;

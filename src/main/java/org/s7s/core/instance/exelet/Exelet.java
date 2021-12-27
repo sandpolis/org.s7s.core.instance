@@ -8,16 +8,16 @@
 //============================================================================//
 package org.s7s.core.instance.exelet;
 
-import static org.s7s.core.instance.Metatypes.InstanceType.AGENT;
-import static org.s7s.core.instance.Metatypes.InstanceType.SERVER;
-import static org.s7s.core.instance.Metatypes.InstanceType.CLIENT;
+import static org.s7s.core.foundation.Instance.InstanceType.AGENT;
+import static org.s7s.core.foundation.Instance.InstanceType.SERVER;
+import static org.s7s.core.foundation.Instance.InstanceType.CLIENT;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.s7s.core.instance.Metatypes.InstanceType;
+import org.s7s.core.foundation.Instance.InstanceType;
 import org.s7s.core.instance.connection.Connection;
 
 /**

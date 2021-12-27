@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.s7s.core.foundation.S7SCertificate;
-import org.s7s.core.instance.Channel.ChannelTransportProtocol;
+import org.s7s.core.protocol.Channel.ChannelTransportProtocol;
 
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;

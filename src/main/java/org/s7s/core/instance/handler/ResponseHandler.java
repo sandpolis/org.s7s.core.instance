@@ -11,7 +11,7 @@ package org.s7s.core.instance.handler;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 import org.s7s.core.instance.message.MessageFuture;
 
 import io.netty.channel.ChannelHandlerContext;

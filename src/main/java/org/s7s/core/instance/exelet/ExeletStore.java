@@ -8,9 +8,9 @@
 //============================================================================//
 package org.s7s.core.instance.exelet;
 
-import static org.s7s.core.instance.Metatypes.InstanceType.AGENT;
-import static org.s7s.core.instance.Metatypes.InstanceType.CLIENT;
-import static org.s7s.core.instance.Metatypes.InstanceType.SERVER;
+import static org.s7s.core.foundation.Instance.InstanceType.AGENT;
+import static org.s7s.core.foundation.Instance.InstanceType.CLIENT;
+import static org.s7s.core.foundation.Instance.InstanceType.SERVER;
 import static org.s7s.core.instance.plugin.PluginStore.PluginStore;
 
 import java.util.ArrayList;

@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.s7s.core.foundation.Platform.OsType;
-import org.s7s.core.instance.Metatypes.InstanceFlavor;
-import org.s7s.core.instance.Metatypes.InstanceType;
+import org.s7s.core.foundation.Instance.InstanceFlavor;
+import org.s7s.core.foundation.Instance.InstanceType;
 import org.s7s.core.instance.state.st.EphemeralAttribute.EphemeralAttributeValue;
 
 /**

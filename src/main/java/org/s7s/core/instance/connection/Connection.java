@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.MessageLiteOrBuilder;
 import org.s7s.core.foundation.S7SRandom;
-import org.s7s.core.instance.state.InstanceOids.ConnectionOid;
+import org.s7s.core.instance.state.InstanceOids.ProfileOid.ConnectionOid;
 import org.s7s.core.instance.state.st.STDocument;
 import org.s7s.core.instance.state.vst.AbstractSTDomainObject;
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 import org.s7s.core.instance.channel.ChannelConstant;
 import org.s7s.core.instance.channel.HandlerKey;
 import org.s7s.core.instance.message.MessageFuture;

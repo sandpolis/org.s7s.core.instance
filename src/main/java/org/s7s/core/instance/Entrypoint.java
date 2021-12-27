@@ -27,8 +27,8 @@ import org.s7s.core.foundation.S7SString;
 import org.s7s.core.foundation.S7SString.AnsiColor;
 import org.s7s.core.foundation.S7SSystem;
 import org.s7s.core.instance.InitTask.TaskOutcome;
-import org.s7s.core.instance.Metatypes.InstanceFlavor;
-import org.s7s.core.instance.Metatypes.InstanceType;
+import org.s7s.core.foundation.Instance.InstanceFlavor;
+import org.s7s.core.foundation.Instance.InstanceType;
 
 /**
  * Main classes can inherit this class to have the instance setup automatically.

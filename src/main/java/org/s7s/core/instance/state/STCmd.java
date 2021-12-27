@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.s7s.core.foundation.S7SRandom;
-import org.s7s.core.instance.Messages.RQ_STStream;
-import org.s7s.core.instance.Messages.RS_STStream;
+import org.s7s.core.protocol.Stream.RQ_STStream;
+import org.s7s.core.protocol.Stream.RS_STStream;
 import org.s7s.core.instance.state.oid.Oid;
 import org.s7s.core.instance.state.st.STDocument;
 import org.s7s.core.instance.cmdlet.Cmdlet;

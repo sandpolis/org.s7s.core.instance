@@ -8,7 +8,7 @@
 //============================================================================//
 package org.s7s.core.instance.state.st;
 
-import static org.s7s.core.instance.Messages.EV_STStreamData.newBuilder;
+import static org.s7s.core.protocol.Stream.EV_STStreamData.newBuilder;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -25,10 +25,10 @@ import java.util.stream.Stream;
 import com.google.protobuf.UnsafeByteOperations;
 import org.s7s.core.foundation.Platform.OsType;
 import org.s7s.core.foundation.S7SCertificate;
-import org.s7s.core.instance.Metatypes.InstanceFlavor;
-import org.s7s.core.instance.Metatypes.InstanceType;
-import org.s7s.core.instance.Messages.EV_STStreamData;
-import org.s7s.core.instance.Messages.EV_STStreamData.ValueType;
+import org.s7s.core.foundation.Instance.InstanceFlavor;
+import org.s7s.core.foundation.Instance.InstanceType;
+import org.s7s.core.protocol.Stream.EV_STStreamData;
+import org.s7s.core.protocol.Stream.EV_STStreamData.ValueType;
 
 public class EphemeralAttribute extends AbstractSTObject implements STAttribute {
 

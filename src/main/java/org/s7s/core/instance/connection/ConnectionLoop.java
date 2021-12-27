@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.s7s.core.instance.Channel.ChannelTransportProtocol;
+import org.s7s.core.protocol.Channel.ChannelTransportProtocol;
 import org.s7s.core.instance.util.ChannelUtil;
 
 import io.netty.bootstrap.Bootstrap;

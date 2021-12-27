@@ -14,12 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.s7s.core.instance.Entrypoint;
-import org.s7s.core.instance.Metatypes.InstanceFlavor;
-import org.s7s.core.instance.Metatypes.InstanceType;
-import org.s7s.core.instance.state.InstanceOids.ConnectionOid;
-import org.s7s.core.instance.Message.MSG;
-import org.s7s.core.instance.Messages.RQ_Session;
-import org.s7s.core.instance.Messages.RS_Session;
+import org.s7s.core.foundation.Instance.InstanceFlavor;
+import org.s7s.core.foundation.Instance.InstanceType;
+import org.s7s.core.instance.state.InstanceOids.ProfileOid.ConnectionOid;
+import org.s7s.core.protocol.Message.MSG;
+import org.s7s.core.protocol.Session.RQ_Session;
+import org.s7s.core.protocol.Session.RS_Session;
 import org.s7s.core.instance.channel.ChannelConstant;
 import org.s7s.core.instance.util.S7SMsg;
 import org.s7s.core.instance.util.S7SSessionID;

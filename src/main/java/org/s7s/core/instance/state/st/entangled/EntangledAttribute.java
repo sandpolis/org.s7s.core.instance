@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.s7s.core.instance.Messages.EV_STStreamData;
+import org.s7s.core.protocol.Stream.EV_STStreamData;
 import org.s7s.core.instance.state.st.EphemeralAttribute.EphemeralAttributeValue;
 import org.s7s.core.instance.state.st.STAttribute;
 import org.s7s.core.instance.state.STCmd.STSyncStruct;

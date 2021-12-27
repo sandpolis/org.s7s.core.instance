@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import javax.net.ssl.SSLException;
 
 import org.s7s.core.instance.InstanceContext;
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 import org.s7s.core.instance.channel.ChannelConstant;
 import org.s7s.core.instance.channel.ChannelStruct;
 import org.s7s.core.instance.connection.Connection;

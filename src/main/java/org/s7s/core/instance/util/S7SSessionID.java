@@ -10,8 +10,8 @@ package org.s7s.core.instance.util;
 
 import java.util.Objects;
 
-import org.s7s.core.instance.Metatypes.InstanceType;
-import org.s7s.core.instance.Metatypes.InstanceFlavor;
+import org.s7s.core.foundation.Instance.InstanceType;
+import org.s7s.core.foundation.Instance.InstanceFlavor;
 import org.s7s.core.foundation.S7SRandom;
 
 /**

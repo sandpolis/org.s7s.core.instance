@@ -11,7 +11,7 @@ package org.s7s.core.instance.exelet;
 import java.util.Objects;
 
 import com.google.protobuf.MessageLite;
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.protocol.Message.MSG;
 import org.s7s.core.instance.connection.Connection;
 
 /**

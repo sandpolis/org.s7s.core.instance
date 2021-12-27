@@ -1,4 +1,6 @@
-[
+{
+	"collection": true,
+	"attributes": [
 	{
 		"name": "uuid",
 		"type": "java.lang.String"
@@ -31,4 +33,4 @@
 		"name": "end_time",
 		"type": "java.lang.Long"
 	}
-]
+]}

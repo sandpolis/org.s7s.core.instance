@@ -3,11 +3,11 @@
 	"attributes": [
 	{
 		"name": "instance_type",
-		"type": "org.s7s.core.instance.Metatypes.InstanceType"
+		"type": "org.s7s.core.foundation.Instance.InstanceType"
 	},
 	{
 		"name": "instance_flavor",
-		"type": "org.s7s.core.instance.Metatypes.InstanceFlavor"
+		"type": "org.s7s.core.foundation.Instance.InstanceFlavor"
 	},
 	{
 		"name": "uuid",

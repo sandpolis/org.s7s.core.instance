@@ -8,7 +8,7 @@
 //============================================================================//
 package org.s7s.core.instance.channel;
 
-import org.s7s.core.instance.Metatypes.InstanceType;
+import org.s7s.core.foundation.Instance.InstanceType;
 import org.s7s.core.instance.connection.Connection;
 
 import io.netty.channel.Channel;

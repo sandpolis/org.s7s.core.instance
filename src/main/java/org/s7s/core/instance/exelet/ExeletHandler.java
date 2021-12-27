@@ -15,8 +15,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.s7s.core.instance.state.InstanceOids.ConnectionOid;
-import org.s7s.core.instance.Message.MSG;
+import org.s7s.core.instance.state.InstanceOids.ProfileOid.ConnectionOid;
+import org.s7s.core.protocol.Message.MSG;
 import org.s7s.core.instance.connection.Connection;
 import org.s7s.core.instance.session.AbstractSessionHandler.SessionHandshakeCompletionEvent;
 import org.s7s.core.instance.util.S7SSessionID;

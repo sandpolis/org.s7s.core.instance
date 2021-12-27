@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.s7s.core.instance.Messages.EV_STStreamData;
+import org.s7s.core.protocol.Stream.EV_STStreamData;
 import org.s7s.core.instance.state.oid.Oid;
 
 /**

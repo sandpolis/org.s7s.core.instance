@@ -8,8 +8,8 @@
 //============================================================================//
 package org.s7s.core.instance.util;
 
-import org.s7s.core.instance.Channel.ChannelTransportImplementation;
-import org.s7s.core.instance.Channel.ChannelTransportProtocol;
+import org.s7s.core.protocol.Channel.ChannelTransportImplementation;
+import org.s7s.core.protocol.Channel.ChannelTransportProtocol;
 
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
