@@ -8,19 +8,21 @@
 //============================================================================//
 package org.s7s.core.instance.state.oid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.s7s.core.instance.state.oid.Oid.PathComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
-import com.google.common.hash.Hashing;
+import com.google.common.collect.Range;
 
 /**
  * <p>
@@ -41,34 +43,56 @@ import com.google.common.hash.Hashing;
 public record Oid(
 
 		/**
-		 *
+		 * The namespace identifier which is the module in which the Oid belongs.
 		 */
 		String namespace,
 
 		/**
 		 *
 		 */
-		String[] path,
+		PathComponent[] path,
 
 		/**
 		 *
 		 */
-		Optional<Integer> indexSelectorEnd,
+		Range<Integer> indexSelection,
 
 		/**
 		 *
 		 */
-		Optional<Integer> indexSelectorStart,
+		Range<Long> timestampSelection) {
 
-		/**
-		 *
-		 */
-		Optional<Long> timestampSelectorEnd,
+	public static record PathComponent(String element, String id, boolean hasId) {
 
-		/**
-		 *
-		 */
-		Optional<Long> timestampSelectorStart) {
+		public PathComponent(String element, String id, boolean hasId) {
+			if (!PATH_VALIDATOR.test(element)) {
+				throw new IllegalArgumentException();
+			}
+
+			this.element = element;
+			this.id = id;
+			this.hasId = hasId;
+		}
+
+		public static PathComponent of(String component) {
+			if (component.endsWith("()")) {
+				return new PathComponent(component.substring(0, component.indexOf('(')), null, true);
+			} else if (component.endsWith(")") && component.contains("(")) {
+				return new PathComponent(component.substring(0, component.indexOf('(')),
+						component.substring(component.indexOf('(') + 1, component.indexOf(')')), true);
+			} else {
+				return new PathComponent(component, null, false);
+			}
+		}
+
+		public PathComponent resolve(String id) {
+			if (!hasId) {
+				throw new IllegalStateException();
+			}
+
+			return new PathComponent(element, id, true);
+		}
+	}
 
 	private static final String DEFAULT_NAMESPACE = "org.s7s.core.instance";
 
@@ -110,20 +134,19 @@ public record Oid(
 		Objects.requireNonNull(oid);
 
 		String namespace;
-		String[] path;
-		Optional<Integer> indexSelectorEnd = Optional.empty();
-		Optional<Integer> indexSelectorStart = Optional.empty();
-		Optional<Long> timestampSelectorEnd = Optional.empty();
-		Optional<Long> timestampSelectorStart = Optional.empty();
+		List<PathComponent> path = new ArrayList<>();
+		Range<Integer> indexSelection = null;
+		Range<Long> timestampSelection = null;
 
-		// Determine namespace and path
+		// Determine namespace
 		var components = oid.split(":");
 		if (components.length == 1) {
 			namespace = DEFAULT_NAMESPACE;
-			path = oid.replaceAll("^/+", "").split("/");
 		} else if (components.length == 2) {
 			namespace = components[0];
-			path = components[1].replaceAll("^/+", "").split("/");
+
+			// Remove namespace
+			oid = components[1];
 		} else {
 			throw new IllegalArgumentException("Invalid namespace");
 		}
@@ -133,110 +156,107 @@ public record Oid(
 			throw new IllegalArgumentException("Illegal namespace: " + namespace);
 		}
 
-		// If the only path element is blank, this is the root OID
-		if (path.length == 1 && path[0].isEmpty()) {
-			path = new String[] {};
+		for (var element : oid.split("/")) {
+			path.add(PathComponent.of(element));
 		}
 
 		// Perform resolutions
 		int i = 0;
 		for (var r : resolutions) {
-			for (; i < path.length; i++) {
-				if (path[i].equals("*")) {
-					path[i++] = r;
+			for (; i < path.size(); i++) {
+				if (path.get(i).hasId()) {
+					path.set(i, path.get(i).resolve(r));
 					break;
 				}
 			}
 		}
 
-		// Validate path
-		for (i = 0; i < path.length; i++) {
-			if (!PATH_VALIDATOR.test(path[i])) {
-				throw new IllegalArgumentException("Illegal path element: " + path[i]);
-			}
-		}
-
-		// Parse temporal selectors at end
+		// Parse selector at end
 		if (path.length > 0) {
 			String last = path[path.length - 1];
-			if (last.endsWith(")")) {
-				int s = last.lastIndexOf('(');
-				if (s == -1) {
-					throw new IllegalArgumentException("Expected timestamp range selector '('");
-				}
-				var range = last.substring(s + 1, last.length() - 1);
-				if (range.isBlank()) {
-					throw new IllegalArgumentException("Empty timestamp range selector");
-				}
-
-				// Remove selector from path
-				path[path.length - 1] = last.substring(0, s);
-
-				var parts = range.split("\\.\\.");
-				if (parts.length == 2) {
-					if (!parts[0].isBlank()) {
-						timestampSelectorStart = Optional.of(Long.parseLong(parts[0]));
-					} else {
-						timestampSelectorStart = Optional.of(0L);
-					}
-
-					if (!parts[1].isBlank()) {
-						timestampSelectorEnd = Optional.of(Long.parseLong(parts[1]));
-					} else {
-						timestampSelectorEnd = Optional.of(Long.MAX_VALUE);
-					}
-				} else {
-					timestampSelectorStart = Optional.of(Long.parseLong(parts[0]));
-					timestampSelectorEnd = Optional.of(Long.parseLong(parts[0]));
-				}
-
-			} else if (last.endsWith("]")) {
+			if (last.endsWith("]")) {
 				int s = last.lastIndexOf('[');
 				if (s == -1) {
-					throw new IllegalArgumentException("Expected index range selector '['");
+					throw new IllegalArgumentException("Expected range selector '['");
 				}
-				var range = last.substring(s + 1, last.length() - 1);
+				var range = last.substring(s);
 				if (range.isBlank()) {
-					throw new IllegalArgumentException("Empty index range selector");
+					throw new IllegalArgumentException("Empty range selector");
 				}
 
 				// Remove selector from path
 				path[path.length - 1] = last.substring(0, s);
 
-				var parts = range.split("\\.\\.");
-				if (parts.length == 2) {
-					if (!parts[0].isBlank()) {
-						indexSelectorStart = Optional.of(Integer.parseInt(parts[0]));
-					} else {
-						indexSelectorStart = Optional.of(0);
+				if (range.contains(",")) {
+					var parts = range.split(",");
+					if (parts.length != 2) {
+						throw new IllegalArgumentException();
 					}
 
-					if (!parts[1].isBlank()) {
-						indexSelectorEnd = Optional.of(Integer.parseInt(parts[1]));
-					} else {
-						indexSelectorEnd = Optional.of(Integer.MAX_VALUE);
+					Integer left;
+					Integer right;
+
+					if (parts[0].equals("[")) {
+						left = Integer.parseInt(parts[0].substring(0, parts[0].length() - 1));
 					}
+					if (parts[1].equals("]")) {
+						right = Integer.parseInt(parts[1].substring(0, parts[1].length() - 1));
+					}
+
+					if (left == null && right == null) {
+						indexSelection = Range.all();
+					} else if (left != null) {
+						indexSelection = Range.atLeast(left);
+					} else if (right != null) {
+						indexSelection = Range.atMost(left);
+					} else {
+						indexSelection = Range.closed(left, right);
+					}
+
+				} else if (range.contains("-")) {
+					var parts = range.split("-");
+					if (parts.length != 2) {
+						throw new IllegalArgumentException();
+					}
+
+					Long left;
+					Long right;
+
+					if (parts[0].equals("[")) {
+						left = Long.parseLong(parts[0].substring(0, parts[0].length() - 1));
+					}
+					if (parts[1].equals("]")) {
+						right = Long.parseLong(parts[1].substring(0, parts[1].length() - 1));
+					}
+
+					if (left == null && right == null) {
+						timestampSelection = Range.all();
+					} else if (left != null) {
+						timestampSelection = Range.atLeast(left);
+					} else if (right != null) {
+						timestampSelection = Range.atMost(left);
+					} else {
+						timestampSelection = Range.closed(left, right);
+					}
+
 				} else {
-					indexSelectorStart = Optional.of(Integer.parseInt(parts[0]));
-					indexSelectorEnd = Optional.of(Integer.parseInt(parts[0]));
+					throw new IllegalArgumentException();
 				}
 			}
 		}
 
-		return new Oid(namespace, path, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
-				timestampSelectorStart);
+		return new Oid(namespace, path.toArray(PathComponent[]::new), indexSelection, timestampSelection);
 	}
 
 	public Oid child(String id) {
 		String[] childPath = Arrays.copyOf(path, path.length + 1);
 		childPath[childPath.length - 1] = id;
-		return new Oid(namespace, childPath, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
-				timestampSelectorStart);
+		return new Oid(namespace, childPath, indexSelection, timestampSelection);
 	}
 
 	public String first() {
 		if (path.length > 0) {
-			return path[0];
+			return path[0].element();
 		} else {
 			return null;
 		}
@@ -274,7 +294,7 @@ public record Oid(
 	 * @return Whether the OID is concrete
 	 */
 	public boolean isConcrete() {
-		return !Arrays.stream(path()).anyMatch(c -> c.equals("*"));
+		return !Arrays.stream(path()).anyMatch(c -> c.hasId());
 	}
 
 	/**
@@ -303,85 +323,70 @@ public record Oid(
 
 	public String last() {
 		if (path.length > 0) {
-			return path[path.length - 1];
+			return path[path.length - 1].element();
 		} else {
 			return null;
 		}
 	}
 
 	public String pathString() {
-		return Arrays.stream(path).collect(Collectors.joining("/"));
+		return Arrays.stream(path).map(PathComponent::element).collect(Collectors.joining("/"));
 	}
 
 	public Oid relative(String path) {
-		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class), indexSelectorEnd,
-				indexSelectorStart, timestampSelectorEnd, timestampSelectorStart);
+		return new Oid(namespace, ObjectArrays.concat(this.path, path.split("/"), String.class), indexSelection,
+				timestampSelection);
 	}
 
 	public Oid resolve(String... resolutions) {
 
-		String[] path = this.path;
+		var path = this.path.clone();
 
 		int i = 0;
 		for (var r : resolutions) {
 			for (; i < path.length; i++) {
-				if (path[i].equals("*")) {
-					path[i++] = r;
+				if (path[i].hasId() && path[i].id() == null) {
+					path[i++] = new PathComponent(path[i].element(), r, true);
 					break;
 				}
 			}
 		}
 
-		return new Oid(namespace, path, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
-				timestampSelectorStart);
+		return new Oid(namespace, path, indexSelection, timestampSelection);
 	}
 
 	public Oid resolveLast(String... resolutions) {
 
-		String[] path = this.path;
+		var path = this.path.clone();
 
 		int i = path.length - 1;
 		for (var r : Lists.reverse(Arrays.asList(resolutions))) {
 			for (; i > 0; i--) {
-				if (path[i].equals("*")) {
-					path[i--] = r;
+				if (path[i].hasId() && path[i].id() == null) {
+					path[i++] = new PathComponent(path[i].element(), r, true);
 					break;
 				}
 			}
 		}
 
-		return new Oid(namespace, path, indexSelectorEnd, indexSelectorStart, timestampSelectorEnd,
-				timestampSelectorStart);
+		return new Oid(namespace, path, indexSelection, timestampSelection);
 	}
 
 	@Override
 	public String toString() {
-		return namespace + ":/" + pathString();
-	}
+		var string = new StringBuilder(namespace);
+		string.append(":");
 
-	public static final int LENGTH_OTYPE = 2;
+		for (int i = 0; i < path.length; i++) {
+			string.append("/");
+			string.append(path[i].element());
+			if (path[i].hasId()) {
+				string.append("(");
+				string.append(path[i].id());
+				string.append(")");
+			}
+		}
 
-	public static final int OTYPE_ATTRIBUTE = 2;
-	public static final int OTYPE_COLLECTION = 1;
-	public static final int OTYPE_DOCUMENT = 0;
-
-	public static long computeAttributeTag(long raw) {
-		return ((raw << LENGTH_OTYPE) | OTYPE_ATTRIBUTE) & Long.MAX_VALUE;
-	}
-
-	public static long computeCollectionTag(long raw) {
-		return ((raw << LENGTH_OTYPE) | OTYPE_COLLECTION) & Long.MAX_VALUE;
-	}
-
-	public static long computeDocumentTag(long raw) {
-		return ((raw << LENGTH_OTYPE) | OTYPE_DOCUMENT) & Long.MAX_VALUE;
-	}
-
-	public static int getOidType(long tag) {
-		return (int) (tag & ((1L << LENGTH_OTYPE) - 1));
-	}
-
-	public static long computeNamespace(String id) {
-		return computeDocumentTag(Hashing.murmur3_128().newHasher().putBytes(id.getBytes()).hash().asLong());
+		return string.toString();
 	}
 }

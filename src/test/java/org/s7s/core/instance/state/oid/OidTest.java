@@ -16,35 +16,38 @@ class OidTest {
 
 	@Test
 	void testFirst() {
-		assertEquals("test", Oid.of("/test/123").first());
+		assertEquals("test", Oid.of("/Test/example").first());
 	}
 
 	@Test
 	void testIsConcrete() {
-		assertTrue(Oid.of("/test/123").isConcrete());
-		assertFalse(Oid.of("/test/*/123").isConcrete());
+		assertTrue(Oid.of("/Test/example").isConcrete());
+		assertFalse(Oid.of("/Test()/example").isConcrete());
+		assertTrue(Oid.of("/Test(123)/example").isConcrete());
 	}
 
 	@Test
 	void testLast() {
-		assertEquals("123", Oid.of("/test/123").last());
-		assertEquals("123", Oid.of("/test/*/123").last());
+		assertEquals("example", Oid.of("/Test/example").last());
+		assertEquals("example", Oid.of("/Test/A()/example").last());
 	}
 
 	@Test
 	void testResolve() {
-		assertEquals("org.s7s.core.instance:/test/a/b/*", Oid.of("/test/*/*/*").resolve("a", "b").toString());
+		assertEquals("org.s7s.core.instance:/Test/A(a)/B(b)/C()",
+				Oid.of("/Test/A()/B()/C()").resolve("a", "b").toString());
 	}
 
 	@Test
 	void testResolveLast() {
-		assertEquals("org.s7s.core.instance:/test/*/a/b", Oid.of("/test/*/*/*").resolveLast("a", "b").toString());
+		assertEquals("org.s7s.core.instance:/Test/A()/B(a)/C(b)",
+				Oid.of("/test/A()/B()/C()").resolveLast("a", "b").toString());
 	}
 
 	@Test
 	void testToString() {
-		assertEquals("org.s7s.core.instance:/test/123", Oid.of("/test/123").toString());
-		assertEquals("org.s7s.core.instance:/test/123", Oid.of("org.s7s.core.instance:/test/123").toString());
+		assertEquals("org.s7s.core.instance:/Test/example", Oid.of("/Test/example").toString());
+		assertEquals("org.s7s.core.instance:/Test/example", Oid.of("org.s7s.core.instance:/Test/example").toString());
 	}
 
 }

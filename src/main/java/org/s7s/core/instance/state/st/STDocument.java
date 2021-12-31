@@ -47,27 +47,6 @@ public interface STDocument extends STObject {
 	 * @return A new or old attribute
 	 */
 	public default STAttribute attribute(Oid oid) {
-		return attribute(oid.path());
-	}
-
-	/**
-	 * @param id The ID of the child to retrieve or create
-	 * @return A child attribute with the given ID
-	 */
-	public STAttribute attribute(String id);
-
-	/**
-	 * Retrieve or create an attribute at the given OID. Any intermediate documents
-	 * will be created if necessary.
-	 *
-	 * @param path An OID path which must be a descendant of this document's OID
-	 * @return A new or old attribute
-	 */
-	public default STAttribute attribute(String[] path) {
-
-		if (path.length == 0) {
-			throw new IllegalArgumentException("Empty OID path");
-		}
 		if (!oid().isAncestorOf(path)) {
 			throw new IllegalArgumentException("/" + Arrays.stream(path).collect(Collectors.joining("/"))
 					+ " is not a descendant of: " + oid().toString());
@@ -85,6 +64,12 @@ public interface STDocument extends STObject {
 	}
 
 	/**
+	 * @param id The ID of the child to retrieve or create
+	 * @return A child attribute with the given ID
+	 */
+	public STAttribute attribute(String id);
+
+	/**
 	 * @return The number of sub-attributes belonging to this document
 	 */
 	public int attributeCount();
@@ -98,20 +83,6 @@ public interface STDocument extends STObject {
 	 */
 
 	public default STDocument document(Oid oid) {
-		return document(oid.path());
-	}
-
-	public STDocument document(String id);
-
-	public STDocument getDocument(String id);
-
-	public STAttribute getAttribute(String id);
-
-	public default STDocument document(String[] path) {
-		if (path.length == 0) {
-			throw new IllegalArgumentException();
-		}
-
 		STDocument document = this;
 		for (int i = oid().path().length; i < path.length; i++) {
 			document = document.document(path[i]);
@@ -119,6 +90,12 @@ public interface STDocument extends STObject {
 
 		return document;
 	}
+
+	public STDocument document(String id);
+
+	public STDocument getDocument(String id);
+
+	public STAttribute getAttribute(String id);
 
 	/**
 	 * @return The number of sub-documents belonging to this document
