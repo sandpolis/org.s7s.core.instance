@@ -45,7 +45,7 @@ dependencies {
 		api("org.s7s:core.foundation:+")
 		api("org.s7s:core.protocol:+")
 	} else {
-		api(project(":core:org.s7s.core.foundation"))
-		api(project(":core:org.s7s.core.protocol"))
+		api(project(":core:foundation"))
+		api(project(":core:protocol"))
 	}
 }
