@@ -22,7 +22,7 @@ dependencies {
 	testImplementation("org.awaitility:awaitility:4.1.0")
 
 	// https://github.com/qos-ch/logback
-	implementation("ch.qos.logback:logback-core:1.3.0-alpha11") {
+	implementation("ch.qos.logback:logback-core:1.3.0-alpha13") {
 		exclude(group = "edu.washington.cs.types.checker", module = "checker-framework")
 	}
 	implementation("ch.qos.logback:logback-classic:1.3.0-alpha11") {
