@@ -25,7 +25,7 @@ dependencies {
 	implementation("ch.qos.logback:logback-core:1.3.0-alpha11") {
 		exclude(group = "edu.washington.cs.types.checker", module = "checker-framework")
 	}
-	implementation("ch.qos.logback:logback-classic:1.3.0-alpha11") {
+	implementation("ch.qos.logback:logback-classic:1.3.0-beta0") {
 		exclude(group = "edu.washington.cs.types.checker", module = "checker-framework")
 		exclude(group = "com.sun.mail", module = "javax.mail")
 	}
