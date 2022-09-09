@@ -36,7 +36,7 @@ dependencies {
 	api("io.netty:netty-codec-dns:4.1.70.Final")
 	api("io.netty:netty-transport:4.1.70.Final")
 	api("io.netty:netty-handler:4.1.70.Final")
-	api("io.netty:netty-resolver-dns:4.1.70.Final")
+	api("io.netty:netty-resolver-dns:4.1.81.Final")
 
 	// https://github.com/FasterXML/jackson-databind
 	api("com.fasterxml.jackson.core:jackson-databind:2.12.4")
